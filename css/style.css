@@ -25,6 +25,23 @@
   --content-max-width: 900px;
 }
 
+[data-theme='dark'] {
+  --color-bg: #111317;
+  --color-surface: #1b1f27;
+  --color-border: #4a5568;
+  --color-border-light: #2d3645;
+  --color-text: #e5e7eb;
+  --color-text-muted: #b3bdcc;
+  --color-link: #7aa2ff;
+  --color-link-visited: #b196ff;
+  --color-link-hover: #9ab8ff;
+  --color-accent: #7aa2ff;
+  --color-header-bg: #0b0d11;
+  --color-header-text: #f9fafb;
+  --color-sidebar-bg: #171b22;
+  --color-toc-bg: #1b1f27;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -88,6 +105,28 @@ body {
 .site-header nav a.active {
   background-color: rgba(255, 255, 255, 0.12);
   color: #ffffff;
+}
+
+.header-button {
+  color: #d1d5db;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.header-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.mobile-nav-toggle {
+  display: none;
 }
 
 /* ── Page Layout ── */
@@ -423,8 +462,54 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .site-header {
+    padding: 0 0.75rem;
+  }
+
+  .site-header nav {
+    gap: 0.35rem;
+  }
+
+  .site-header nav a {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .header-button {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .mobile-nav-toggle {
+    display: inline-block;
+  }
+
   .sidebar {
-    display: none;
+    display: block;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: min(85vw, 320px);
+    max-width: 100%;
+    height: calc(100vh - 56px);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-in-out;
+    z-index: 120;
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open::before {
+    content: '';
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 110;
   }
 
   .main-content {
