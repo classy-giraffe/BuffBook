@@ -5,6 +5,25 @@
   const body = document.body;
   const themeToggle = document.querySelector('.theme-toggle');
   const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+  const applyTailwindUtilities = () => {
+    body.classList.add('antialiased');
+    document.querySelector('.site-header')?.classList.add('shadow-soft');
+    document.querySelectorAll('.main-content').forEach((element) => {
+      element.classList.add('w-full');
+    });
+    document.querySelectorAll('.page-title').forEach((element) => {
+      element.classList.add('tracking-tight');
+    });
+    document.querySelectorAll('.page-subtitle').forEach((element) => {
+      element.classList.add('max-w-3xl');
+    });
+    document.querySelectorAll('.home-intro, .quick-fact-card, .toc-card, .placeholder').forEach((element) => {
+      element.classList.add('shadow-soft');
+    });
+    document.querySelectorAll('.chapter-nav-link').forEach((element) => {
+      element.classList.add('inline-flex', 'items-center', 'gap-1.5');
+    });
+  };
 
   const applyTheme = (theme) => {
     root.setAttribute('data-theme', theme);
@@ -28,6 +47,7 @@
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     applyTheme(prefersDark ? 'dark' : 'light');
   }
+  applyTailwindUtilities();
 
   if (themeToggle) {
     themeToggle.addEventListener('click', function () {
