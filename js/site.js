@@ -6,7 +6,7 @@
   const themeToggle = document.querySelector('.theme-toggle');
   const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
   const applyTailwindUtilities = () => {
-    body.classList.add('antialiased', 'selection:bg-primary/25', 'selection:text-foreground');
+    body.classList.add('antialiased');
     document.querySelector('.site-header')?.classList.add('shadow-soft');
     document.querySelectorAll('.main-content').forEach((element) => {
       element.classList.add('w-full');

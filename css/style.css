@@ -85,6 +85,11 @@ body {
     var(--color-bg);
 }
 
+::selection {
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
 .site-header {
   background-color: var(--color-header-bg);
   color: var(--color-header-text);
