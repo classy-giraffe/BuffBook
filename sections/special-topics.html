@@ -3,6 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    tailwind.config = {
+      darkMode: ['class', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            card: 'hsl(var(--card))',
+            border: 'hsl(var(--border))',
+            muted: 'hsl(var(--muted))',
+            accent: 'hsl(var(--accent))',
+            primary: 'hsl(var(--primary))'
+          },
+          boxShadow: {
+            soft: '0 10px 30px -12px rgba(0, 0, 0, 0.35)'
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <title>7. Special Topics &amp; Myths — BuffBook</title>
   <link rel="stylesheet" href="../css/style.css" />
 </head>
@@ -92,11 +114,11 @@
       </div><!-- /.content -->
 
       <!-- Chapter Navigation -->
-      <nav style="display:flex; justify-content:space-between; margin-top:2.5rem; border-top:1px solid #eaecf0; padding-top:1rem;">
-        <a href="managing-fatigue.html" style="color:#3366cc; text-decoration:none; font-size:0.9375rem;">
+      <nav class="chapter-nav">
+        <a href="managing-fatigue.html" class="chapter-nav-link">
           &larr; 6. Managing Fatigue &amp; Recovery
         </a>
-        <a href="conclusion.html" style="color:#3366cc; text-decoration:none; font-size:0.9375rem;">
+        <a href="conclusion.html" class="chapter-nav-link">
           Next: 8. Conclusion: The Long Game &rarr;
         </a>
       </nav>
