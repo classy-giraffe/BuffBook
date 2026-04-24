@@ -1,4 +1,5 @@
 (function () {
+  const MOBILE_BREAKPOINT = 768;
   const themeStorageKey = 'buffbook-theme';
   const root = document.documentElement;
   const body = document.body;
@@ -17,6 +18,7 @@
   try {
     storedTheme = localStorage.getItem(themeStorageKey);
   } catch (error) {
+    console.warn('Failed to read theme from localStorage:', error);
     storedTheme = null;
   }
 
@@ -34,7 +36,7 @@
       try {
         localStorage.setItem(themeStorageKey, nextTheme);
       } catch (error) {
-        // ignore storage errors
+        console.warn('Failed to save theme to localStorage:', error);
       }
     });
   }
@@ -66,14 +68,14 @@
 
   document.querySelectorAll('.sidebar a').forEach(function (link) {
     link.addEventListener('click', function () {
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= MOBILE_BREAKPOINT) {
         setSidebarOpen(false);
       }
     });
   });
 
   window.addEventListener('resize', function () {
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > MOBILE_BREAKPOINT) {
       setSidebarOpen(false);
     }
   });
