@@ -18,7 +18,7 @@
   try {
     storedTheme = localStorage.getItem(themeStorageKey);
   } catch (error) {
-    console.warn('Failed to read theme from localStorage:', error);
+    console.warn('Failed to read theme from localStorage, using system preference:', error);
     storedTheme = null;
   }
 
@@ -36,7 +36,7 @@
       try {
         localStorage.setItem(themeStorageKey, nextTheme);
       } catch (error) {
-        console.warn('Failed to save theme to localStorage:', error);
+        console.warn('Failed to save theme preference to localStorage, theme will not persist:', error);
       }
     });
   }
