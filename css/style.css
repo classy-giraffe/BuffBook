@@ -236,61 +236,80 @@ body {
   font-size: 0.9375rem;
 }
 
-/* ── Table of Contents ── */
-.toc-box {
-  background-color: var(--color-toc-bg);
+/* ── Home Page ── */
+.home-intro {
+  margin-bottom: 1.5rem;
+}
+
+.home-intro p {
+  margin: 0 0 1rem;
+}
+
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.home-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 1rem 1.25rem;
-  display: inline-block;
-  min-width: 280px;
-  max-width: 100%;
-  margin-bottom: 2rem;
-  float: left;
-  margin-right: 2rem;
-}
-
-.toc-box h2 {
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
   font-size: 0.875rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  text-align: center;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.toc-box ol,
-.toc-box ul {
-  margin: 0;
-  padding-left: 1.5rem;
-}
-
-.toc-box li {
-  margin: 0.2rem 0;
-  font-size: 0.875rem;
-}
-
-.toc-box a {
+.home-action-button:hover {
+  border-color: var(--color-accent);
   color: var(--color-link);
   text-decoration: none;
 }
 
-.toc-box a:hover {
-  text-decoration: underline;
+.home-action-button.primary {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #ffffff;
 }
 
-.toc-box .toc-sub {
-  padding-left: 1.25rem;
-  list-style-type: decimal;
+.home-action-button.primary:hover {
+  filter: brightness(1.05);
+  color: #ffffff;
 }
 
-.toc-box .toc-subsub {
-  padding-left: 1.25rem;
-  list-style-type: decimal;
+.quick-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
 }
 
-.clearfix::after {
-  content: '';
-  display: block;
-  clear: both;
+.quick-fact-card {
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: var(--color-surface);
+}
+
+.quick-fact-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.quick-fact-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.chapter-overview p {
+  margin-top: 0;
 }
 
 /* ── Section Headings ── */
@@ -396,25 +415,10 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
 }
 
-.toc-card ol {
+.toc-card p {
   margin: 0;
-  padding-left: 1.25rem;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
-}
-
-.toc-card ol li {
-  margin: 0.15rem 0;
-}
-
-.toc-card ol li a {
-  color: var(--color-text-muted);
-  text-decoration: none;
-}
-
-.toc-card ol li a:hover {
-  color: var(--color-link);
-  text-decoration: underline;
 }
 
 /* ── Breadcrumb ── */
@@ -518,12 +522,6 @@ h1, h2, h3, h4, h5, h6 {
 
   .page-title {
     font-size: 1.5rem;
-  }
-
-  .toc-box {
-    float: none;
-    margin-right: 0;
-    width: 100%;
   }
 
   .toc-grid {
