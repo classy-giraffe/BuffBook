@@ -33,5 +33,5 @@ This book will primarily reference studies at Level 2 or above, avoiding evidenc
 Additionally, exercise physiology research faces unique challenges: long-term training studies are expensive, subjects are hard to recruit, and muscle biopsies are invasive. Because of this, we sometimes have to rely on acute mechanistic studies (Level 6) to understand how a process works (like mTORC1 signaling), even if we rely on long-term RCTs to prove that it works. The burden of critically evaluating this research has been done for you in this book, so you can focus on the practical application.
 
 References
-1 Schoenfeld BJ. The mechanisms of muscle hypertrophy and their application to resistance training. J Strength Cond Res. 2010 Oct;24(10):2857-72. PMID: 20847704
-2 Haun CT, Vann CG, Roberts BM, et al. Growth of the vastus lateralis in response to progressive resistance training: A within-subject, limb-specific approach. J Appl Physiol. 2019 Nov 1;127(5):1502-1514. PMID: 30894551
+[1] Schoenfeld BJ. The mechanisms of muscle hypertrophy and their application to resistance training. J Strength Cond Res. 2010 Oct;24(10):2857-72. PMID: 20847704
+[2] Haun CT, Vann CG, Roberts BM, et al. Growth of the vastus lateralis in response to progressive resistance training: A within-subject, limb-specific approach. J Appl Physiol. 2019 Nov 1;127(5):1502-1514. PMID: 30894551
