@@ -1,0 +1,31 @@
+title: BuffBook
+author: Tommy
+description: >-
+  A comprehensive, science-based guide to muscle hypertrophy and resistance training.
+baseurl: ""
+url: ""
+
+# Remote theme configuration
+remote_theme: just-the-docs/just-the-docs
+
+# Color scheme (optional)
+color_scheme: dark
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-remote-theme
+
+# Exclude these files from being processed
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - GEMINI.md
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - .github/
+  - .jekyll-cache/
+  - .jekyll-metadata/

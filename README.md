@@ -1,0 +1,1 @@
+Hypertrophy book to be served with jekyll. The book is in markdown format, and the file structure is as defined in INDEX.md. Each chapter is in a separate markdown file (e.g., 1.md, 2.md, etc.) and is linked from the index. The content of each chapter is organized with headings and subheadings as outlined in INDEX.md.
