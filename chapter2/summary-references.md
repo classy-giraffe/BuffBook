@@ -25,7 +25,7 @@ nav_order: 3
 
 [4] Wackerhage, H., Schoenfeld, B. J., Hamilton, D. L., Lehti, M., & Hulmi, J. J. (2019). Stimuli and sensors that initiate skeletal muscle hypertrophy following resistance exercise. *Journal of Applied Physiology*, 126(1), 30-43.
 
-[5] Pelland, F., *et al.* (2022). The questionable role of metabolic stress in hypertrophy: A critical analysis of the causal evidence. *Sports Medicine*, 52(4), 789–802. *(Note: Reference to be finalized; placeholder for Pelland’s relevant review.)*
+[5] Kassiano W, de Vasconcelos Costa BD, Nunes JP, Cyrino ES, et al. (2025). Load-induced human skeletal muscle hypertrophy: Mechanisms, myths, and misconceptions. *J Sport Health Sci*.
 
 [6] Fink, J., Kikuchi, N., & Nakazato, K. (2018). Effects of rest intervals and training loads on metabolic stress and muscle hypertrophy. *Clinical Physiology and Functional Imaging*, 38(2), 269-275.
 
@@ -33,4 +33,4 @@ nav_order: 3
 
 [8] Schoenfeld, B. J. (2012). Does exercise-induced muscle damage play a role in skeletal muscle hypertrophy? *Journal of Strength and Conditioning Research*, 26(5), 1441-1453.
 
-[9] Beardsley, C. (2020). *Why muscle damage is not a driver of hypertrophy*. Medium. [Note: This is a representative citation; exact URL to be inserted upon final publication.]
+[9] Beardsley, C. (2020). *Why muscle damage is not a driver of hypertrophy*. Medium. https://sandcresearch.medium.com/does-muscle-damage-cause-hypertrophy-bf99b652694b
