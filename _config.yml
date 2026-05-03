@@ -8,8 +8,40 @@ url: ""
 # Remote theme configuration
 remote_theme: just-the-docs/just-the-docs
 
+# Sidebar navigation folding
+nav_fold: true
+
+# Search configuration
+search_enabled: true
+search:
+  heading_level: 3
+  previews: 3
+  show_description: true
+
+# Auxiliary links
+aux_links:
+  "Glossary": "/Glossary"
+
+# Heading anchors
+heading_anchors: true
+
 # Color scheme (optional)
 color_scheme: dark
+
+# Callouts
+callouts:
+  science:
+    title: Scientific Deep Dive
+    color: purple
+  practical:
+    title: Practical Application
+    color: green
+  myth:
+    title: Bro-Science Myth
+    color: red
+  note:
+    title: Note
+    color: blue
 
 plugins:
   - jekyll-feed
