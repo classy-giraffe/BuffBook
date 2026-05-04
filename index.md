@@ -34,7 +34,7 @@ This book is grounded in peer-reviewed research. When a study is referenced, you
 - **[Chapter 4: Exercise Selection & Equipment]({{ "/chapter4/4" | relative_url }})**: How to evaluate exercises based on stability, loadability, and resistance profiles (free weights vs. machines).
 
 ### Programming & Practice
-- **[Chapter 5: Programming the Variables]({{ "/chapter5/5" | relative_url }})**: Mastering the dose: intensity (RIR/RPE), volume (4-12 sets), rep ranges, ROM, frequency, and progressive overload.
+- **[Chapter 5: Programming the Variables]({{ "/chapter5/5" | relative_url }})**: Mastering the dose: intensity (RIR/RPE), volume (4-12 sets), rep ranges, ROM, frequency, sequencing, and progressive overload.
 - **[Chapter 6: From Plan to Practice]({{ "/chapter6/6" | relative_url }})**: Designing your mesocycle, auto-regulation, handling plateaus, and a complete Upper/Lower program example.
 
 ---

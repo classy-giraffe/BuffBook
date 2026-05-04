@@ -55,6 +55,7 @@ This glossary provides concise definitions for the scientific and practical term
 - **Reps in Reserve (RIR)**: A scale used to measure how many more reps could have been performed before failure (e.g., RIR 2 means two reps left in the tank).
 - **Rate of Perceived Exertion (RPE)**: A 1–10 scale of subjective effort, where RPE 10 represents absolute failure.
 - **Volume (Hard Sets)**: The total number of sets per muscle per week taken to a high proximity to failure (0–3 RIR).
+- **Sequencing**: The strategic order of exercises within a session and across the week to prioritize specific muscle groups and manage fatigue.
 - **Progressive Overload**: The process of adding weight or reps over time; it is the *result* of muscle growth, not the cause.
 - **Double Progression**: A method of progression where you first increase repetitions within a range and then increase the weight.
 - **Mesocycle**: A dedicated training block (usually 8–16 weeks) focused on a specific goal or set of priorities.

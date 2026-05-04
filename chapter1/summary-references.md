@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Summary & References"
-parent: "Chapter 1: The Science of Size — How Growth Occurs"
+parent: "Chapter 1: The Science of Size"
 nav_order: 4
 ---
 
