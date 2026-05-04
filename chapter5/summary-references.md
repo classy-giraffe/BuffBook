@@ -7,8 +7,8 @@ nav_order: 7
 
 ### Key takeaways
 
-- **Volume:** Most muscles grow well with 4–12 hard sets per week (0–3 RIR). Fractional volume from compound lifts should be factored in to avoid over-training.
 - **Intensity:** Proximity to failure is the key metric; aiming for RIR 0–2 (RPE 8–10) provides a robust growth stimulus for most sets.
+- **Volume:** Most muscles grow well with 4–12 hard sets per week (0–3 RIR). Fractional volume from compound lifts should be factored in to avoid over-training.
 - **Frequency:** Training each muscle group at least twice per week (2x) is superior to once per week (1x) for maintaining elevated muscle protein synthesis.
 - **Rep Ranges:** While 5–30 reps can work, the 5–12 range is practically ideal for balancing motor unit recruitment, tension, and manageable fatigue.
 - **Progressive Overload:** Adding weight or reps is the *result* of muscle growth, not the cause. It serves as the most reliable indicator that your training is effective.

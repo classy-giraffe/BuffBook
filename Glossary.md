@@ -52,9 +52,9 @@ This glossary provides concise definitions for the scientific and practical term
 - **Joint Actions**: The specific anatomical motions produced by a muscle (e.g., horizontal adduction for the chest).
 - **Active Insufficiency**: A state where a multi-joint muscle is already shortened at one joint and cannot produce force effectively at another.
 - **Antagonist Inhibition**: A safety mechanism where the nervous system relaxes the opposing muscle to allow the target muscle to contract.
-- **Volume (Hard Sets)**: The total number of sets per muscle per week taken to a high proximity to failure (0–3 RIR).
 - **Reps in Reserve (RIR)**: A scale used to measure how many more reps could have been performed before failure (e.g., RIR 2 means two reps left in the tank).
 - **Rate of Perceived Exertion (RPE)**: A 1–10 scale of subjective effort, where RPE 10 represents absolute failure.
+- **Volume (Hard Sets)**: The total number of sets per muscle per week taken to a high proximity to failure (0–3 RIR).
 - **Progressive Overload**: The process of adding weight or reps over time; it is the *result* of muscle growth, not the cause.
 - **Double Progression**: A method of progression where you first increase repetitions within a range and then increase the weight.
 - **Mesocycle**: A dedicated training block (usually 8–16 weeks) focused on a specific goal or set of priorities.
