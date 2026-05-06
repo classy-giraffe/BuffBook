@@ -49,11 +49,7 @@ nav_order: 4
 
 [16] Herzog, W. (2014). The role of titin in eccentric muscle contraction. *Journal of Experimental Biology*, 217(16), 2825–2833. doi:10.1242/jeb.099127
 
-[17] Warneke, K., et al. (2024). Static stretching and strength: a meta-analysis of long-term stretching interventions. *Frontiers in Physiology*, 15, 1234567. doi:10.3389/fphys.2024.1234567
-
 [18] Frank, D., & Frey, N. (2011). Cardiac Z-disc signaling network. *Journal of Biological Chemistry*, 286(12), 9897–9904. doi:10.1074/jbc.R110.174268
-
-[19] Wackerhage, H., Schoenfeld, B. J., Hamilton, D. L., Lehti, M., & Hulmi, J. J. (2019). Stimuli and sensors that initiate skeletal muscle hypertrophy following resistance exercise. *Journal of Applied Physiology*, 126(1), 30–43. doi:10.1152/japplphysiol.00685.2018
 
 [20] Grgic, J., & Schoenfeld, B. J. (2018). Are the hypertrophic adaptations to high and low-load resistance training muscle fiber type specific? *Frontiers in Physiology*, 9, 402. doi:10.3389/fphys.2018.00402
 
