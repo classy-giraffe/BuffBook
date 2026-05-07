@@ -8,6 +8,10 @@ url: ""
 # Remote theme configuration
 remote_theme: just-the-docs/just-the-docs
 
+# Google Analytics
+ga_tracking: "G-L1L5F8M1WR"
+ga_tracking_anonymize_ip: true
+
 # Sidebar navigation folding
 nav_fold: true
 
