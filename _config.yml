@@ -44,7 +44,7 @@ callouts:
     title: Bro-Science Myth
     color: red
   note:
-    title: Note
+    title: Author's Opinion
     color: blue
 
 plugins:
