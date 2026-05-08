@@ -16,10 +16,13 @@ nav_order: 4
 
 ### References
 
-[1] Klossner RD, et al. The activation of mTOR signaling requires the integrin-linked kinase and focal adhesion kinase. *J Physiol.* 2009. PMID: 19221120  
-[2] Hornberger TA, et al. Mechanisms of IGF-I-induced mechanotransduction and mTOR signaling in skeletal muscle. *J Appl Physiol.* 2006. PMID: 17090540  
-[3] Drummond MJ, et al. Rapamycin administration in humans blocks the contraction-induced increase in skeletal muscle protein synthesis. *J Physiol.* 2009. PMID: 19228591  
-[4] Moore DR, et al. Leucine and protein synthesis: mTOR and beyond. *Nutr Rev.* 2011. PMID: 21967277  
-[5] Figueiredo VC, et al. Ribosome biogenesis and skeletal muscle hypertrophy: The role of mTORC1. *J Appl Physiol.* 2021. PMID: 33323937  
-[6] Van der Meer SF, et al. Muscle stem cells: The role of satellite cells in hypertrophy. *J Physiol.* 2011. PMID: 21613575  
-[7] Gundersen K. Muscle memory and a new cellular model for muscle atrophy and hypertrophy. *J Exp Biol.* 2016. PMID: 27492978
+| # | Reference | Identifier |
+|:---:|:---|:---|
+| [1] | Klossner S, Durieux AC, Freyssenet D, Flueck M. Mechano-transduction to muscle protein synthesis is modulated by FAK. *Eur J Appl Physiol.* 2009;106(3):389–398. | PMID: 19294408 |
+| [2] | Hornberger TA, Chu WK, Mak YW, et al. The role of phospholipase D and phosphatidic acid in the mechanical activation of mTOR signaling in skeletal muscle. *Proc Natl Acad Sci USA.* 2006;103(12):4741–4746. | PMID: 17090540 |
+| [3] | Drummond MJ, Fry CS, Glynn EL, et al. Rapamycin administration in humans blocks the contraction-induced increase in skeletal muscle protein synthesis. *J Physiol.* 2009;587(Pt 7):1535–1546. | PMID: 19228591 |
+| [4] | Drummond MJ, Rasmussen BB. Leucine-enriched nutrients and the regulation of mammalian target of rapamycin signalling and human skeletal muscle protein synthesis. *Curr Opin Clin Nutr Metab Care.* 2008;11(3):222–226. | PMID: 18403916 |
+| [5] | Figueiredo VC, McCarthy JJ. Regulation of ribosome biogenesis in skeletal muscle hypertrophy. *Physiology (Bethesda).* 2019;34(1):30–42. | PMID: 30540235 |
+| [6] | Snijders T, Nederveen JP, McKay BR, et al. Satellite cells in human skeletal muscle plasticity. *Front Physiol.* 2015;6:283. | PMID: 26557092 |
+| [7] | Gundersen K. Muscle memory and a new cellular model for muscle atrophy and hypertrophy. *J Exp Biol.* 2016;219(Pt 2):235–242. | PMID: 26792335 |
+| [8] | Bhasin S, Storer TW, Berman N, et al. The effects of supraphysiologic doses of testosterone on muscle size and strength in normal men. *N Engl J Med.* 1996;335(1):1–7. | PMID: 8637535 |

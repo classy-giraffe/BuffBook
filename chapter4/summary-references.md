@@ -15,12 +15,11 @@ nav_order: 5
 
 ### References
 
-[1] Behm, D. G., & Anderson, K. G. (2006). The role of instability with resistance training. *Journal of Strength and Conditioning Research*, 20(3), 716–722. doi:10.1519/R-18475.1
+| # | Reference | Identifier |
+|:---:|:---|:---|
+| [1] | Behm DG, Anderson KG. The role of instability with resistance training. *J Strength Cond Res.* 2006;20(3):716–722. | doi: 10.1519/R-18475.1 |
+| [2] | Willardson JM. Core stability training: applications to sports conditioning programs. *J Strength Cond Res.* 2007;21(3):979–985. | doi: 10.1519/R-20255.1 |
+| [3] | Cresswell AG, Thorstensson A. Changes in intra-abdominal pressure, trunk muscle activation and force during isokinetic lifting and lowering. *Eur J Appl Physiol Occup Physiol.* 1991;63(5):345–352. | doi: 10.1007/BF00364462 |
+| [4] | Maeo S, Huang M, Wu Y, et al. Greater hamstrings muscle hypertrophy but similar damage protection after training at long versus short muscle lengths. *Med Sci Sports Exerc.* 2021;53(4):825–837. | doi: 10.1249/MSS.0000000000002523 |
+| [5] | Pedrosa GF, et al. Partial range of motion training elicits favorable improvements in muscular adaptations when carried out at long muscle lengths. *Eur J Sport Sci.* 2022;22(8):1250–1260. | doi: 10.1080/17461391.2021.1927199 |
 
-[2] Willardson, J. M. (2007). Core stability training: applications to sports conditioning programs. *Journal of Strength and Conditioning Research*, 21(3), 979–985. doi:10.1519/R-20255.1
-
-[3] Cresswell, A. G., & Thorstensson, A. (1991). Changes in intra-abdominal pressure, trunk muscle activation and force during isokinetic lifting in static and dynamic conditions. *European Journal of Applied Physiology and Occupational Physiology*, 63(5), 345–352. doi:10.1007/BF00364462
-
-[4] Maeo, S., Huang, M., Wu, Y., et al. (2021). Greater hamstrings muscle hypertrophy but similar damage protection after training at long versus short muscle lengths. *Medicine & Science in Sports & Exercise*, 53(4), 825–837. doi:10.1249/MSS.0000000000002523
-
-[5] Pedrosa, G. F., et al. (2022). Partial range of motion training elicits favorable improvements in muscular adaptations when carried out at long muscle lengths. *European Journal of Sport Science*, 22(8), 1250–1260. doi:10.1080/17461391.2021.1927199
