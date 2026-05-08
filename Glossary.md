@@ -28,8 +28,12 @@ This glossary provides concise definitions for the scientific and practical term
 - **Henneman’s Size Principle**: The law stating that motor units are recruited in order of size, from smallest (low-threshold) to largest (high-threshold).
 - **Force-Velocity Curve**: The inverse relationship between a fiber's shortening velocity and the force it can produce. Slow contraction allows for high tension.
 - **Motor Unit Recruitment (MUR)**: The process of activating muscle fibers via their motor neurons. High-threshold MUR is required for meaningful growth.
+- **Motor Unit**: The functional unit of the neuromuscular system, composed of a single motor neuron and all the muscle fibers it controls. When the neuron fires, every fiber in the unit contracts simultaneously.
+- **1RM (One-Repetition Maximum)**: The heaviest weight you can lift for one complete repetition with proper form. Used as a benchmark for prescribing training loads (e.g., "80% of 1RM").
 - **Effort**: The subjective proxy for motor unit recruitment. As effort increases toward failure, higher-threshold motor units are called upon.
 - **Stimulating Reps**: The repetitions within a set (usually the final grinding reps) that provide both high motor unit recruitment and high fiber-level tension.
+- **Compound Exercise**: A movement involving two or more joints that trains multiple muscle groups simultaneously (e.g., squat, bench press, row).
+- **Isolation Exercise**: A movement involving a single joint that primarily targets one muscle group (e.g., bicep curl, leg extension).
 - **Metabolic Stress**: The accumulation of metabolites (like lactate) during exercise. Often called the "burn," it correlates with hard training but is not a causal driver of growth.
 - **The Pump (Cell Swelling)**: An acute increase in muscle size due to fluid shifts. It is a transient cosmetic effect rather than a structural growth driver.
 - **Muscle Damage**: Micro-tears in the muscle structure. Excessive damage is counterproductive as it impairs mTORC1 and diverts resources toward repair rather than growth.
