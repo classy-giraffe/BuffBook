@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Ch. 7 References"
+title: "Summary & References"
 parent: "Chapter 7: Nutrition"
 nav_order: 11
 ---
