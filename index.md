@@ -37,6 +37,9 @@ This book is grounded in peer-reviewed research. When a study is referenced, you
 - **[Chapter 5: Programming the Variables]({{ "/chapter5/5" | relative_url }})**: Mastering the dose: intensity (RIR/RPE), volume (4-12 sets), rep ranges, ROM, frequency, sequencing, and progressive overload.
 - **[Chapter 6: From Plan to Practice]({{ "/chapter6/6" | relative_url }})**: Designing your mesocycle, auto-regulation, handling plateaus, and a complete Upper/Lower program example.
 
+### Nutrition
+- **[Chapter 7: Nutrition]({{ "/chapter7/7" | relative_url }})**: Understanding the fundamentals of nutrition and its role in muscle growth and fat loss, supplements, healthy lifestyle habits, and how to use them to your advantage.
+
 ---
 
 ## Quick Reference
