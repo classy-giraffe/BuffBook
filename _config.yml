@@ -52,6 +52,7 @@ plugins:
   - jekyll-seo-tag
   - jekyll-remote-theme
   - jekyll-sitemap
+  - jekyll-last-modified-at
 
 # Exclude these files from being processed
 exclude:
