@@ -27,7 +27,7 @@ This book is grounded in peer-reviewed research. When a study is referenced, you
 ### Foundation & Mechanisms
 - **[Introduction: State of the Industry]({{ "/introduction/Introduction" | relative_url }})**: Defining true myofibrillar growth versus temporary cell swelling.
 - **[Chapter 1: The Science of Size]({{ "/chapter1/1" | relative_url }})**: Understand the biological machinery—from mechanotransduction to mTORC1 and satellite cells.
-- **[Chapter 2: The True Drivers vs. The Myths]({{ "/chapter2/2" | relative_url }})**: Discover why mechanical tension is the non-negotiable trigger, and why metabolic stress and muscle damage are red herrings.
+- **[Chapter 2: The True Drivers vs. The Myths]({{ "/chapter2/2" | relative_url }})**: Discover why mechanical tension is the only thing that matters, and why metabolic stress and muscle damage are red herrings.
 
 ### Application & Specificity
 - **[Chapter 3: The Specificity of Hypertrophy]({{ "/chapter3/3" | relative_url }})**: Regional growth, neuromechanical matching, and the role of contraction types.
