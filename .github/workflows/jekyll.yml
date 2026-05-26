@@ -72,3 +72,4 @@ jobs:
         with:
           sitemap-location: 'https://classy-giraffe.github.io/BuffBook/sitemap.xml'
           key: ${{ secrets.INDEXNOW_KEY }}
+          lastmod-required: false

@@ -16,7 +16,7 @@ A comprehensive, science-based guide to muscle hypertrophy and resistance traini
 
 ## Why BuffBook?
 
-The fitness industry is full of recycled routines and "bro-science." BuffBook bridges the gap between complex exercise physiology and practical gym application. We rely on the hierarchy of evidence to deliver a system that works.
+The fitness industry is full of recycled routines and "bro-science." BuffBook bridges the gap between complex exercise physiology and practical gym application, allowing you to create your own custom tailored workout program, from scratch, based on your individual needs and goals.
 
 This book is grounded in peer-reviewed research. When a study is referenced, you'll find its PMID (PubMed ID) so you can verify the science yourself.
 
