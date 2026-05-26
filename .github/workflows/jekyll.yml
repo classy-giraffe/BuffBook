@@ -43,6 +43,9 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+      - name: Setup IndexNow
+        # Generate key file dynamically to prevent it from being leaked in the public repository
+        run: echo ${{ secrets.INDEXNOW_KEY }} > ${{ secrets.INDEXNOW_KEY }}.txt
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
@@ -63,3 +66,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+      - name: IndexNow
+        uses: bojieyang/indexnow-action@v2.1.0
+        with:
+          sitemap-location: 'https://classy-giraffe.github.io/BuffBook/sitemap.xml'
+          key: ${{ secrets.INDEXNOW_KEY }}
