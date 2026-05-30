@@ -26,6 +26,7 @@ export default defineConfig({
       logo: {
         light: './src/assets/logo.svg',
         dark: './src/assets/logo.svg',
+        replacesTitle: true,
       },
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/classy-giraffe/BuffBook' },
