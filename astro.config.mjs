@@ -4,6 +4,7 @@ import starlight from '@astrojs/starlight';
 import cloudflare from '@astrojs/cloudflare';
 import partytown from '@astrojs/partytown';
 import sitemap from '@astrojs/sitemap';
+import remarkGfm from 'remark-gfm';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
@@ -13,6 +14,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   site: 'https://buffbook.chitilivorno.workers.dev',
   output: 'static',
+
+  markdown: {
+    remarkPlugins: [remarkGfm],
+  },
 
   integrations: [
     starlight({

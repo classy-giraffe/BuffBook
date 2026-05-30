@@ -2,8 +2,6 @@
 title: 6.4.3 Torso/Limbs
 ---
 
-### Context
-
 ### Split
 
 ---

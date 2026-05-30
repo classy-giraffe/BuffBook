@@ -2,7 +2,6 @@
 title: 6.4.2 Upper/Lower
 ---
 
-### Context
 - Female lifter with no injury history
 - Intermediate, 4 days/week
 - Emphasis on glutes, side delts, and lats

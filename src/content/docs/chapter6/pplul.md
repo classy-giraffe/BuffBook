@@ -2,8 +2,6 @@
 title: 6.4.5 Push/Pull/Legs/Upper/Lower
 ---
 
-### Context
-
 ### Split
 
 ---

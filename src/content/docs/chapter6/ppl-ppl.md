@@ -2,8 +2,6 @@
 title: 6.4.6 Push/Pull/Legs ×2
 ---
 
-### Context
-
 ### Split
 
 ---

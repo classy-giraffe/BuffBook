@@ -2,8 +2,6 @@
 title: 6.4.4 Anterior/Posterior
 ---
 
-### Context
-
 ### Split
 
 ---

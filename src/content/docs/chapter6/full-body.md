@@ -2,8 +2,6 @@
 title: 6.4.1 Full Body
 ---
 
-### Context
-
 ### Split
 
 ---
