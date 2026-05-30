@@ -1,0 +1,7 @@
+---
+title: 6.1.1 Macrocycle
+---
+
+The macrocycle is your training year. For a hypertrophy‑focused lifter, it is a string of mesocycles, each with a clear purpose, chained together by the principle of progressive overload. The macrocycle asks only one question: *Is my physique improving, and are my key lifts getting stronger year over year?*
+
+Within the macrocycle, you make deliberate decisions about what you want to improve. You might spend 12 weeks emphasising glutes and side delts, then 8 weeks on back thickness, then a maintenance phase during a busy period. There is no fixed timetable; you move on when you are satisfied with the adaptation.

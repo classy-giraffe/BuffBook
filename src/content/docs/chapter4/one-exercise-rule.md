@@ -1,0 +1,19 @@
+---
+title: 4.3.1 The One-Exercise Rule
+---
+
+If a muscle is trained with only a single exercise, that exercise **should** place the muscle under high tension in the lengthened position (or mid-range). The evidence reviewed in Chapter 3—from Maeo et al. on hamstrings to Pedrosa et al. on biceps—is consistent: exercises that challenge the muscle at long lengths produce robust whole-muscle hypertrophy and tend to bias growth toward regions that shorter-length training misses [4,5]. The lengthened position provides the combination of active and passive tension that maximizes mechanotransduction across the widest portion of the muscle, and it avoids the active insufficiency that plagues many shortened-position exercises.
+
+Examples of single-exercise selections that satisfy this rule:
+
+| Muscle | Single Exercise (Lengthened Emphasis) |
+|--------|----------------------------------------|
+| Quadriceps | Leg Extension |
+| Hamstrings | Seated leg curl |
+| Biceps | Smith Machine Flat Press |
+| Triceps | Overhead cable extension |
+| Lateral delts | Cable Lateral Raises |
+| Pectorals | Pec fly |
+| Lats | Lat  |
+
+Despite this being framed as a rule, it is not an absolute requirement. If you have a specific reason to choose a different exercise (e.g., injury, equipment availability, personal preference), that’s fine. But if you are building a minimalist routine with only one exercise per muscle, the lengthened position should be your default choice for maximizing hypertrophy.

@@ -1,0 +1,332 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BuffBook – Custom Theme (Bodybuilding Aesthetic)
+   Dark, powerful, energetic. Built on Starlight's CSS variable system.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts ────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Starlight dark-mode colour overrides ───────────────────────────────── */
+:root,
+[data-theme='dark'] {
+  /* Accent: explosive yellow-gold */
+  --sl-color-accent-low:    #2a1e00;
+  --sl-color-accent:        #f7c800;
+  --sl-color-accent-high:   #ffe566;
+
+  /* Surface colours – near-black */
+  --sl-color-bg:            #0a0a0a;
+  --sl-color-bg-nav:        #111111;
+  --sl-color-bg-sidebar:    #0d0d0d;
+  --sl-color-bg-inline-code:#1a1a1a;
+  --sl-color-bg-accent:     #1c1600;
+
+  /* Text */
+  --sl-color-white:         #f5f5f5;
+  --sl-color-gray-1:        #e0e0e0;
+  --sl-color-gray-2:        #b0b0b0;
+  --sl-color-gray-3:        #7a7a7a;
+  --sl-color-gray-4:        #3a3a3a;
+  --sl-color-gray-5:        #252525;
+  --sl-color-gray-6:        #181818;
+  --sl-color-black:         #0a0a0a;
+
+  /* Hairlines */
+  --sl-color-hairline:      #2a2a2a;
+  --sl-color-hairline-light:#1f1f1f;
+  --sl-color-hairline-shade:#111111;
+
+  /* Typography */
+  --sl-font:          'Inter', system-ui, sans-serif;
+  --sl-font-mono:     'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Sidebar */
+  --sl-sidebar-width: 18rem;
+
+  /* Content max-width */
+  --sl-content-width: 52rem;
+}
+
+/* Force same dark palette in light mode (site is always dark) */
+[data-theme='light'] {
+  --sl-color-accent-low:    #2a1e00;
+  --sl-color-accent:        #f7c800;
+  --sl-color-accent-high:   #ffe566;
+  --sl-color-bg:            #0a0a0a;
+  --sl-color-bg-nav:        #111111;
+  --sl-color-bg-sidebar:    #0d0d0d;
+  --sl-color-bg-inline-code:#1a1a1a;
+  --sl-color-white:         #f5f5f5;
+  --sl-color-gray-1:        #e0e0e0;
+  --sl-color-gray-2:        #b0b0b0;
+  --sl-color-gray-3:        #7a7a7a;
+  --sl-color-gray-4:        #3a3a3a;
+  --sl-color-gray-5:        #252525;
+  --sl-color-gray-6:        #181818;
+  --sl-color-black:         #0a0a0a;
+  --sl-color-hairline:      #2a2a2a;
+}
+
+/* Hide theme switcher — site is intentionally always dark */
+starlight-theme-select {
+  display: none !important;
+}
+
+/* ── Global typography ───────────────────────────────────────────────────── */
+body {
+  background: var(--sl-color-bg);
+  color:       var(--sl-color-gray-1);
+}
+
+/* Site title – Bebas Neue for the header branding */
+.site-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size:   1.75rem;
+  letter-spacing: 0.05em;
+  color: var(--sl-color-accent) !important;
+}
+
+/* ── Headings ────────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  color: var(--sl-color-white);
+}
+
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size:   clamp(2rem, 5vw, 3.25rem);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  color: var(--sl-color-accent);
+  text-transform: uppercase;
+}
+
+h2 {
+  border-bottom: 2px solid var(--sl-color-accent);
+  padding-bottom: 0.35rem;
+  margin-top: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 1.35rem;
+}
+
+h3 {
+  color: var(--sl-color-accent-high);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Links ───────────────────────────────────────────────────────────────── */
+a {
+  color: var(--sl-color-accent);
+  text-decoration: none;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+a:hover {
+  color: var(--sl-color-accent-high);
+  text-decoration: underline;
+  text-decoration-color: var(--sl-color-accent);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.sidebar-pane {
+  background: var(--sl-color-bg-sidebar);
+  border-right: 1px solid var(--sl-color-hairline);
+}
+
+/* Group labels */
+.group-label {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.07em;
+  font-size: 0.8rem;
+  color: var(--sl-color-accent) !important;
+}
+
+/* Active sidebar link */
+[aria-current='page'] {
+  background: var(--sl-color-bg-accent) !important;
+  color:      var(--sl-color-accent-high) !important;
+  border-left: 3px solid var(--sl-color-accent);
+}
+
+/* ── Top nav ─────────────────────────────────────────────────────────────── */
+header.header {
+  background: var(--sl-color-bg-nav);
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+/* ── Content area ────────────────────────────────────────────────────────── */
+.content-panel {
+  background: var(--sl-color-bg);
+}
+
+/* Horizontal rules */
+hr {
+  border-color: var(--sl-color-hairline);
+  margin: 2rem 0;
+}
+
+/* ── Blockquotes ─────────────────────────────────────────────────────────── */
+blockquote {
+  border-left: 4px solid var(--sl-color-accent);
+  background:  var(--sl-color-gray-6);
+  padding:     0.75rem 1.25rem;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  color: var(--sl-color-gray-2);
+}
+
+/* ── Code blocks ─────────────────────────────────────────────────────────── */
+pre, code {
+  font-family: var(--sl-font-mono);
+  background: var(--sl-color-bg-inline-code);
+}
+
+pre {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 8px;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+thead {
+  background: var(--sl-color-bg-accent);
+}
+thead th {
+  color: var(--sl-color-accent);
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+}
+tbody tr:nth-child(even) {
+  background: var(--sl-color-gray-6);
+}
+td, th {
+  border: 1px solid var(--sl-color-hairline);
+  padding: 0.5rem 0.8rem;
+}
+
+/* ── Custom Callout Components ───────────────────────────────────────────── */
+
+/* Shared callout base */
+.bb-callout {
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid;
+  font-size: 0.95rem;
+}
+
+.bb-callout-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.bb-callout-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Science – deep purple */
+.bb-callout--science {
+  background: rgba(124, 58, 237, 0.12);
+  border-color: #7c3aed;
+  color: #e2d9f3;
+}
+.bb-callout--science .bb-callout-header {
+  color: #a78bfa;
+}
+
+/* Practical – bold green */
+.bb-callout--practical {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: #10b981;
+  color: #d1fae5;
+}
+.bb-callout--practical .bb-callout-header {
+  color: #34d399;
+}
+
+/* Myth – fiery red */
+.bb-callout--myth {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: #ef4444;
+  color: #fee2e2;
+}
+.bb-callout--myth .bb-callout-header {
+  color: #f87171;
+}
+
+/* Note – golden (on-brand) */
+.bb-callout--note {
+  background: rgba(247, 200, 0, 0.08);
+  border-color: var(--sl-color-accent);
+  color: #fef3c7;
+}
+.bb-callout--note .bb-callout-header {
+  color: var(--sl-color-accent);
+}
+
+/* ── Hero section (homepage) ─────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1200 50%, #0a0a0a 100%);
+  border-bottom: 2px solid var(--sl-color-accent);
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 5rem);
+  line-height: 1;
+  background: linear-gradient(135deg, var(--sl-color-accent) 0%, #fff 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Pagination nav ──────────────────────────────────────────────────────── */
+.pagination-links a {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 8px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.pagination-links a:hover {
+  border-color: var(--sl-color-accent);
+  background: var(--sl-color-bg-accent);
+}
+
+/* ── Search ──────────────────────────────────────────────────────────────── */
+site-search button {
+  background: var(--sl-color-gray-6) !important;
+  border: 1px solid var(--sl-color-hairline) !important;
+  border-radius: 8px !important;
+}
+
+/* ── Mobile sidebar toggle ───────────────────────────────────────────────── */
+starlight-menu-button button {
+  color: var(--sl-color-accent);
+}
+
+/* ── Scrollbar (webkit) ──────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sl-color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sl-color-gray-4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-accent);
+}

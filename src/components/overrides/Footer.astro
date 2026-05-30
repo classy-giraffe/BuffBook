@@ -1,0 +1,28 @@
+---
+// BuffBook custom Footer override
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+<Default {...Astro.props}>
+  <div slot="after-nav" class="bb-footer">
+    <p>Built with 💛 by <a href="https://github.com/classy-giraffe" target="_blank" rel="noopener noreferrer">classy-giraffe</a></p>
+  </div>
+</Default>
+
+<style>
+  .bb-footer {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+    border-top: 1px solid var(--sl-color-hairline);
+    margin-top: 1rem;
+  }
+
+  .bb-footer a {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+  .bb-footer a:hover {
+    text-decoration: underline;
+  }
+</style>

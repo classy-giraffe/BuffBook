@@ -1,0 +1,40 @@
+---
+/**
+ * BuffBook Callout Component
+ *
+ * Usage in .mdx files:
+ *   import Callout from '@components/callouts/Callout.astro';
+ *
+ *   <Callout type="science">…</Callout>
+ *   <Callout type="practical">…</Callout>
+ *   <Callout type="myth">…</Callout>
+ *   <Callout type="note">…</Callout>
+ */
+
+type CalloutType = 'science' | 'practical' | 'myth' | 'note';
+
+interface Props {
+  type: CalloutType;
+}
+
+const { type } = Astro.props;
+
+const meta: Record<CalloutType, { icon: string; label: string }> = {
+  science:   { icon: '🔬', label: 'Scientific Deep Dive' },
+  practical: { icon: '💪', label: 'Practical Application' },
+  myth:      { icon: '❌', label: 'Bro-Science Myth' },
+  note:      { icon: '📝', label: "Author's Opinion" },
+};
+
+const { icon, label } = meta[type] ?? meta.note;
+---
+
+<div class={`bb-callout bb-callout--${type}`}>
+  <div class="bb-callout-header">
+    <span class="bb-callout-icon">{icon}</span>
+    <span>{label}</span>
+  </div>
+  <div class="bb-callout-body">
+    <slot />
+  </div>
+</div>

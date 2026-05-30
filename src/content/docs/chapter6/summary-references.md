@@ -1,0 +1,10 @@
+---
+title: "Summary & References"
+---
+
+- **The Mesocycle:** Organize your training into 8–16 week blocks with a clear priority (e.g., a specific muscle group or aesthetic goal) while maintaining other areas.
+- **The Six Levers:** Use intensity, volume, rep ranges, range of motion, frequency and exercise sequencing to structure your program around your current goals.
+- **Progression:** Use the double progression model (adding reps, then load) to ensure that every increase in tension is earned and sustainable.
+- **Adherence and Auto-Regulation:** Consistency across years is the ultimate driver of results. Use auto-regulation to adjust for off-days and take deloads only when performance genuinely plateaus.
+
+---

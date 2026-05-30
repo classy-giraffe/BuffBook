@@ -1,0 +1,107 @@
+---
+title: 6.4.2 Upper/Lower
+---
+
+### Context
+- Female lifter with no injury history
+- Intermediate, 4 days/week
+- Emphasis on glutes, side delts, and lats
+- Has access to a full commercial gym
+- Dislikes barbell squat
+
+### Split
+- Day 1 (Monday): Lower
+- Day 2 (Tuesday): Upper
+- Day 3 (Wednesday): Rest
+- Day 4 (Thursday): Lower
+- Day 5 (Friday): Upper
+- Day 6 (Saturday): Rest
+- Day 7 (Sunday): Rest
+
+Observe how the split is organized to match the client's needs. Lower days are performed exactly after 1 or 2 days of rest.
+
+---
+
+#### Lower Workout (performed Monday and Thursday)
+
+| Exercise Name | Sets | Rep Range |
+| :--- | :--- | :--- |
+| Hip Abduction Machine | 2 | 6-10 |
+| Hip Thrust | 3 | 5-8 |
+| RDL | 2 | 5-8 |
+| Single Leg Leg Press | 2 | 5-8 |
+| Leg Curl | 2 | 6-10 |
+| Leg Extension | 2 | 6-10 |
+| Hip Adduction Machine | 1 | 6-10 |
+
+Explanation:
+We first identify each joint action that we want to train:
+- **Glutes:** Hip Extension, Hip Abduction
+- **Quads:** Knee Extension
+- **Hamstrings:** Knee Flexion
+- **Adductors:** Hip Adduction
+
+We then select exercises that train each joint action in a variety of positions (shortened, mid, and lengthened):
+- **Hip Extension:** Hip Thrust (shortened position), RDL (lengthened position), and Single Leg Leg Press (mid-range position).
+- **Hip Abduction:** Hip Abduction Machine (shortened position).
+- **Knee Extension:** Single Leg Leg Press (mid-range position) and Leg Extension (shortened position).
+- **Knee Flexion:** Leg Curl (shortened position).
+- **Hip Adduction:** Hip Adduction Machine (shortened position) and Single Leg Leg Press (mid-range position, via the adductor magnus).
+
+---
+
+#### Upper Workout (performed Tuesday and Friday)
+
+| Exercise Name | Sets | Rep Range |
+| :--- | :--- | :--- |
+| Frontal Plane Lat Pulldown | 2 | 6-10 |
+| Cable Lateral Raises | 3 | 6-10 |
+| Single Arm Lat Row | 2 | 6-10 |
+| Machine Shoulder Press | 2 | 5-8 |
+| Chest Supported Row | 2 | 6-10 |
+| Single Arm Preacher Curl | 2 | 6-10 |
+| Tricep Pushdown | 2 | 6-10 |
+
+Explanation:
+We first identify each joint action that we want to train:
+- **Lats:** Shoulder Adduction, Shoulder Extension
+- **Side Delts:** Shoulder Abduction
+- **Front Delts:** Shoulder Flexion
+- **Upper Back:** Scapular Retraction
+- **Biceps:** Elbow Flexion
+- **Triceps:** Elbow Extension
+
+We then select exercises that train each joint action in a variety of positions (shortened, mid, and lengthened):
+- **Shoulder Adduction:** Frontal Plane Lat Pulldown (depends on the machine)
+- **Shoulder Extension:** Single Arm Lat Row (depends on the machine)
+- **Shoulder Abduction:** Cable Lateral Raises (depends where the pulley is positioned relative to the shoulder joint).
+- **Shoulder Flexion (Pressing):** Machine Shoulder Press (depends on the machine, but most likely in the lengthened position)
+- **Scapular Retraction:** Chest Supported Row (depends on the machine)
+- **Elbow Flexion:** Single Arm Preacher Curl (mid-to-lengthened position).
+- **Elbow Extension:** Tricep Pushdown (shortened position).
+
+---
+
+### Weekly Volume by Muscle
+
+| Muscle Group | Direct Sets | Fractional Sets | Total |
+| :--- | :--- | :--- | :--- |
+| Glutes | 18 | 0 | 18 |
+| Quads | 8 | 0 | 8 |
+| Hamstrings | 4 | 2 | 6 |
+| Adductors | 2 | 4 | 6 |
+| Lats | 8 | 0 | 8 |
+| Upper Back | 4 | 0 | 4 |
+| Front Delts | 4 | 0 | 4 |
+| Side Delts | 8 | 0 | 8 |
+| Biceps | 4 | 6 | 10 |
+| Triceps | 4 | 2 | 6 |
+
+### Notes
+- Priority muscles are trained first and receive more volume
+- Chest and calves are not trained directly in this program which is fine as it respects the client's goal of not wanting to train those body parts
+- Glutes weekly volume is beyond the 4-12 sets recommendation in the previous chapter. However, this is acceptable because glutes are mostly Type I fiber dominant and can recover from high volume. Additionally, women typically recover better from training than men. It is also worth noting that 10 of those sets come from exercises in the shortened range (Hip Abduction Machine and Hip Thrust), which are less damaging and therefore less fatiguing than training in the lengthened position.
+- Fractional volume is 0.5 set per exercise, for example 6 sets of back exercises account for 3 sets of bicep volume
+- As you can see, both upper and lower days are exactly the same, just performed on different days, this is a valid strategy to create a split, especially for beginners or those who want a simple program to follow
+- You can easily sub out exercises for others that train the same joint action in the same rep range, for example if you don't have access to a Shoulder Press Machine, you can instead do Dumbbell Shoulder Press
+- You are not blindly following a list of exercises, you are instead using an evidence-based framework to create a program that is specific to your needs and goals

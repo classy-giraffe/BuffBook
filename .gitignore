@@ -1,17 +1,33 @@
-# Jekyll defaults
+# ── Astro ─────────────────────────────────────────────────────────────────
+dist/
+.astro/
+
+# ── Cloudflare / Wrangler ──────────────────────────────────────────────────
+.wrangler/
+
+# ── Node ──────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Environment variables ──────────────────────────────────────────────────
+.env
+.env.production
+
+# ── Jekyll (legacy, kept for reference) ───────────────────────────────────
 _site/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata
-
-# Ruby/Bundler
 vendor/bundle/
 .bundle/
 Gemfile.lock
 
-# Operating System
+# ── Operating System ───────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Logs
+# ── Logs ───────────────────────────────────────────────────────────────────
 *.log

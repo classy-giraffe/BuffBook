@@ -1,0 +1,15 @@
+---
+title: 6.4 Program Examples
+---
+
+Now that we've covered the theoretical framework behind program design, it's time to see it in action. In this section, we present a few sample programs built using different training splits. Each example walks through exercise selection, volume distribution, and weekly structure for a specific client profile.
+
+These are not cookie-cutter templates to follow blindly. Instead, they demonstrate *how* to apply the principles from the previous chapters, step by step, to create a program tailored to an individual's goals, preferences, and schedule. Pay attention to the reasoning behind each decision, as that is far more valuable than the specific exercises chosen.
+
+The following splits are covered:
+- **6.4.1 Full Body** — A full-body approach spread across 2–3 sessions per week.
+- **6.4.2 Upper/Lower** — A 4-day upper/lower split.
+- **6.4.3 Torso/Limbs** — A 4-day torso and limbs split.
+- **6.4.4 Anterior/Posterior** — A 4-day anterior and posterior chain split.
+- **6.4.5 Push/Pull/Legs/Upper/Lower** — A 5-day rotation combining push, pull, legs, upper, and lower sessions.
+- **6.4.6 Push/Pull/Legs ×2** — A 6-day rotation repeating push, pull, and legs twice per week.

@@ -1,0 +1,18 @@
+---
+title: 5.1.2 Rate of Perceived Exertion (RPE)
+---
+
+Rate of Perceived Exertion (RPE) is a 1–10 scale that captures how hard a set feels **relative to what you could have done**, where a rating of 10 means you could not have completed another rep, and a rating of 9 means you could have done exactly one more rep [8]. Unlike RIR, which is a count of reps, RPE is a subjective sensation that integrates effort, bar speed, and discomfort. The two map onto each other closely:
+
+| RPE | RIR | Description |
+|-----|-----|-------------|
+| 10  | 0   | Maximal effort; no further reps possible |
+| 9.5 | 0–0.5 | Could maybe grind one more |
+| 9   | 1   | Definite one rep left |
+| 8   | 2   | Two reps left; bar slowing |
+| 7   | 3   | Three reps left; starting to get hard |
+| 6   | 4+  | Light; multiple reps in the tank |
+
+Using RPE alongside RIR helps when precise rep counting is difficult (e.g., high‑rep sets, novel exercises). Some lifters find it more intuitive to rate their effort on a 1–10 scale than to estimate exact reps in reserve. The two scales convey the same information—proximity to failure—and can be used interchangeably. The target is the same: stay in the RPE 7–10 / RIR 0–3 range for your working sets.
+
+In my experience, RPE tends to be used more in the powerlifting community, while RIR is more common in bodybuilding circles, but both are valid and effective ways to autoregulate intensity for hypertrophy training. The key is to find the method that resonates with you and allows you to consistently gauge your effort level across different exercises and rep ranges.
