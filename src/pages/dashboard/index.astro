@@ -16,11 +16,75 @@ if (!session?.user) {
 
 const db = drizzle(env.DB, { schema: dbSchema });
 
+// If returning from Stripe Checkout, verify the payment and update DB
+const sessionId = Astro.url.searchParams.get("session_id");
+if (sessionId) {
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-04-10" as any,
+    });
+    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    if (checkoutSession.payment_status === "paid" && checkoutSession.metadata?.requestId) {
+      await db.update(dbSchema.planRequests)
+        .set({ status: "paid", stripeSessionId: sessionId, updatedAt: new Date() })
+        .where(eq(dbSchema.planRequests.id, checkoutSession.metadata.requestId));
+    }
+  } catch (err) {
+    console.error("Stripe session verification error:", err);
+  }
+  // Redirect to clean URL (remove query param) so refreshing doesn't re-verify
+  return Astro.redirect("/dashboard");
+}
+
 // Fetch the user's plan requests
-const requests = await db.query.planRequests.findMany({
+let requests = await db.query.planRequests.findMany({
   where: eq(dbSchema.planRequests.userId, session.user.id),
   orderBy: [desc(dbSchema.planRequests.createdAt)],
 });
+
+// Sweep: check any "pending_payment" requests and verify with Stripe
+const pendingRequests = requests.filter(r => r.status === "pending_payment");
+if (pendingRequests.length > 0) {
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" as any });
+    
+    for (const req of pendingRequests) {
+      let isPaid = false;
+      
+      if (req.stripeSessionId) {
+        // Direct lookup by session ID
+        const cs = await stripe.checkout.sessions.retrieve(req.stripeSessionId);
+        isPaid = cs.payment_status === "paid";
+      } else {
+        // Fallback: search recent checkout sessions for this request's metadata
+        const sessions = await stripe.checkout.sessions.list({ limit: 20 });
+        const match = sessions.data.find(
+          s => s.metadata?.requestId === req.id && s.payment_status === "paid"
+        );
+        if (match) {
+          isPaid = true;
+          req.stripeSessionId = match.id;
+        }
+      }
+      
+      if (isPaid) {
+        await db.update(dbSchema.planRequests)
+          .set({ status: "paid", stripeSessionId: req.stripeSessionId || undefined, updatedAt: new Date() })
+          .where(eq(dbSchema.planRequests.id, req.id));
+      }
+    }
+    // Re-fetch after updates
+    requests = await db.query.planRequests.findMany({
+      where: eq(dbSchema.planRequests.userId, session.user.id),
+      orderBy: [desc(dbSchema.planRequests.createdAt)],
+    });
+  } catch (err) {
+    console.error("Stripe sweep error:", err);
+  }
+}
 
 // A helper for status badges
 const getStatusBadge = (status: string) => {

@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
+import { eq } from "drizzle-orm";
 
 export const prerender = false;
 
@@ -121,6 +122,10 @@ if (Astro.request.method === "POST") {
       });
       
       if (session.url) {
+        // Save the Stripe session ID so we can verify payment on redirect
+        await db.update(dbSchema.planRequests)
+          .set({ stripeSessionId: session.id, updatedAt: new Date() })
+          .where(eq(dbSchema.planRequests.id, requestId));
         return Astro.redirect(session.url);
       }
     }
