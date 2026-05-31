@@ -11,11 +11,11 @@ const GA_ID = "G-NG1D7QNQS7";
 <script
   type="text/partytown"
   src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
-<script type="text/partytown" define:vars={{ GA_ID }}>
+<script type="text/partytown" set:html={`
   window.dataLayer = window.dataLayer || [];
-  function gtag() {
+  window.gtag = function () {
     dataLayer.push(arguments);
-  }
-  gtag("js", new Date());
-  gtag("config", GA_ID, { anonymize_ip: true });
-</script>
+  };
+  window.gtag("js", new Date());
+  window.gtag("config", "${GA_ID}", { anonymize_ip: true });
+`} />
