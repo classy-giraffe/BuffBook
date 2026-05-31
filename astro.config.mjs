@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://buffbook.chitilivorno.workers.dev',
+  site: 'https://buffbook.org',
   output: 'server',
 
   markdown: {

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://buffbook.chitilivorno.workers.dev/sitemap-index.xml
+Sitemap: https://buffbook.org/sitemap-index.xml
