@@ -15,6 +15,7 @@ pnpm-debug.log*
 # ── Environment variables ──────────────────────────────────────────────────
 .env
 .env.production
+.dev.vars
 
 # ── Jekyll (legacy, kept for reference) ───────────────────────────────────
 _site/

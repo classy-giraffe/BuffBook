@@ -1,0 +1,414 @@
+---
+import { z } from "astro/zod";
+import Stripe from "stripe";
+import { drizzle } from "drizzle-orm/d1";
+import { env } from "cloudflare:workers";
+import * as dbSchema from "../../db/schema";
+
+export const prerender = false;
+
+let errors: Record<string, string[]> = {};
+let submissionError = "";
+
+// Using Zod to define the validation schema
+const formSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().optional(),
+  age: z.coerce.number().min(14, "Must be at least 14").max(100),
+  weight: z.coerce.number().min(30, "Weight is required").max(300),
+  height: z.coerce.number().min(100, "Height is required").max(250),
+  frequency: z.coerce.number().min(1).max(7),
+  trainingDays: z.string().min(1, "Please specify your preferred days"),
+  injuries: z.string().optional(),
+  equipment: z.enum(["Gym", "Home"]),
+  failureExp: z.string().min(1, "Please describe your experience"),
+  goals: z.string().min(10, "Please provide more detail about your goals"),
+  weakPoints: z.string().optional(),
+  likedExercises: z.string().optional(),
+  dislikedExercises: z.string().optional(),
+});
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const data = Object.fromEntries(formData.entries());
+    const validated = formSchema.safeParse(data);
+    
+    if (!validated.success) {
+      errors = validated.error.flatten().fieldErrors as any;
+    } else {
+      const db = drizzle(env.DB, { schema: dbSchema });
+      
+      // 1. Authenticate or Create User
+      let dbUser = await db.query.user.findFirst({
+        where: (users, { eq }) => eq(users.email, validated.data.email)
+      });
+      
+      if (!dbUser) {
+        if (!validated.data.password) {
+          errors.password = ["Password is required for new accounts."];
+          throw new Error("Password required");
+        }
+        const { getAuth } = await import("../../lib/auth");
+        const auth = getAuth();
+        // Server side sign up
+        const result = await auth.api.signUpEmail({
+          body: {
+            email: validated.data.email,
+            password: validated.data.password,
+            name: validated.data.name,
+          },
+          asResponse: false
+        });
+        if (!result.user) throw new Error("Failed to create user");
+        dbUser = result.user as any;
+      }
+      
+      const requestId = crypto.randomUUID();
+      
+      // 2. Insert PlanRequest
+      await db.insert(dbSchema.planRequests).values({
+        id: requestId,
+        userId: dbUser!.id,
+        name: validated.data.name,
+        age: validated.data.age,
+        weight: validated.data.weight,
+        height: validated.data.height,
+        trainingFrequency: validated.data.frequency,
+        trainingDays: validated.data.trainingDays,
+        equipment: validated.data.equipment,
+        failureExp: validated.data.failureExp,
+        goals: validated.data.goals,
+        injuries: validated.data.injuries || "",
+        weakPoints: validated.data.weakPoints || "",
+        likedExercises: validated.data.likedExercises || "",
+        dislikedExercises: validated.data.dislikedExercises || "",
+        status: "pending_payment",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      // 3. Create Stripe Checkout Session
+      const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+        apiVersion: "2024-04-10" as any,
+      });
+      
+      const siteUrl = Astro.url.origin;
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "eur",
+              product_data: {
+                name: "Custom Hypertrophy Plan",
+                description: "Hand-crafted 72-96hr turnaround",
+              },
+              unit_amount: 3000, // 30.00 EUR
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${siteUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${siteUrl}/custom-plans/apply`,
+        customer_email: validated.data.email,
+        metadata: {
+          requestId: requestId,
+        },
+      });
+      
+      if (session.url) {
+        return Astro.redirect(session.url);
+      }
+    }
+  } catch (err: any) {
+    console.error("APPLY FORM ERROR:", err?.message || err, err?.stack || "");
+    if (Object.keys(errors).length === 0) {
+      submissionError = `An unexpected error occurred: ${err?.message || "Unknown error"}`;
+    }
+  }
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apply for Custom Plan — BuffBook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --gold: #f7c800;
+        --bg: #080808;
+        --bg-glass: rgba(17, 17, 17, 0.7);
+        --border: #333;
+        --text: #e8e8e8;
+        --text-muted: #888;
+        --radius: 12px;
+        --error: #ff4d4f;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0; padding: 0;
+        background-image: radial-gradient(circle at top right, rgba(247,200,0,0.1), transparent 400px);
+      }
+      .container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+      }
+      h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3rem;
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+      p.subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        margin-bottom: 3rem;
+      }
+      
+      form {
+        background: var(--bg-glass);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2.5rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      }
+      
+      fieldset {
+        border: none;
+        margin: 0 0 2rem 0;
+        padding: 0;
+      }
+      legend {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 1rem;
+        width: 100%;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-row {
+        display: flex;
+        gap: 1.5rem;
+      }
+      .form-row .form-group {
+        flex: 1;
+      }
+      
+      label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #ccc;
+      }
+      
+      input[type="text"],
+      input[type="email"],
+      input[type="number"],
+      input[type="password"],
+      textarea {
+        width: 100%;
+        background: rgba(0,0,0,0.5);
+        border: 1px solid var(--border);
+        color: #fff;
+        padding: 0.8rem 1rem;
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+      input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(247, 200, 0, 0.2);
+      }
+      
+      .radio-group {
+        display: flex;
+        gap: 1.5rem;
+      }
+      .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-weight: 400;
+      }
+      input[type="radio"] {
+        accent-color: var(--gold);
+        width: 1.2rem; height: 1.2rem;
+      }
+      
+      .error-msg {
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        display: block;
+      }
+      input:invalid:not(:placeholder-shown) {
+        border-color: var(--error);
+      }
+      
+      .submit-btn {
+        width: 100%;
+        background: var(--gold);
+        color: #000;
+        border: none;
+        padding: 1.2rem;
+        border-radius: var(--radius);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        margin-top: 1rem;
+      }
+      .submit-btn:hover {
+        background: #ffe033;
+        transform: translateY(-2px);
+      }
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+      
+      @media (max-width: 600px) {
+        .form-row { flex-direction: column; gap: 0; }
+        form { padding: 1.5rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Custom Plan Assessment</h1>
+      <p class="subtitle">Complete the form below. Once paid, your custom PDF will be delivered to your dashboard in 72-96 hrs.</p>
+      
+      {submissionError && <div class="error-msg" style="text-align:center; margin-bottom:1rem;">{submissionError}</div>}
+      
+      <form method="POST">
+        <fieldset>
+          <legend>Personal Details</legend>
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required autocomplete="name" placeholder="John Doe">
+            {errors.name && <span class="error-msg">{errors.name[0]}</span>}
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address (for your account)</label>
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="john@example.com">
+              {errors.email && <span class="error-msg">{errors.email[0]}</span>}
+            </div>
+            <div class="form-group">
+              <label for="password">Create Password (or enter existing)</label>
+              <input type="password" id="password" name="password" autocomplete="new-password" placeholder="••••••••">
+              {errors.password && <span class="error-msg">{errors.password[0]}</span>}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="age">Age</label>
+              <input type="number" id="age" name="age" required min="14" max="100" placeholder="25">
+            </div>
+            <div class="form-group">
+              <label for="weight">Weight (kg/lbs)</label>
+              <input type="number" id="weight" name="weight" required placeholder="80">
+            </div>
+            <div class="form-group">
+              <label for="height">Height (cm/in)</label>
+              <input type="number" id="height" name="height" required placeholder="180">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Training Environment</legend>
+          <div class="form-group">
+            <label>Equipment Availability</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="equipment" value="Gym" required checked> Full Blown Gym
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="equipment" value="Home" required> Home Setup
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="frequency">Days per week</label>
+              <input type="number" id="frequency" name="frequency" required min="1" max="7" placeholder="4">
+            </div>
+            <div class="form-group">
+              <label for="trainingDays">Preferred Days</label>
+              <input type="text" id="trainingDays" name="trainingDays" required placeholder="e.g. Mon, Tue, Thu, Fri">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Experience & Goals</legend>
+          <div class="form-group">
+            <label for="failureExp">How accustomed are you to training to true failure?</label>
+            <textarea id="failureExp" name="failureExp" required placeholder="Describe your experience with pushing to failure..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="goals">Primary Goals</label>
+            <textarea id="goals" name="goals" required placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="weakPoints">Weak Points (leave empty if beginner)</label>
+            <input type="text" id="weakPoints" name="weakPoints" placeholder="e.g. Calves, Side Delts">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Preferences & Medical</legend>
+          <div class="form-group">
+            <label for="injuries">Injuries or Limitations</label>
+            <textarea id="injuries" name="injuries" placeholder="List any past or current injuries that affect your lifting..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="likedExercises">Favorite Exercises</label>
+              <textarea id="likedExercises" name="likedExercises" placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="dislikedExercises">Disliked Exercises</label>
+              <textarea id="dislikedExercises" name="dislikedExercises" placeholder="e.g. Conventional Deadlift"></textarea>
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="submit-btn">Continue to Payment (30 EUR)</button>
+      </form>
+    </div>
+  </body>
+</html>

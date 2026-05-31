@@ -1,0 +1,168 @@
+---
+import { getAuth } from "../../lib/auth";
+import { drizzle } from "drizzle-orm/d1";
+import { env } from "cloudflare:workers";
+import * as dbSchema from "../../db/schema";
+import { desc, ne } from "drizzle-orm";
+
+export const prerender = false;
+
+const auth = getAuth();
+const session = await auth.api.getSession({ headers: Astro.request.headers });
+
+// Hardcoded admin email — ideally from env var
+const ADMIN_EMAIL = env.ADMIN_EMAIL || "admin@buffbook.com"; 
+
+if (!session?.user || session.user.email !== ADMIN_EMAIL) {
+  return new Response("Forbidden", { status: 403 });
+}
+
+const db = drizzle(env.DB, { schema: dbSchema });
+
+// Fetch all requests that are at least paid (ignore pending)
+const requests = await db.query.planRequests.findMany({
+  where: ne(dbSchema.planRequests.status, "pending_payment"),
+  orderBy: [desc(dbSchema.planRequests.createdAt)],
+});
+
+// Fetch users for these requests to display their email
+const users = await db.query.user.findMany();
+const userMap = Object.fromEntries(users.map(u => [u.id, u.email]));
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard — BuffBook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        margin: 0; padding: 2rem;
+      }
+      h1 { margin-top: 0; }
+      .table-container {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 0.9rem;
+      }
+      th {
+        background: #fafafa;
+        font-weight: 600;
+        color: #666;
+      }
+      .badge {
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .badge-paid { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+      .badge-delivered { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+      
+      .upload-form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .upload-form input[type="file"] {
+        font-size: 0.8rem;
+      }
+      .btn {
+        background: #000;
+        color: #fff;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+      .btn:hover { background: #333; }
+      
+      details {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        background: #f9f9f9;
+        padding: 0.5rem;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Admin Panel - Custom Plans</h1>
+    <p>Manage paid requests and upload finished PDFs.</p>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Details</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map(req => (
+            <tr>
+              <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+              <td>
+                <strong>{req.name}</strong><br/>
+                {userMap[req.userId]}
+              </td>
+              <td>
+                <details>
+                  <summary>View Assessment</summary>
+                  <strong>Age/Wt/Ht:</strong> {req.age}yo, {req.weight}kg/lbs, {req.height}cm/in<br/>
+                  <strong>Freq:</strong> {req.trainingFrequency} days ({req.trainingDays})<br/>
+                  <strong>Equip:</strong> {req.equipment}<br/>
+                  <strong>Failure Exp:</strong> {req.failureExp}<br/>
+                  <strong>Goals:</strong> {req.goals}<br/>
+                  <strong>Weak Points:</strong> {req.weakPoints}<br/>
+                  <strong>Injuries:</strong> {req.injuries}<br/>
+                  <strong>Liked:</strong> {req.likedExercises}<br/>
+                  <strong>Disliked:</strong> {req.dislikedExercises}
+                </details>
+              </td>
+              <td>
+                <span class={`badge badge-${req.status}`}>
+                  {req.status}
+                </span>
+              </td>
+              <td>
+                {req.status === 'paid' ? (
+                  <form action="/api/admin/upload-plan" method="POST" enctype="multipart/form-data" class="upload-form">
+                    <input type="hidden" name="requestId" value={req.id} />
+                    <input type="file" name="pdf" accept="application/pdf" required />
+                    <button type="submit" class="btn">Upload PDF</button>
+                  </form>
+                ) : (
+                  <span style="color: #888; font-size: 0.8rem;">Delivered ({req.pdfKey})</span>
+                )}
+              </td>
+            </tr>
+          ))}
+          {requests.length === 0 && (
+            <tr><td colspan="5" style="text-align: center;">No paid requests yet.</td></tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

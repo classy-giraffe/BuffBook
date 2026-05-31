@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // https://astro.build/config
 export default defineConfig({
   site: 'https://buffbook.chitilivorno.workers.dev',
-  output: 'static',
+  output: 'server',
 
   markdown: {
     remarkPlugins: [remarkGfm],
@@ -282,6 +282,9 @@ export default defineConfig({
   adapter: cloudflare({}),
 
   vite: {
+    optimizeDeps: {
+      exclude: ['better-auth', '@better-auth/kysely-adapter'],
+    },
     resolve: {
       alias: {
         '@components': resolve(__dirname, './src/components'),

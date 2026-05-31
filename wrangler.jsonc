@@ -16,6 +16,19 @@
 			"id": "3761ae40cb1240088dcfefeee05115b2"
 		}
 	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "buffbook_db",
+			"database_id": "local"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "PLANS_BUCKET",
+			"bucket_name": "buffbook-plans"
+		}
+	],
 	"observability": {
 		"enabled": false,
 		"head_sampling_rate": 1,

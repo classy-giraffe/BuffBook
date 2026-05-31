@@ -17,10 +17,17 @@
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/starlight": "^0.39.2",
     "astro": "^6.3.1",
+    "better-auth": "^1.6.12",
+    "drizzle-orm": "^0.45.2",
+    "kysely": "^0.29.2",
     "sharp": "^0.34.5",
+    "stripe": "^22.2.0",
     "wrangler": "^4.95.0"
   },
   "overrides": {
     "vite": "^7"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.10"
   }
 }

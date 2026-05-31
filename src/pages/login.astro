@@ -1,0 +1,115 @@
+---
+export const prerender = false;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — BuffBook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --gold: #f7c800;
+        --bg: #080808;
+        --bg-glass: rgba(17, 17, 17, 0.7);
+        --border: #333;
+        --text: #e8e8e8;
+        --text-muted: #888;
+        --radius: 12px;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .login-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        padding: 3rem 2rem;
+        border-radius: var(--radius);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+      h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.5rem;
+        color: var(--gold);
+        margin-bottom: 1.5rem;
+      }
+      input {
+        width: 100%;
+        background: rgba(0,0,0,0.5);
+        border: 1px solid var(--border);
+        color: #fff;
+        padding: 0.8rem 1rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        box-sizing: border-box;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+      button {
+        width: 100%;
+        background: var(--gold);
+        color: #000;
+        border: none;
+        padding: 1rem;
+        border-radius: 6px;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      button:active {
+        transform: translateY(2px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-card">
+      <h1>Login to Dashboard</h1>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Email Address" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Sign In</button>
+      </form>
+      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+        Don't have an account? <a href="/custom-plans/apply" style="color: var(--gold);">Apply for a plan</a>
+      </p>
+    </div>
+    
+    <script>
+      import { authClient } from "../lib/auth-client";
+      
+      const form = document.getElementById("login-form");
+      form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = (document.getElementById("email") as HTMLInputElement).value;
+        const password = (document.getElementById("password") as HTMLInputElement).value;
+        
+        const { data, error } = await authClient.signIn.email({
+            email,
+            password
+        });
+        
+        if (error) {
+          alert(error.message || "Failed to login");
+        } else {
+          window.location.href = "/dashboard";
+        }
+      });
+    </script>
+  </body>
+</html>
