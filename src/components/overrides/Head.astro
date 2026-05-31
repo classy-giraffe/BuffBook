@@ -1,19 +1,21 @@
 ---
 // BuffBook Head override – injects Google Analytics via Partytown
-import Default from '@astrojs/starlight/components/Head.astro';
+import Default from "@astrojs/starlight/components/Head.astro";
 
-const GA_ID = 'G-L1L5F8M1WR';
+const GA_ID = "G-NG1D7QNQS7";
 ---
+
 <Default {...Astro.props} />
 
 <!-- Google Analytics via Partytown (off main thread) -->
 <script
   type="text/partytown"
-  src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-></script>
+  src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
 <script type="text/partytown" define:vars={{ GA_ID }}>
   window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
-  gtag('config', GA_ID, { anonymize_ip: true });
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", GA_ID, { anonymize_ip: true });
 </script>
