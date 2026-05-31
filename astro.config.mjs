@@ -7,6 +7,7 @@ import sitemap from '@astrojs/sitemap';
 import remarkGfm from 'remark-gfm';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import { unified } from '@astrojs/markdown-remark';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -16,7 +17,7 @@ export default defineConfig({
   output: 'server',
 
   markdown: {
-    remarkPlugins: [remarkGfm],
+    processor: unified({ remarkPlugins: [remarkGfm] }),
   },
 
   integrations: [
