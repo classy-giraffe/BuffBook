@@ -282,9 +282,6 @@ export default defineConfig({
   adapter: cloudflare({}),
 
   vite: {
-    optimizeDeps: {
-      exclude: ['better-auth', '@better-auth/kysely-adapter'],
-    },
     resolve: {
       alias: {
         '@components': resolve(__dirname, './src/components'),
