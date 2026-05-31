@@ -6,6 +6,9 @@
 	],
 	"name": "buffbook",
 	"main": "@astrojs/cloudflare/entrypoints/server",
+	"vars": {
+		"BETTER_AUTH_URL": "https://buffbook.org"
+	},
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
