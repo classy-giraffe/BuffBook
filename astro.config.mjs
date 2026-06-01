@@ -25,14 +25,14 @@ export default defineConfig({
   integrations: [starlight({
     title: 'BuffBook',
     description: 'A comprehensive, science-based guide to muscle hypertrophy and resistance training.',
-    logo: {
-      light: './src/assets/logo.svg',
-      dark: './src/assets/logo.svg',
-    },
+
     social: [
       { icon: 'github', label: 'GitHub', href: 'https://github.com/classy-giraffe/BuffBook' },
     ],
-    customCss: ['./src/styles/custom.css'],
+    customCss: [
+      './src/styles/global.css',
+      './src/styles/custom.css'
+    ],
     // Disable table of contents (right sidebar)
     tableOfContents: false,
     components: {
