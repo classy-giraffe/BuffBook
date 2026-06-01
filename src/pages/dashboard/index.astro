@@ -14,6 +14,7 @@ import {
 } from "@components/ui/table";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
+import { Separator } from "@components/ui/separator";
 
 export const prerender = false;
 
@@ -140,7 +141,9 @@ const getStatusBadge = (status: string) => {
       </a>
     </div>
 
-    <div class="border rounded-md bg-card">
+    <Separator className="opacity-50" />
+
+    <div class="border rounded-md bg-card/50 backdrop-blur-sm shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>

@@ -1,15 +1,9 @@
 ---
 // Custom homepage — bypasses Starlight entirely
 import { Button } from "@components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@components/ui/card";
-import { Badge } from "@components/ui/badge";
+import { Separator } from "@components/ui/separator";
+import { PlanTabs } from "../components/PlanTabs";
+import { DefinitionsHover } from "../components/DefinitionsHover";
 import "../styles/global.css";
 
 import { chapters } from "../data/chapters";
@@ -46,7 +40,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       <p
         class="max-w-xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
       >
-        A free, peer-reviewed and opinionated guide to muscle hypertrophy. No
+        A free, peer-reviewed and opinionated guide to <DefinitionsHover client:load term="Hypertrophy" definition="The enlargement of an organ or tissue from the increase in size of its cells. In fitness, this means muscle growth.">muscle hypertrophy</DefinitionsHover>. No
         supplements to sell, no program to shill. You'll learn the science and
         how to use it.
       </p>
@@ -105,7 +99,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
             Chapters
           </div>
         </div>
-        <div class="hidden sm:block h-10 w-px bg-border"></div>
+        <Separator orientation="vertical" className="hidden sm:block h-10" />
         <div class="text-center">
           <div class="text-4xl font-black text-primary tracking-tight">
             100+
@@ -116,7 +110,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
             Pages
           </div>
         </div>
-        <div class="hidden sm:block h-10 w-px bg-border"></div>
+        <Separator orientation="vertical" className="hidden sm:block h-10" />
         <div class="text-center">
           <div class="text-4xl font-black text-primary tracking-tight">
             Free
@@ -130,8 +124,9 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       </div>
     </section>
 
+    <Separator className="max-w-7xl mx-auto opacity-50" />
     <!-- CHAPTERS -->
-    <section class="max-w-7xl mx-auto px-6 py-24 border-t">
+    <section class="max-w-7xl mx-auto px-6 py-24">
       <div
         class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
       >
@@ -181,8 +176,9 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       </div>
     </section>
 
+    <Separator className="max-w-7xl mx-auto opacity-50" />
     <!-- PILLARS -->
-    <section class="max-w-7xl mx-auto px-6 py-24 border-t">
+    <section class="max-w-7xl mx-auto px-6 py-24">
       <div
         class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
       >
@@ -238,8 +234,9 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       </div>
     </section>
 
+    <Separator className="max-w-7xl mx-auto opacity-50" />
     <!-- CUSTOM PLANS -->
-    <section class="max-w-7xl mx-auto px-6 py-24 border-t">
+    <section class="max-w-7xl mx-auto px-6 py-24">
       <div
         class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
       >
@@ -255,151 +252,12 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
         curve and just follow a plan built for you — that option exists.
       </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-3xl font-black">The Book</CardTitle>
-            <CardDescription className="text-base mt-2">
-              Everything you need to build an effective training program — the
-              science, the rationale, and the practical application. Read it,
-              understand it, apply it yourself.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1">
-            <ul class="space-y-3 text-sm text-muted-foreground">
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > Full evidence-based curriculum
-              </li>
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > 100+ pages, searchable
-              </li>
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > Chapter exercises and frameworks
-              </li>
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > No account required
-              </li>
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <a
-              href="/introduction/state-of-industry/"
-              class="text-primary font-bold text-sm hover:underline flex items-center gap-1"
-            >
-              Start reading — it's free <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
-              >
-            </a>
-          </CardFooter>
-        </Card>
-
-        <Card
-          className="flex flex-col border-primary/30 relative overflow-hidden bg-primary/5"
-        >
-          <div class="absolute top-0 right-0 p-6">
-            <Badge
-              variant="default"
-              className="font-bold tracking-widest uppercase text-[0.65rem]"
-              >Available Now</Badge
-            >
-          </div>
-          <CardHeader>
-            <CardTitle className="text-3xl font-black">Custom Plans</CardTitle>
-            <CardDescription className="text-base mt-2">
-              For people who just want to show up and lift. No reading required
-              — I'll handle the program design based on your goals, schedule,
-              equipment, and training history.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1">
-            <ul class="space-y-3 text-sm text-muted-foreground">
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > Fully personalized mesocycle
-              </li>
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > Exercise selection matched to you
-              </li>
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > Volume & progression laid out
-              </li>
-              <li class="flex items-center gap-2">
-                <svg
-                  class="h-4 w-4 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
-                > One-time delivery, no subscription
-              </li>
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <a
-              href="/custom-plans"
-              class="text-primary font-bold text-sm hover:underline flex items-center gap-1"
-            >
-              Get Your Custom Plan <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
-              >
-            </a>
-          </CardFooter>
-        </Card>
+      <div class="mt-8">
+        <PlanTabs client:visible />
       </div>
 
       <div
-        class="mt-8 p-6 bg-primary/5 border border-primary/10 rounded-xl text-sm text-muted-foreground leading-relaxed"
+        class="mt-16 p-6 bg-primary/5 border border-primary/10 rounded-xl text-sm text-muted-foreground leading-relaxed max-w-4xl mx-auto"
       >
         <strong class="text-primary"
           >The content on this site will never be paywalled.</strong
@@ -409,8 +267,9 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       </div>
     </section>
 
+    <Separator className="max-w-7xl mx-auto opacity-50" />
     <!-- QUOTE / CTA -->
-    <section class="max-w-4xl mx-auto px-6 py-24 border-t text-center">
+    <section class="max-w-4xl mx-auto px-6 py-24 text-center">
       <blockquote
         class="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-foreground mb-6"
       >

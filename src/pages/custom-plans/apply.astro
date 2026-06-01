@@ -9,6 +9,7 @@ import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { Card, CardContent } from "@components/ui/card";
+import { Separator } from "@components/ui/separator";
 import "../../styles/global.css";
 import { env } from "cloudflare:workers";
 
@@ -342,6 +343,8 @@ if (Astro.request.method === "POST") {
               )
             }
 
+            { !isLoggedIn && <Separator className="my-8 opacity-50" /> }
+
             <fieldset class="space-y-6">
               <legend
                 class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
@@ -432,6 +435,8 @@ if (Astro.request.method === "POST") {
                 </div>
               </div>
             </fieldset>
+
+            <Separator className="my-8 opacity-50" />
 
             <fieldset class="space-y-6">
               <legend
@@ -591,6 +596,8 @@ if (Astro.request.method === "POST") {
               </div>
             </fieldset>
 
+            <Separator className="my-8 opacity-50" />
+
             <fieldset class="space-y-6">
               <legend
                 class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
@@ -646,6 +653,8 @@ if (Astro.request.method === "POST") {
                 />
               </div>
             </fieldset>
+
+            <Separator className="my-8 opacity-50" />
 
             <fieldset class="space-y-6">
               <legend

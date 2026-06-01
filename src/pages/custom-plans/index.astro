@@ -6,7 +6,28 @@ import {
   CardTitle,
   CardContent,
 } from "@components/ui/card";
+import { Separator } from "@components/ui/separator";
+import { FaqAccordion } from "../../components/FaqAccordion";
 import "../../styles/global.css";
+
+const faqs = [
+  {
+    question: "How long does it take to receive my plan?",
+    answer: "Every plan is built from scratch. Once you submit your comprehensive assessment, it typically takes 72-96 hours for me to analyze your data and craft the perfect mesocycle."
+  },
+  {
+    question: "Do I need a fully equipped gym?",
+    answer: "Not necessarily, but you need enough equipment to progressively overload. During the assessment, you'll list the equipment you have access to, and I will select exercises that fit your environment."
+  },
+  {
+    question: "Is this a recurring subscription?",
+    answer: "No. This is a one-time fee for a custom mesocycle. You can run the mesocycle for 4-8 weeks, deload, and rerun it with slightly increased weights. You only pay again if your goals or schedule drastically change and you want a completely new program."
+  },
+  {
+    question: "What if I don't know my 1-rep maxes?",
+    answer: "That's perfectly fine. The program focuses on RPE (Rate of Perceived Exertion) and RIR (Reps in Reserve) rather than strict percentages of a 1RM, which is more effective for hypertrophy anyway."
+  }
+];
 ---
 
 <!doctype html>
@@ -94,9 +115,9 @@ import "../../styles/global.css";
       </section>
 
       <section
-        class="max-w-5xl mx-auto px-6 pb-24 grid grid-cols-1 sm:grid-cols-3 gap-8"
+        class="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-1 md:grid-cols-3 gap-8"
       >
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border-primary/20 shadow-sm hover:shadow-primary/10 transition-all md:mt-12 bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-2xl font-black text-primary"
               >100% Custom</CardTitle
@@ -105,11 +126,11 @@ import "../../styles/global.css";
           <CardContent className="flex-1">
             <p class="text-muted-foreground text-sm leading-relaxed">
               Built completely from scratch based on your weak points, injuries,
-              and available equipment.
+              and available equipment. No copy-pasting.
             </p>
           </CardContent>
         </Card>
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border-primary/20 shadow-sm hover:shadow-primary/10 transition-all bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-2xl font-black text-primary"
               >Science-Backed</CardTitle
@@ -117,11 +138,11 @@ import "../../styles/global.css";
           </CardHeader>
           <CardContent className="flex-1">
             <p class="text-muted-foreground text-sm leading-relaxed">
-              Uses the exact peer-reviewed principles outlined in the BuffBook.
+              Uses the exact peer-reviewed principles outlined in the BuffBook. Volume matched to your recovery capacity.
             </p>
           </CardContent>
         </Card>
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border-primary/20 shadow-sm hover:shadow-primary/10 transition-all md:mt-24 bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-2xl font-black text-primary"
               >Complete Guide</CardTitle
@@ -134,6 +155,16 @@ import "../../styles/global.css";
             </p>
           </CardContent>
         </Card>
+      </section>
+
+      <Separator className="max-w-4xl mx-auto opacity-50" />
+      
+      <section class="max-w-3xl mx-auto px-6 py-24">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-black tracking-tight text-foreground">Frequently Asked Questions</h2>
+          <p class="text-muted-foreground mt-2">Everything you need to know before applying.</p>
+        </div>
+        <FaqAccordion client:visible items={faqs} />
       </section>
     </main>
   </body>

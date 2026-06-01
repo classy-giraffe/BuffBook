@@ -26,8 +26,8 @@ if (user) {
   <body class="flex min-h-screen items-center justify-center bg-background text-foreground relative antialiased">
     <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 400px);"></div>
     
-    <div class="w-full max-w-md p-4">
-      <Card>
+    <div class="w-full max-w-md p-4 relative z-10">
+      <Card className="border-primary/20 shadow-2xl bg-card/50 backdrop-blur-xl">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight text-primary">BuffBook</CardTitle>
           <CardDescription>Enter your credentials to login to the dashboard.</CardDescription>

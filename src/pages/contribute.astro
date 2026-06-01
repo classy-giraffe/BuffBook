@@ -53,10 +53,11 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       </section>
 
       <!-- CONTRIBUTION METHODS -->
-      <section class="max-w-7xl mx-auto px-6 pb-24">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- 1. PRs -->
-          <Card className="flex flex-col">
+      <section class="max-w-6xl mx-auto px-6 pb-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div class="space-y-8 mt-0 md:mt-16">
+            <!-- 1. PRs -->
+            <Card className="flex flex-col border-border/50 shadow-sm hover:shadow-md transition-shadow bg-card/50 backdrop-blur-sm">
             <CardHeader>
               <div
                 class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
@@ -96,6 +97,34 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
             </CardFooter>
           </Card>
 
+          <!-- 3. Buy a Plan -->
+          <Card className="flex flex-col border-border/50 shadow-sm hover:shadow-md transition-shadow bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <div
+                class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
+              >
+                📋
+              </div>
+              <CardTitle className="text-2xl font-black"
+                >Buy a Custom Plan</CardTitle
+              >
+              <CardDescription className="text-base mt-2">
+                Get a fully personalized training program built entirely on
+                BuffBook's evidence-based principles. This is a great way to
+                support the project while receiving direct value.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="mt-auto">
+              <a href="/custom-plans/apply" class="w-full">
+                <Button variant="outline" className="w-full font-semibold">
+                  Get a Custom Plan
+                </Button>
+              </a>
+            </CardFooter>
+          </Card>
+        </div>
+
+        <div class="space-y-8">
           <!-- 2. Github Sponsor -->
           <Card
             className="flex flex-col border-primary/30 relative overflow-hidden bg-primary/5"
@@ -150,34 +179,8 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
             </CardFooter>
           </Card>
 
-          <!-- 3. Buy a Plan -->
-          <Card className="flex flex-col">
-            <CardHeader>
-              <div
-                class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
-              >
-                📋
-              </div>
-              <CardTitle className="text-2xl font-black"
-                >Buy a Custom Plan</CardTitle
-              >
-              <CardDescription className="text-base mt-2">
-                Get a fully personalized training program built entirely on
-                BuffBook's evidence-based principles. This is a great way to
-                support the project while receiving direct value.
-              </CardDescription>
-            </CardHeader>
-            <CardFooter className="mt-auto">
-              <a href="/custom-plans/apply" class="w-full">
-                <Button variant="outline" className="w-full font-semibold">
-                  Get a Custom Plan
-                </Button>
-              </a>
-            </CardFooter>
-          </Card>
-
           <!-- 4. Feedback -->
-          <Card className="flex flex-col">
+          <Card className="flex flex-col border-border/50 shadow-sm hover:shadow-md transition-shadow bg-card/50 backdrop-blur-sm">
             <CardHeader>
               <div
                 class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
