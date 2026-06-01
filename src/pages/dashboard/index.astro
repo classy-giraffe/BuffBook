@@ -1,4 +1,5 @@
 ---
+import DashboardLayout from "../../components/DashboardLayout.astro";
 import { getAuth } from "../../lib/auth";
 import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
@@ -95,168 +96,43 @@ const getStatusBadge = (status: string) => {
   }
 };
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard — BuffBook</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <style>
-      :root {
-        --gold: #f7c800;
-        --bg: #080808;
-        --bg-card: #111111;
-        --border: #222222;
-        --text: #e8e8e8;
-        --text-muted: #888888;
-        --radius: 8px;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", sans-serif;
-        margin: 0; padding: 0;
-      }
-      nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 2rem;
-        height: 60px;
-        border-bottom: 1px solid var(--border);
-        background: var(--bg-card);
-      }
-      .nav-logo {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.4rem;
-        color: var(--gold);
-        text-decoration: none;
-      }
-      .container {
-        max-width: 1000px;
-        margin: 4rem auto;
-        padding: 0 1.5rem;
-      }
-      h1 {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-      }
-      p.subtitle {
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-      }
-      
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-      }
-      .card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .card-title {
-        font-weight: 600;
-        font-size: 1.1rem;
-      }
-      .badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        color: #000;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .card-date {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-      }
-      .btn {
-        background: var(--border);
-        color: var(--text);
-        border: none;
-        padding: 0.6rem;
-        border-radius: 4px;
-        text-align: center;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background 0.2s;
-        cursor: pointer;
-      }
-      .btn:hover { background: #333; }
-      .btn-primary {
-        background: var(--gold);
-        color: #000;
-      }
-      .btn-primary:hover { background: #ffe033; }
-      
-      .empty-state {
-        text-align: center;
-        padding: 4rem;
-        border: 1px dashed var(--border);
-        border-radius: var(--radius);
-        color: var(--text-muted);
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/" class="nav-logo">BuffBook</a>
-      <div style="font-size: 0.9rem; color: var(--text-muted);">
-        {user.email}
-      </div>
-    </nav>
+
+<DashboardLayout title="Dashboard — BuffBook" user={user}>
+  <div class="container">
+    <h1>Your Dashboard</h1>
+    <p class="subtitle">Manage your custom gym plans here.</p>
     
-    <div class="container">
-      <h1>Your Dashboard</h1>
-      <p class="subtitle">Manage your custom gym plans here.</p>
-      
-      {requests.length === 0 ? (
-        <div class="empty-state">
-          <p>You haven't requested any custom plans yet.</p>
-          <br/>
-          <a href="/custom-plans/apply" class="btn btn-primary" style="display:inline-block; padding:0.8rem 1.5rem;">Apply Now</a>
-        </div>
-      ) : (
-        <div class="grid">
-          {requests.map((req) => {
-            const status = getStatusBadge(req.status);
-            return (
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">Hypertrophy Plan</div>
-                  <div class="badge" style={`background: ${status.color};`}>{status.label}</div>
-                </div>
-                <div class="card-date">Requested: {new Date(req.createdAt).toLocaleDateString()}</div>
-                
-                {req.status === 'pending_payment' && (
-                  <p style="font-size: 0.85rem; color: var(--text-muted);">Your checkout was interrupted. Contact support to resume.</p>
-                )}
-                {req.status === 'paid' && (
-                  <p style="font-size: 0.85rem; color: var(--text-muted);">Your plan is currently being crafted. You will be notified when it's ready.</p>
-                )}
-                {req.status === 'delivered' && (
-                  <a href={`/api/download/${req.id}`} target="_blank" class="btn btn-primary">Download PDF</a>
-                )}
+    {requests.length === 0 ? (
+      <div class="empty-state">
+        <p>You haven't requested any custom plans yet.</p>
+        <br/>
+        <a href="/custom-plans/apply" class="btn btn-primary" style="display:inline-block; padding:0.8rem 1.5rem;">Apply Now</a>
+      </div>
+    ) : (
+      <div class="grid">
+        {requests.map((req) => {
+          const status = getStatusBadge(req.status);
+          return (
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Hypertrophy Plan</div>
+                <div class="badge" style={`background: ${status.color};`}>{status.label}</div>
               </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  </body>
-</html>
+              <div class="card-date">Requested: {new Date(req.createdAt).toLocaleDateString()}</div>
+              
+              {req.status === 'pending_payment' && (
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Your checkout was interrupted. Contact support to resume.</p>
+              )}
+              {req.status === 'paid' && (
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Your plan is currently being crafted. You will be notified when it's ready.</p>
+              )}
+              {req.status === 'delivered' && (
+                <a href={`/api/download/${req.id}`} target="_blank" class="btn btn-primary">Download PDF</a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</DashboardLayout>

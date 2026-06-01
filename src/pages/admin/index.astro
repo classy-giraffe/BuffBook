@@ -1,167 +1,114 @@
 ---
-import { getAuth } from "../../lib/auth";
+import DashboardLayout from "../../components/DashboardLayout.astro";
 import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
-import { desc, ne } from "drizzle-orm";
+import { eq, desc, ne } from "drizzle-orm";
 
 export const prerender = false;
 
 const { user } = Astro.locals;
-
-// Hardcoded admin email — ideally from env var
-const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com"; 
+const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
 
 if (!user || user.email !== ADMIN_EMAIL) {
-  return new Response("Forbidden", { status: 403 });
+  return Astro.redirect("/login");
 }
 
 const db = drizzle(env.DB, { schema: dbSchema });
 
-// Fetch all requests that are at least paid (ignore pending)
-const requests = await db.query.planRequests.findMany({
-  where: ne(dbSchema.planRequests.status, "pending_payment"),
-  orderBy: [desc(dbSchema.planRequests.createdAt)],
-});
+const allRequests = await db
+  .select({
+    request: dbSchema.planRequests,
+    user: {
+      email: dbSchema.user.email,
+      name: dbSchema.user.name,
+    }
+  })
+  .from(dbSchema.planRequests)
+  .leftJoin(dbSchema.user, eq(dbSchema.planRequests.userId, dbSchema.user.id))
+  .where(ne(dbSchema.planRequests.status, "pending_payment"))
+  .orderBy(desc(dbSchema.planRequests.createdAt));
 
-// Fetch users for these requests to display their email
-const users = await db.query.user.findMany();
-const userMap = Object.fromEntries(users.map(u => [u.id, u.email]));
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'paid': return { label: 'Needs Fulfillment', color: '#f7c800' };
+    case 'delivered': return { label: 'Delivered', color: '#52c41a' };
+    default: return { label: status, color: '#888' };
+  }
+};
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard — BuffBook</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background: #f5f5f5;
-        color: #333;
-        margin: 0; padding: 2rem;
-      }
-      h1 { margin-top: 0; }
-      .table-container {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th, td {
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-        font-size: 0.9rem;
-      }
-      th {
-        background: #fafafa;
-        font-weight: 600;
-        color: #666;
-      }
-      .badge {
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-      .badge-paid { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
-      .badge-delivered { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
-      
-      .upload-form {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-      }
-      .upload-form input[type="file"] {
-        font-size: 0.8rem;
-      }
-      .btn {
-        background: #000;
-        color: #fff;
-        border: none;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-      .btn:hover { background: #333; }
-      
-      details {
-        margin-top: 0.5rem;
-        font-size: 0.85rem;
-        background: #f9f9f9;
-        padding: 0.5rem;
-        border-radius: 4px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Admin Panel - Custom Plans</h1>
-    <p>Manage paid requests and upload finished PDFs.</p>
-    
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>User</th>
-            <th>Details</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map(req => (
-            <tr>
-              <td>{new Date(req.createdAt).toLocaleDateString()}</td>
-              <td>
-                <strong>{req.name}</strong><br/>
-                {userMap[req.userId]}
-              </td>
-              <td>
-                <details>
-                  <summary>View Assessment</summary>
-                  <strong>Age/Wt/Ht:</strong> {req.age}yo, {req.weight}kg/lbs, {req.height}cm/in<br/>
-                  <strong>Freq:</strong> {req.trainingFrequency} days ({req.trainingDays})<br/>
-                  <strong>Equip:</strong> {req.equipment}<br/>
-                  <strong>Failure Exp:</strong> {req.failureExp}<br/>
-                  <strong>Goals:</strong> {req.goals}<br/>
-                  <strong>Weak Points:</strong> {req.weakPoints}<br/>
-                  <strong>Injuries:</strong> {req.injuries}<br/>
-                  <strong>Liked:</strong> {req.likedExercises}<br/>
-                  <strong>Disliked:</strong> {req.dislikedExercises}
-                </details>
-              </td>
-              <td>
-                <span class={`badge badge-${req.status}`}>
-                  {req.status}
-                </span>
-              </td>
-              <td>
-                {req.status === 'paid' ? (
-                  <form action="/api/admin/upload-plan" method="POST" enctype="multipart/form-data" class="upload-form">
-                    <input type="hidden" name="requestId" value={req.id} />
-                    <input type="file" name="pdf" accept="application/pdf" required />
-                    <button type="submit" class="btn">Upload PDF</button>
-                  </form>
-                ) : (
-                  <span style="color: #888; font-size: 0.8rem;">Delivered ({req.pdfKey})</span>
+
+<DashboardLayout title="Admin Dashboard" user={user}>
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+    <p class="subtitle">Manage and fulfill custom gym plans.</p>
+
+    {allRequests.length === 0 ? (
+      <div class="empty-state">
+        <p>No paid requests found.</p>
+      </div>
+    ) : (
+      <div class="grid" style="grid-template-columns: 1fr;">
+        {allRequests.map(({ request, user: requestUser }) => {
+          const status = getStatusBadge(request.status);
+          return (
+            <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 2rem;">
+              <div>
+                <div class="card-header" style="margin-bottom: 1rem;">
+                  <div class="card-title">Request for {requestUser?.email}</div>
+                  <div class="badge" style={`background: ${status.color};`}>{status.label}</div>
+                </div>
+                <div class="card-date" style="margin-bottom: 1.5rem;">Requested: {new Date(request.createdAt).toLocaleDateString()}</div>
+                
+                <h4 style="margin-bottom: 0.5rem; color: var(--gold);">User Details</h4>
+                <ul style="font-size: 0.9rem; color: var(--text-muted); padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                  <li><strong>Name:</strong> {request.name}</li>
+                  <li><strong>Age:</strong> {request.age}</li>
+                  <li><strong>Weight:</strong> {request.weight}</li>
+                  <li><strong>Height:</strong> {request.height}</li>
+                  <li><strong>Experience to Failure:</strong> {request.failureExp}</li>
+                </ul>
+
+                <h4 style="margin-bottom: 0.5rem; color: var(--gold);">Training Preferences</h4>
+                <ul style="font-size: 0.9rem; color: var(--text-muted); padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                  <li><strong>Frequency:</strong> {request.trainingFrequency} days/week</li>
+                  <li><strong>Days:</strong> {request.trainingDays}</li>
+                  <li><strong>Equipment:</strong> {request.equipment} {request.equipmentDetails ? `(${request.equipmentDetails})` : ''}</li>
+                  <li><strong>Injuries:</strong> {request.injuries || 'None'}</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style="margin-bottom: 0.5rem; color: var(--gold);">Goals & Focus</h4>
+                <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
+                  <p style="margin-bottom: 0.5rem;"><strong>Goals:</strong> {request.goals}</p>
+                  <p style="margin-bottom: 0.5rem;"><strong>Weak Points:</strong> {request.weakPoints || 'None'}</p>
+                  <p style="margin-bottom: 0.5rem;"><strong>Liked Exercises:</strong> {request.likedExercises || 'None'}</p>
+                  <p style="margin-bottom: 0.5rem;"><strong>Disliked Exercises:</strong> {request.dislikedExercises || 'None'}</p>
+                </div>
+
+                {request.status === 'paid' && (
+                  <div style="background: rgba(247, 200, 0, 0.05); border: 1px solid rgba(247, 200, 0, 0.2); padding: 1.5rem; border-radius: var(--radius);">
+                    <h4 style="margin-bottom: 1rem; color: var(--gold);">Fulfill Order</h4>
+                    <form action="/api/admin/upload-plan" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1rem;">
+                      <input type="hidden" name="requestId" value={request.id} />
+                      <input type="file" name="pdf" accept="application/pdf" required style="font-size: 0.9rem; background: var(--bg); padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; color: var(--text);" />
+                      <button type="submit" class="btn btn-primary" style="font-size: 1rem;">Upload PDF & Complete</button>
+                    </form>
+                  </div>
                 )}
-              </td>
-            </tr>
-          ))}
-          {requests.length === 0 && (
-            <tr><td colspan="5" style="text-align: center;">No paid requests yet.</td></tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  </body>
-</html>
+                {request.status === 'delivered' && (
+                  <div style="background: rgba(82, 196, 26, 0.05); border: 1px solid rgba(82, 196, 26, 0.2); padding: 1.5rem; border-radius: var(--radius);">
+                    <h4 style="margin-bottom: 0.5rem; color: #52c41a;">Order Completed</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">The plan was delivered successfully.</p>
+                    <a href={`/api/download/${request.id}`} target="_blank" class="btn" style="display: block; width: 100%; text-align: center;">View Uploaded PDF</a>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</DashboardLayout>

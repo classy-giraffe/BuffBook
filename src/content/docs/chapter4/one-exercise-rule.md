@@ -9,11 +9,12 @@ Examples of single-exercise selections that satisfy this rule:
 | Muscle | Single Exercise (Lengthened Emphasis) |
 |--------|----------------------------------------|
 | Quadriceps | Leg Extension |
-| Hamstrings | Seated leg curl |
-| Biceps | Smith Machine Flat Press |
-| Triceps | Overhead cable extension |
-| Lateral delts | Cable Lateral Raises |
-| Pectorals | Pec fly |
-| Lats | Lat  |
+| Chest | Pec Fly |
+| Hamstrings | Seated Leg Curl |
+| Biceps | Seated Bayesian Curl |
+| Triceps | Overhead Cable Extension |
+| Lateral Delts | Cable Lateral Raises |
+| Pectorals | Pec Fly |
+| Lats | Lat Pulldown |
 
 Despite this being framed as a rule, it is not an absolute requirement. If you have a specific reason to choose a different exercise (e.g., injury, equipment availability, personal preference), that’s fine. But if you are building a minimalist routine with only one exercise per muscle, the lengthened position should be your default choice for maximizing hypertrophy.
