@@ -1,7 +1,7 @@
 ---
+import { env } from "cloudflare:workers";
 import DashboardLayout from "../../components/DashboardLayout.astro";
 import { drizzle } from "drizzle-orm/d1";
-import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
 import { eq, desc } from "drizzle-orm";
 import {
@@ -11,9 +11,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../components/components/ui/table";
-import { Badge } from "../../components/components/ui/badge";
-import { Button } from "../../components/components/ui/button";
+} from "@components/ui/table";
+import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
 
 export const prerender = false;
 

@@ -1,6 +1,6 @@
 ---
 // Custom homepage — bypasses Starlight entirely
-import { Button } from "../components/components/ui/button";
+import { Button } from "@components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,178 +8,15 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from "../components/components/ui/card";
-import { Badge } from "../components/components/ui/badge";
+} from "@components/ui/card";
+import { Badge } from "@components/ui/badge";
 import "../styles/global.css";
 
-const chapters = [
-  {
-    num: "00",
-    title: "State of the Industry",
-    desc: "Why the fitness industry keeps failing you — and how peer-reviewed science changes everything.",
-    href: "/introduction/state-of-industry/",
-  },
-  {
-    num: "01",
-    title: "The Science of Size",
-    desc: "Mechanotransduction, mTORC1, ribosomes, satellite cells. The actual biology of muscle growth.",
-    href: "/chapter1/overview/",
-  },
-  {
-    num: "02",
-    title: "True Drivers vs. Myths",
-    desc: "Mechanical tension is the only thing that matters. Metabolic stress and muscle damage are distractions.",
-    href: "/chapter2/overview/",
-  },
-  {
-    num: "03",
-    title: "Specificity of Hypertrophy",
-    desc: "Regional growth, neuromechanical matching, contraction types, and fiber type recruitment.",
-    href: "/chapter3/overview/",
-  },
-  {
-    num: "04",
-    title: "Exercise Selection",
-    desc: "Evaluate exercises on stability, loadability, and resistance profiles. Build your optimal menu.",
-    href: "/chapter4/overview/",
-  },
-  {
-    num: "05",
-    title: "Programming Variables",
-    desc: "Intensity (RIR/RPE), volume landmarks, rep ranges, ROM, frequency, and progressive overload.",
-    href: "/chapter5/overview/",
-  },
-  {
-    num: "06",
-    title: "Plan to Practice",
-    desc: "Mesocycles, auto-regulation, handling plateaus, deloads, and complete program templates.",
-    href: "/chapter6/overview/",
-  },
-  {
-    num: "07",
-    title: "Nutrition",
-    desc: "Calories, macros, body composition phases, the supplements that actually work, and the myths.",
-    href: "/chapter7/overview/",
-  },
-];
-
-const GA_ID = "G-NG1D7QNQS7";
+import { chapters } from "../data/chapters";
+import MarketingLayout from "../layouts/MarketingLayout.astro";
 ---
 
-<!doctype html>
-<html lang="en" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BuffBook — The Science of Getting Bigger</title>
-    <meta
-      name="description"
-      content="A comprehensive, evidence-based guide to muscle hypertrophy and resistance training. No fluff. Just the science."
-    />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-
-    <!-- Google Analytics via Partytown (off main thread) -->
-    <script
-      type="text/partytown"
-      src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
-    <script
-      type="text/partytown"
-      set:html={`
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function () {
-        dataLayer.push(arguments);
-      };
-      window.gtag("js", new Date());
-      window.gtag("config", "${GA_ID}", { anonymize_ip: true });
-    `}
-    />
-    <script is:inline>
-      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
-      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
-    </script>
-  </head>
-
-  <body
-    class="bg-background text-foreground font-sans antialiased relative min-h-screen"
-  >
-    <!-- NAV -->
-    <nav
-      class="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-6 md:px-12 backdrop-blur-md"
-    >
-      <a
-        href="/"
-        class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          class="h-6 w-6 fill-primary"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
-          ></path>
-        </svg>
-        BuffBook
-      </a>
-      <div class="flex items-center gap-6">
-        <a
-          href="/glossary/"
-          class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >Glossary</a
-        >
-        <a
-          href="https://github.com/classy-giraffe/BuffBook"
-          class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          target="_blank"
-          rel="noopener">GitHub</a
-        >
-        <button id="theme-toggle" class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md" aria-label="Toggle theme">
-          <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-          </svg>
-          <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
-            <circle cx="12" cy="12" r="4"></circle>
-            <path d="M12 2v2"></path>
-            <path d="M12 20v2"></path>
-            <path d="m4.93 4.93 1.41 1.41"></path>
-            <path d="m17.66 17.66 1.41 1.41"></path>
-            <path d="M2 12h2"></path>
-            <path d="M20 12h2"></path>
-            <path d="m6.34 17.66-1.41 1.41"></path>
-            <path d="m19.07 4.93-1.41 1.41"></path>
-          </svg>
-        </button>
-
-        <script is:inline>
-          const toggleBtn = document.getElementById('theme-toggle');
-          const darkIcon = document.getElementById('theme-icon-dark');
-          const lightIcon = document.getElementById('theme-icon-light');
-
-          function updateIcon(theme) {
-            if (theme === 'light') {
-              darkIcon.classList.remove('hidden');
-              lightIcon.classList.add('hidden');
-            } else {
-              lightIcon.classList.remove('hidden');
-              darkIcon.classList.add('hidden');
-            }
-          }
-
-          updateIcon(document.documentElement.dataset.theme);
-
-          toggleBtn.addEventListener('click', () => {
-            const currentTheme = document.documentElement.dataset.theme;
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.dataset.theme = newTheme;
-            if (typeof localStorage !== 'undefined') {
-              localStorage.setItem('starlight-theme', newTheme);
-            }
-            updateIcon(newTheme);
-          });
-        </script>
-      </div>
-    </nav>
+<MarketingLayout title="BuffBook — The Science of Getting Bigger" description="A comprehensive, evidence-based guide to muscle hypertrophy and resistance training. No fluff. Just the science.">
 
     <!-- HERO -->
     <section
@@ -589,19 +426,4 @@ const GA_ID = "G-NG1D7QNQS7";
 
     </section>
 
-    <!-- FOOTER -->
-    <footer class="border-t py-12 px-6">
-      <div
-        class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6"
-      >
-        <span class="font-bold tracking-tight text-lg text-primary"
-          >BuffBook</span
-        >
-
-        <span class="text-sm text-muted-foreground font-medium"
-          >Built with 💛 by classy-giraffe</span
-        >
-      </div>
-    </footer>
-  </body>
-</html>
+</MarketingLayout>

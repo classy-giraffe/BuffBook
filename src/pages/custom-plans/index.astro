@@ -1,16 +1,16 @@
 ---
-import { Button } from "../../components/components/ui/button";
+import { Button } from "@components/ui/button";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
-} from "../../components/components/ui/card";
+} from "@components/ui/card";
 import "../../styles/global.css";
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,6 +19,9 @@ import "../../styles/global.css";
       name="description"
       content="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level."
     />
+    <script is:inline>
+      document.documentElement.dataset.theme = 'dark';
+    </script>
   </head>
   <body
     class="bg-background text-foreground font-sans antialiased relative min-h-screen flex flex-col"

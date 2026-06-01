@@ -2,20 +2,20 @@
 import { z } from "astro/zod";
 import Stripe from "stripe";
 import { drizzle } from "drizzle-orm/d1";
-import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { getAuth } from "../../lib/auth";
-import { Button } from "../../components/components/ui/button";
-import { Input } from "../../components/components/ui/input";
-import { Label } from "../../components/components/ui/label";
-import { Card, CardContent } from "../../components/components/ui/card";
+import { createAuth } from "../../lib/auth";
+import { Button } from "@components/ui/button";
+import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
+import { Card, CardContent } from "@components/ui/card";
 import "../../styles/global.css";
+import { env } from "cloudflare:workers";
 
 export const prerender = false;
 
 // ── Auth check ───────────────────────────────────────────────────────────────
-const auth = getAuth();
+const auth = createAuth(env);
 const { user: currentUser } = Astro.locals;
 const isLoggedIn = !!currentUser;
 
@@ -198,11 +198,14 @@ if (Astro.request.method === "POST") {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apply for Custom Plan — BuffBook</title>
+    <script is:inline>
+      document.documentElement.dataset.theme = 'dark';
+    </script>
   </head>
   <body
     class="bg-background text-foreground font-sans antialiased min-h-screen relative flex items-center justify-center p-6 sm:p-12"

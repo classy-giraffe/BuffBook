@@ -1,0 +1,213 @@
+---
+import { Button } from "@components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@components/ui/card";
+import { Badge } from "@components/ui/badge";
+import "../styles/global.css";
+
+const GA_ID = "G-NG1D7QNQS7";
+import MarketingLayout from "../layouts/MarketingLayout.astro";
+---
+
+<MarketingLayout title="Contribute — BuffBook" description="Support BuffBook: an open-source, evidence-based guide to muscle hypertrophy. Learn how to contribute.">
+
+    <div class="flex-1">
+      <!-- HERO -->
+      <section
+        class="relative flex flex-col items-center justify-center overflow-hidden px-6 text-center pt-32 pb-16"
+      >
+        <div
+          class="pointer-events-none absolute inset-0 -z-10"
+          style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 20% 80%, hsl(var(--primary) / 0.05) 0%, transparent 60%);"
+        >
+        </div>
+
+        <div
+          class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-6"
+        >
+          <div class="h-px w-8 bg-primary/50"></div>
+          Support The Project
+          <div class="h-px w-8 bg-primary/50"></div>
+        </div>
+
+        <h1
+          class="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
+        >
+          Help keep the
+          <span class="block text-primary">science free.</span>
+        </h1>
+
+        <p
+          class="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+        >
+          BuffBook is an open-source, non-profit project. Everything is
+          available for free, forever. If you'd like to support the continued
+          development and help cover the Cloudflare Workers bills and domain
+          hosting, here are the best ways to contribute.
+        </p>
+      </section>
+
+      <!-- CONTRIBUTION METHODS -->
+      <section class="max-w-7xl mx-auto px-6 pb-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- 1. PRs -->
+          <Card className="flex flex-col">
+            <CardHeader>
+              <div
+                class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
+              >
+                💻
+              </div>
+              <CardTitle className="text-2xl font-black"
+                >Code & Pull Requests</CardTitle
+              >
+              <CardDescription className="text-base mt-2">
+                Found a typo? Want to improve the UI? BuffBook is open-source.
+                We welcome pull requests for bug fixes, feature additions, or
+                typo corrections.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="mt-auto">
+              <a
+                href="https://github.com/classy-giraffe/BuffBook"
+                target="_blank"
+                rel="noopener"
+                class="w-full"
+              >
+                <Button variant="outline" className="w-full">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="mr-2"
+                    ><path
+                      d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.72.08-.72 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.82.57C20.57 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"
+                    ></path></svg
+                  >
+                  Contribute on GitHub
+                </Button>
+              </a>
+            </CardFooter>
+          </Card>
+
+          <!-- 2. Github Sponsor -->
+          <Card
+            className="flex flex-col border-primary/30 relative overflow-hidden bg-primary/5"
+          >
+            <div class="absolute top-0 right-0 p-6">
+              <Badge
+                variant="default"
+                className="font-bold tracking-widest uppercase text-[0.65rem]"
+                >Direct Support</Badge
+              >
+            </div>
+            <CardHeader>
+              <div
+                class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4 text-primary"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path
+                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                  ></path></svg
+                >
+              </div>
+              <CardTitle className="text-2xl font-black"
+                >GitHub Sponsors</CardTitle
+              >
+              <CardDescription className="text-base mt-2">
+                100% of the funds go towards paying the hosting and database
+                bills (Cloudflare Workers, D1, KV, and domains). Even a small
+                donation helps keep the site running.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="mt-auto">
+              <a
+                href="https://github.com/sponsors/classy-giraffe"
+                target="_blank"
+                rel="noopener"
+                class="w-full"
+              >
+                <Button
+                  className="w-full font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
+                >
+                  Sponsor via GitHub
+                </Button>
+              </a>
+            </CardFooter>
+          </Card>
+
+          <!-- 3. Buy a Plan -->
+          <Card className="flex flex-col">
+            <CardHeader>
+              <div
+                class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
+              >
+                📋
+              </div>
+              <CardTitle className="text-2xl font-black"
+                >Buy a Custom Plan</CardTitle
+              >
+              <CardDescription className="text-base mt-2">
+                Get a fully personalized training program built entirely on
+                BuffBook's evidence-based principles. This is a great way to
+                support the project while receiving direct value.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="mt-auto">
+              <a href="/custom-plans/apply" class="w-full">
+                <Button variant="outline" className="w-full font-semibold">
+                  Get a Custom Plan
+                </Button>
+              </a>
+            </CardFooter>
+          </Card>
+
+          <!-- 4. Feedback -->
+          <Card className="flex flex-col">
+            <CardHeader>
+              <div
+                class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl mb-4"
+              >
+                💬
+              </div>
+              <CardTitle className="text-2xl font-black"
+                >Leave Feedback</CardTitle
+              >
+              <CardDescription className="text-base mt-2">
+                Have ideas on how to improve the curriculum? Is something
+                unclear? Let us know! Your feedback helps shape the future of
+                BuffBook.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="mt-auto">
+              <a
+                href="https://github.com/classy-giraffe/BuffBook/issues/new"
+                target="_blank"
+                rel="noopener"
+                class="w-full"
+              >
+                <Button variant="secondary" className="w-full font-semibold">
+                  Open an Issue
+                </Button>
+              </a>
+            </CardFooter>
+          </Card>
+        </div>
+      </section>
+    </div>
+
+</MarketingLayout>

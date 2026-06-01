@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
-import { getAuth } from "../../../lib/auth";
-import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
+import { drizzle } from "drizzle-orm/d1";
 import * as dbSchema from "../../../db/schema";
 import { eq } from "drizzle-orm";
 
