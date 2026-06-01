@@ -94,7 +94,7 @@ if (Astro.request.method === "POST") {
         });
 
         if (dbUser) {
-          // Existing user not logged in — they need to log in first
+          // Existing user not logged in - they need to log in first
           errors.email = [
             "An account with this email already exists. Please log in first.",
           ];
@@ -203,7 +203,7 @@ if (Astro.request.method === "POST") {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apply for Custom Plan — BuffBook</title>
+    <title>Apply for Custom Plan - BuffBook</title>
     <script is:inline>
       document.documentElement.dataset.theme = 'dark';
     </script>
@@ -868,7 +868,7 @@ if (Astro.request.method === "POST") {
             selectedDays.push(day);
             btn.classList.add("selected");
           } else {
-            // At limit — shake animation
+            // At limit - shake animation
             btn.style.animation = "none";
             btn.offsetHeight; // reflow
             btn.style.animation = "shake 0.3s ease";

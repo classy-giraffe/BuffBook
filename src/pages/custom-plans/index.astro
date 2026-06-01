@@ -35,7 +35,7 @@ const faqs = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Custom Gym Plans — BuffBook</title>
+    <title>Custom Gym Plans - BuffBook</title>
     <meta
       name="description"
       content="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level."
@@ -109,52 +109,61 @@ const faqs = [
             size="lg"
             className="h-14 px-8 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
           >
-            Get Your Plan — 30 EUR
+            Get Your Plan - 30 EUR
           </Button>
         </a>
       </section>
 
-      <section
-        class="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-1 md:grid-cols-3 gap-8"
-      >
-        <Card className="flex flex-col border-primary/20 shadow-sm hover:shadow-primary/10 transition-all md:mt-12 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl font-black text-primary"
-              >100% Custom</CardTitle
-            >
-          </CardHeader>
-          <CardContent className="flex-1">
-            <p class="text-muted-foreground text-sm leading-relaxed">
-              Built completely from scratch based on your weak points, injuries,
-              and available equipment. No copy-pasting.
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="flex flex-col border-primary/20 shadow-sm hover:shadow-primary/10 transition-all bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl font-black text-primary"
-              >Science-Backed</CardTitle
-            >
-          </CardHeader>
-          <CardContent className="flex-1">
-            <p class="text-muted-foreground text-sm leading-relaxed">
-              Uses the exact peer-reviewed principles outlined in the BuffBook. Volume matched to your recovery capacity.
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="flex flex-col border-primary/20 shadow-sm hover:shadow-primary/10 transition-all md:mt-24 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl font-black text-primary"
-              >Complete Guide</CardTitle
-            >
-          </CardHeader>
-          <CardContent className="flex-1">
-            <p class="text-muted-foreground text-sm leading-relaxed">
-              Delivered as a detailed PDF including warm-ups, progression
-              schemes, and logging instructions.
-            </p>
-          </CardContent>
-        </Card>
+      <section class="max-w-3xl mx-auto px-6 pb-24">
+        <h2 class="text-3xl font-black tracking-tight text-foreground mb-10 text-center">Here is exactly what you get:</h2>
+        
+        <div class="space-y-12">
+          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
+            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">1</div>
+            <div>
+              <h3 class="text-2xl font-black text-foreground mb-3">A Fully Customized Mesocycle</h3>
+              <p class="text-muted-foreground leading-relaxed text-lg">
+                A training program built specifically around your individual biomechanics, goals, and training history. You tell me what you want to achieve, and I build the exact roadmap to get you there without any guesswork.
+              </p>
+            </div>
+          </div>
+          
+          <Separator className="opacity-30" />
+
+          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
+            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">2</div>
+            <div>
+              <h3 class="text-2xl font-black text-foreground mb-3">Science-Backed Progression</h3>
+              <p class="text-muted-foreground leading-relaxed text-lg">
+                Your sets, reps, and progression schemes are mathematically matched to your recovery capacity. Using the peer-reviewed principles outlined in the BuffBook, I ensure you apply the exact amount of volume needed to grow - no more, no less.
+              </p>
+            </div>
+          </div>
+
+          <Separator className="opacity-30" />
+
+          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
+            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">3</div>
+            <div>
+              <h3 class="text-2xl font-black text-foreground mb-3">Personalized Exercise Selection</h3>
+              <p class="text-muted-foreground leading-relaxed text-lg">
+                Not everyone is built to barbell squat or bench press. I personally review your past injuries, weak points, and available equipment to select exercises that are highly stimulating and safe for your specific leverages.
+              </p>
+            </div>
+          </div>
+
+          <Separator className="opacity-30" />
+
+          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
+            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">4</div>
+            <div>
+              <h3 class="text-2xl font-black text-foreground mb-3">Detailed Execution Guide</h3>
+              <p class="text-muted-foreground leading-relaxed text-lg">
+                You won't just get a confusing spreadsheet. You'll receive a detailed PDF breakdown with specific form cues for each exercise, warm-up strategies, and exact instructions on how to log your progression accurately.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <Separator className="max-w-4xl mx-auto opacity-50" />
