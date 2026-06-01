@@ -5,80 +5,134 @@ import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
 import { eq } from "drizzle-orm";
+import { getAuth } from "../../lib/auth";
 
 export const prerender = false;
+
+// ── Auth check ───────────────────────────────────────────────────────────────
+const auth = getAuth();
+const { user: currentUser } = Astro.locals;
+const isLoggedIn = !!currentUser;
 
 let errors: Record<string, string[]> = {};
 let submissionError = "";
 
-// Using Zod to define the validation schema
+// ── Zod schema ───────────────────────────────────────────────────────────────
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().optional(),
-  age: z.coerce.number().min(14, "Must be at least 14").max(100),
-  weight: z.coerce.number().min(30, "Weight is required").max(300),
-  height: z.coerce.number().min(100, "Height is required").max(250),
-  frequency: z.coerce.number().min(1).max(7),
-  trainingDays: z.string().min(1, "Please specify your preferred days"),
-  injuries: z.string().optional(),
-  equipment: z.enum(["Gym", "Home"]),
+  email: z.email("Invalid email address").optional(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .optional(),
+  age: z.coerce
+    .number()
+    .min(14, "Must be at least 14")
+    .max(100, "Must be 100 or under"),
+  unitSystem: z.enum(["metric", "imperial"]),
+  weight: z.coerce.number().min(1, "Weight is required"),
+  height: z.coerce.number().min(1, "Height is required"),
+  frequency: z.coerce
+    .number()
+    .min(2, "Minimum 2 days")
+    .max(6, "Maximum 6 days"),
+  trainingDays: z.string().min(1, "Please select your training days"),
+  equipment: z.enum(["Gym", "Home", "Other"]),
+  equipmentDetails: z.string().optional(),
   failureExp: z.string().min(1, "Please describe your experience"),
   goals: z.string().min(10, "Please provide more detail about your goals"),
   weakPoints: z.string().optional(),
+  injuries: z.string().optional(),
   likedExercises: z.string().optional(),
   dislikedExercises: z.string().optional(),
 });
 
+// ── Form handler ─────────────────────────────────────────────────────────────
 if (Astro.request.method === "POST") {
   try {
     const formData = await Astro.request.formData();
     const data = Object.fromEntries(formData.entries());
     const validated = formSchema.safeParse(data);
-    
+
     if (!validated.success) {
       errors = validated.error.flatten().fieldErrors as any;
     } else {
+      // Extra validations
+      if (!isLoggedIn && !validated.data.email) {
+        errors.email = ["Email is required to create your account."];
+        throw new Error("Email required");
+      }
+      if (!isLoggedIn && !validated.data.password) {
+        errors.password = ["Password is required to create your account."];
+        throw new Error("Password required");
+      }
+      if (
+        validated.data.equipment === "Other" &&
+        !validated.data.equipmentDetails?.trim()
+      ) {
+        errors.equipmentDetails = ["Please describe your equipment."];
+        throw new Error("Equipment details required");
+      }
+
       const db = drizzle(env.DB, { schema: dbSchema });
-      
-      // 1. Authenticate or Create User
-      let dbUser = await db.query.user.findFirst({
-        where: (users, { eq }) => eq(users.email, validated.data.email)
-      });
-      
-      if (!dbUser) {
-        if (!validated.data.password) {
-          errors.password = ["Password is required for new accounts."];
-          throw new Error("Password required");
+
+      // ── Resolve user ─────────────────────────────────────────────────────
+      let userId: string;
+
+      if (isLoggedIn) {
+        userId = currentUser!.id;
+      } else {
+        // Check if user already exists
+        let dbUser = await db.query.user.findFirst({
+          where: (users, { eq }) => eq(users.email, validated.data.email!),
+        });
+
+        if (dbUser) {
+          // Existing user not logged in — they need to log in first
+          errors.email = [
+            "An account with this email already exists. Please log in first.",
+          ];
+          throw new Error("Account exists");
         }
-        const { getAuth } = await import("../../lib/auth");
-        const auth = getAuth();
-        // Server side sign up
+
+        // Create new account
         const result = await auth.api.signUpEmail({
           body: {
-            email: validated.data.email,
-            password: validated.data.password,
+            email: validated.data.email!,
+            password: validated.data.password!,
             name: validated.data.name,
           },
-          asResponse: false
+          asResponse: false,
         });
-        if (!result.user) throw new Error("Failed to create user");
-        dbUser = result.user as any;
+        if (!result.user) throw new Error("Failed to create account");
+        userId = result.user.id;
       }
-      
+
+      // ── Unit conversion (always store as metric) ─────────────────────────
+      let weight = validated.data.weight;
+      let height = validated.data.height;
+      if (validated.data.unitSystem === "imperial") {
+        weight = Math.round(weight * 0.453592); // lbs → kg
+        height = Math.round(height * 2.54); // in → cm
+      }
+
       const requestId = crypto.randomUUID();
-      
-      // 2. Insert PlanRequest
+
+      // ── Insert plan request ──────────────────────────────────────────────
       await db.insert(dbSchema.planRequests).values({
         id: requestId,
-        userId: dbUser!.id,
+        userId: userId,
         name: validated.data.name,
         age: validated.data.age,
-        weight: validated.data.weight,
-        height: validated.data.height,
+        weight: weight,
+        height: height,
         trainingFrequency: validated.data.frequency,
         trainingDays: validated.data.trainingDays,
         equipment: validated.data.equipment,
+        equipmentDetails:
+          validated.data.equipment === "Other"
+            ? validated.data.equipmentDetails || ""
+            : null,
         failureExp: validated.data.failureExp,
         goals: validated.data.goals,
         injuries: validated.data.injuries || "",
@@ -87,17 +141,17 @@ if (Astro.request.method === "POST") {
         dislikedExercises: validated.data.dislikedExercises || "",
         status: "pending_payment",
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
-      
-      // 3. Create Stripe Checkout Session
+
+      // ── Stripe checkout ──────────────────────────────────────────────────
       const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
         apiVersion: "2024-04-10" as any,
       });
-      
+
       const siteUrl = Astro.url.origin;
-      
-      const session = await stripe.checkout.sessions.create({
+
+      const stripeSession = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
           {
@@ -107,7 +161,7 @@ if (Astro.request.method === "POST") {
                 name: "Custom Hypertrophy Plan",
                 description: "Hand-crafted 72-96hr turnaround",
               },
-              unit_amount: 3000, // 30.00 EUR
+              unit_amount: 3000,
             },
             quantity: 1,
           },
@@ -115,18 +169,18 @@ if (Astro.request.method === "POST") {
         mode: "payment",
         success_url: `${siteUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${siteUrl}/custom-plans/apply`,
-        customer_email: validated.data.email,
+        customer_email: isLoggedIn ? currentUser!.email : validated.data.email!,
         metadata: {
           requestId: requestId,
         },
       });
-      
-      if (session.url) {
-        // Save the Stripe session ID so we can verify payment on redirect
-        await db.update(dbSchema.planRequests)
-          .set({ stripeSessionId: session.id, updatedAt: new Date() })
+
+      if (stripeSession.url) {
+        await db
+          .update(dbSchema.planRequests)
+          .set({ stripeSessionId: stripeSession.id, updatedAt: new Date() })
           .where(eq(dbSchema.planRequests.id, requestId));
-        return Astro.redirect(session.url);
+        return Astro.redirect(stripeSession.url);
       }
     }
   } catch (err: any) {
@@ -137,283 +191,978 @@ if (Astro.request.method === "POST") {
   }
 }
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apply for Custom Plan — BuffBook</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* ── Variables ─────────────────────────────────────────────────────── */
       :root {
         --gold: #f7c800;
+        --gold-dim: rgba(247, 200, 0, 0.15);
+        --gold-glow: rgba(247, 200, 0, 0.25);
         --bg: #080808;
         --bg-glass: rgba(17, 17, 17, 0.7);
-        --border: #333;
+        --bg-input: rgba(0, 0, 0, 0.5);
+        --border: #292929;
+        --border-focus: var(--gold);
         --text: #e8e8e8;
-        --text-muted: #888;
-        --radius: 12px;
+        --text-muted: #777;
+        --text-label: #aaa;
+        --radius: 14px;
+        --radius-sm: 8px;
         --error: #ff4d4f;
+        --success: #52c41a;
+      }
+
+      /* ── Base ──────────────────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
       }
       body {
         background: var(--bg);
         color: var(--text);
         font-family: "Inter", sans-serif;
-        margin: 0; padding: 0;
-        background-image: radial-gradient(circle at top right, rgba(247,200,0,0.1), transparent 400px);
+        margin: 0;
+        padding: 0;
+        background-image:
+          radial-gradient(
+            ellipse 600px 400px at 80% 0%,
+            rgba(247, 200, 0, 0.07),
+            transparent
+          ),
+          radial-gradient(
+            ellipse 400px 300px at 10% 100%,
+            rgba(247, 200, 0, 0.04),
+            transparent
+          );
+        min-height: 100vh;
       }
+
+      /* ── Container ─────────────────────────────────────────────────────── */
       .container {
-        max-width: 800px;
-        margin: 4rem auto;
-        padding: 0 1.5rem;
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 5rem;
       }
-      h1 {
+
+      /* ── Header ────────────────────────────────────────────────────────── */
+      .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+      .page-header h1 {
         font-family: "Bebas Neue", sans-serif;
-        font-size: 3rem;
+        font-size: clamp(2.2rem, 5vw, 3.2rem);
         color: var(--gold);
-        text-align: center;
-        margin-bottom: 0.5rem;
+        margin: 0 0 0.4rem;
+        letter-spacing: 0.02em;
       }
-      p.subtitle {
-        text-align: center;
+      .page-header p {
         color: var(--text-muted);
-        margin-bottom: 3rem;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
       }
-      
+
+      /* ── User banner ───────────────────────────────────────────────────── */
+      .user-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--gold-dim);
+        border: 1px solid rgba(247, 200, 0, 0.2);
+        border-radius: var(--radius-sm);
+        padding: 0.8rem 1.2rem;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+      }
+      .user-banner .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .user-banner .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+      }
+      .user-banner .user-name {
+        font-weight: 600;
+        color: #fff;
+      }
+      .user-banner .user-email {
+        color: var(--text-muted);
+        margin-left: 0.25rem;
+      }
+      .user-banner a {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color 0.2s;
+      }
+      .user-banner a:hover {
+        color: var(--gold);
+      }
+
+      /* ── Form card ─────────────────────────────────────────────────────── */
       form {
         background: var(--bg-glass);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--border);
         border-radius: var(--radius);
         padding: 2.5rem;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
       }
-      
+
+      /* ── Fieldsets ─────────────────────────────────────────────────────── */
       fieldset {
         border: none;
-        margin: 0 0 2rem 0;
+        margin: 0 0 2.5rem 0;
         padding: 0;
+      }
+      fieldset:last-of-type {
+        margin-bottom: 1.5rem;
       }
       legend {
         font-family: "Bebas Neue", sans-serif;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         color: #fff;
-        margin-bottom: 1rem;
         width: 100%;
+        padding-bottom: 0.6rem;
+        margin-bottom: 1.2rem;
         border-bottom: 1px solid var(--border);
-        padding-bottom: 0.5rem;
+        letter-spacing: 0.03em;
       }
-      
+
+      /* ── Form groups ───────────────────────────────────────────────────── */
       .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
       }
       .form-row {
         display: flex;
-        gap: 1.5rem;
+        gap: 1.25rem;
       }
       .form-row .form-group {
         flex: 1;
       }
-      
+
       label {
         display: block;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #ccc;
+        margin-bottom: 0.4rem;
+        color: var(--text-label);
       }
-      
+
+      /* ── Inputs ────────────────────────────────────────────────────────── */
       input[type="text"],
       input[type="email"],
       input[type="number"],
       input[type="password"],
       textarea {
         width: 100%;
-        background: rgba(0,0,0,0.5);
+        background: var(--bg-input);
         border: 1px solid var(--border);
         color: #fff;
-        padding: 0.8rem 1rem;
-        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-sm);
         font-family: "Inter", sans-serif;
-        font-size: 1rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        box-sizing: border-box;
+        font-size: 0.95rem;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
       }
       textarea {
         resize: vertical;
-        min-height: 100px;
+        min-height: 90px;
       }
-      input:focus, textarea:focus {
+      input:focus,
+      textarea:focus {
         outline: none;
-        border-color: var(--gold);
-        box-shadow: 0 0 0 2px rgba(247, 200, 0, 0.2);
+        border-color: var(--border-focus);
+        box-shadow: 0 0 0 3px var(--gold-glow);
       }
-      
+
+      /* ── Unit toggle ───────────────────────────────────────────────────── */
+      .unit-toggle {
+        display: inline-flex;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+      }
+      .unit-toggle button {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        padding: 0.55rem 1.4rem;
+        font-family: "Inter", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+        position: relative;
+      }
+      .unit-toggle button[data-active="true"] {
+        background: var(--gold);
+        color: #000;
+      }
+      .unit-toggle button:not([data-active="true"]):hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+      }
+
+      /* ── Radio groups ──────────────────────────────────────────────────── */
       .radio-group {
         display: flex;
-        gap: 1.5rem;
+        gap: 0.75rem;
+        flex-wrap: wrap;
       }
-      .radio-label {
+      .radio-pill {
+        position: relative;
+      }
+      .radio-pill input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .radio-pill label {
+        display: inline-block;
+        padding: 0.6rem 1.4rem;
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 0;
+        user-select: none;
+      }
+      .radio-pill input[type="radio"]:checked + label {
+        background: var(--gold);
+        color: #000;
+        border-color: var(--gold);
+        font-weight: 600;
+      }
+      .radio-pill label:hover {
+        border-color: rgba(247, 200, 0, 0.5);
+        color: var(--text);
+      }
+
+      /* ── Equipment details reveal ──────────────────────────────────────── */
+      .equipment-details-wrap {
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition:
+          max-height 0.35s ease,
+          opacity 0.3s ease,
+          margin-top 0.3s ease;
+        margin-top: 0;
+      }
+      .equipment-details-wrap.visible {
+        max-height: 120px;
+        opacity: 1;
+        margin-top: 1rem;
+      }
+
+      /* ── Day picker ────────────────────────────────────────────────────── */
+      .day-picker {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.75rem;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition:
+          max-height 0.35s ease,
+          opacity 0.3s ease;
+      }
+      .day-picker.visible {
+        max-height: 100px;
+        opacity: 1;
+      }
+      .day-btn {
+        width: 52px;
+        height: 44px;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg-input);
+        color: var(--text-muted);
+        font-family: "Inter", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
         cursor: pointer;
-        font-weight: 400;
+        transition: all 0.2s;
+        user-select: none;
       }
-      input[type="radio"] {
-        accent-color: var(--gold);
-        width: 1.2rem; height: 1.2rem;
+      .day-btn:hover:not(.disabled) {
+        border-color: rgba(247, 200, 0, 0.5);
+        color: var(--text);
       }
-      
+      .day-btn.selected {
+        background: var(--gold);
+        color: #000;
+        border-color: var(--gold);
+        transform: scale(1.05);
+      }
+      .day-btn.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .day-picker-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition:
+          max-height 0.35s ease,
+          opacity 0.3s ease;
+      }
+      .day-picker-label.visible {
+        max-height: 40px;
+        opacity: 1;
+      }
+
+      /* ── Error messages ────────────────────────────────────────────────── */
       .error-msg {
         color: var(--error);
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         margin-top: 0.3rem;
         display: block;
       }
-      input:invalid:not(:placeholder-shown) {
-        border-color: var(--error);
+      .error-banner {
+        background: rgba(255, 77, 79, 0.1);
+        border: 1px solid rgba(255, 77, 79, 0.3);
+        border-radius: var(--radius-sm);
+        padding: 0.8rem 1.2rem;
+        color: var(--error);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
       }
-      
+
+      /* ── Submit button ─────────────────────────────────────────────────── */
       .submit-btn {
         width: 100%;
         background: var(--gold);
         color: #000;
         border: none;
-        padding: 1.2rem;
+        padding: 1.1rem;
         border-radius: var(--radius);
         font-family: "Bebas Neue", sans-serif;
-        font-size: 1.5rem;
-        letter-spacing: 0.05em;
+        font-size: 1.4rem;
+        letter-spacing: 0.04em;
         cursor: pointer;
-        transition: background 0.2s, transform 0.1s;
-        margin-top: 1rem;
+        transition:
+          background 0.2s,
+          transform 0.15s,
+          box-shadow 0.2s;
+        margin-top: 0.5rem;
       }
       .submit-btn:hover {
         background: #ffe033;
         transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(247, 200, 0, 0.25);
       }
       .submit-btn:active {
         transform: translateY(0);
+        box-shadow: none;
       }
-      
+
+      /* ── Responsive ────────────────────────────────────────────────────── */
       @media (max-width: 600px) {
-        .form-row { flex-direction: column; gap: 0; }
-        form { padding: 1.5rem; }
+        .container {
+          padding: 2rem 1rem 4rem;
+        }
+        form {
+          padding: 1.5rem;
+        }
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+        }
+        .user-banner {
+          flex-direction: column;
+          gap: 0.5rem;
+          text-align: center;
+        }
+        .day-btn {
+          width: 44px;
+          height: 40px;
+          font-size: 0.72rem;
+        }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Custom Plan Assessment</h1>
-      <p class="subtitle">Complete the form below. Once paid, your custom PDF will be delivered to your dashboard in 72-96 hrs.</p>
-      
-      {submissionError && <div class="error-msg" style="text-align:center; margin-bottom:1rem;">{submissionError}</div>}
-      
+      <div class="page-header">
+        <h1>Custom Plan Assessment</h1>
+        <p>
+          Fill out the form, pay, and receive your hand-crafted hypertrophy plan
+          within 72–96 hours.
+        </p>
+      </div>
+
+      {submissionError && <div class="error-banner">{submissionError}</div>}
+
+      {/* ── Logged-in user banner ──────────────────────────────────────── */}
+      {
+        isLoggedIn && currentUser && (
+          <div class="user-banner">
+            <div class="user-info">
+              <div class="avatar">
+                {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
+              </div>
+              <span class="user-name">{currentUser.name}</span>
+              <span class="user-email">({currentUser.email})</span>
+            </div>
+            <a href="/api/auth/sign-out">Not you? Sign out</a>
+          </div>
+        )
+      }
+
       <form method="POST">
+        {/* ── Account (only for guests) ─────────────────────────────────── */}
+        {
+          !isLoggedIn && (
+            <fieldset>
+              <legend>Create Your Account</legend>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: -0.5rem 0 1.2rem;">
+                You'll use these credentials to access your plan after purchase.
+              </p>
+              <div class="form-group">
+                <label for="name">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  autocomplete="name"
+                  placeholder="John Doe"
+                />
+                {errors.name && <span class="error-msg">{errors.name[0]}</span>}
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    autocomplete="email"
+                    placeholder="john@example.com"
+                  />
+                  {errors.email && (
+                    <span class="error-msg">{errors.email[0]}</span>
+                  )}
+                </div>
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="Min. 8 characters"
+                    minlength="8"
+                  />
+                  {errors.password && (
+                    <span class="error-msg">{errors.password[0]}</span>
+                  )}
+                </div>
+              </div>
+            </fieldset>
+          )
+        }
+
+        {/* Hidden name for logged-in users */}
+        {
+          isLoggedIn && currentUser && (
+            <input type="hidden" name="name" value={currentUser.name || ""} />
+          )
+        }
+
+        {/* ── Body Metrics ──────────────────────────────────────────────── */}
         <fieldset>
-          <legend>Personal Details</legend>
-          <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" required autocomplete="name" placeholder="John Doe">
-            {errors.name && <span class="error-msg">{errors.name[0]}</span>}
+          <legend>Body Metrics</legend>
+
+          <label style="margin-bottom: 0.3rem;">Unit System</label>
+          <div class="unit-toggle">
+            <button type="button" data-unit="metric" data-active="true"
+              >Metric (kg / cm)</button
+            >
+            <button type="button" data-unit="imperial" data-active="false"
+              >Imperial (lbs / in)</button
+            >
           </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="email">Email Address (for your account)</label>
-              <input type="email" id="email" name="email" required autocomplete="email" placeholder="john@example.com">
-              {errors.email && <span class="error-msg">{errors.email[0]}</span>}
-            </div>
-            <div class="form-group">
-              <label for="password">Create Password (or enter existing)</label>
-              <input type="password" id="password" name="password" autocomplete="new-password" placeholder="••••••••">
-              {errors.password && <span class="error-msg">{errors.password[0]}</span>}
-            </div>
-          </div>
+          <input
+            type="hidden"
+            name="unitSystem"
+            id="unitSystem"
+            value="metric"
+          />
 
           <div class="form-row">
             <div class="form-group">
               <label for="age">Age</label>
-              <input type="number" id="age" name="age" required min="14" max="100" placeholder="25">
+              <input
+                type="number"
+                id="age"
+                name="age"
+                required
+                min="14"
+                max="100"
+                placeholder="25"
+              />
+              {errors.age && <span class="error-msg">{errors.age[0]}</span>}
             </div>
             <div class="form-group">
-              <label for="weight">Weight (kg/lbs)</label>
-              <input type="number" id="weight" name="weight" required placeholder="80">
+              <label for="weight" id="weight-label">Weight (kg)</label>
+              <input
+                type="number"
+                id="weight"
+                name="weight"
+                required
+                placeholder="80"
+                step="any"
+              />
+              {
+                errors.weight && (
+                  <span class="error-msg">{errors.weight[0]}</span>
+                )
+              }
             </div>
             <div class="form-group">
-              <label for="height">Height (cm/in)</label>
-              <input type="number" id="height" name="height" required placeholder="180">
+              <label for="height" id="height-label">Height (cm)</label>
+              <input
+                type="number"
+                id="height"
+                name="height"
+                required
+                placeholder="180"
+                step="any"
+              />
+              {
+                errors.height && (
+                  <span class="error-msg">{errors.height[0]}</span>
+                )
+              }
             </div>
           </div>
         </fieldset>
 
+        {
+          /* ── Training Setup ─────────────────────────────────────────────── */
+        }
         <fieldset>
-          <legend>Training Environment</legend>
+          <legend>Training Setup</legend>
+
           <div class="form-group">
-            <label>Equipment Availability</label>
-            <div class="radio-group">
-              <label class="radio-label">
-                <input type="radio" name="equipment" value="Gym" required checked> Full Blown Gym
-              </label>
-              <label class="radio-label">
-                <input type="radio" name="equipment" value="Home" required> Home Setup
-              </label>
+            <label>Equipment</label>
+            <div class="radio-group" id="equipment-group">
+              <div class="radio-pill">
+                <input
+                  type="radio"
+                  name="equipment"
+                  id="eq-gym"
+                  value="Gym"
+                  checked
+                />
+                <label for="eq-gym">Full Gym</label>
+              </div>
+              <div class="radio-pill">
+                <input
+                  type="radio"
+                  name="equipment"
+                  id="eq-home"
+                  value="Home"
+                />
+                <label for="eq-home">Home Setup</label>
+              </div>
+              <div class="radio-pill">
+                <input
+                  type="radio"
+                  name="equipment"
+                  id="eq-other"
+                  value="Other"
+                />
+                <label for="eq-other">Other</label>
+              </div>
+            </div>
+            <div class="equipment-details-wrap" id="equipment-details-wrap">
+              <input
+                type="text"
+                name="equipmentDetails"
+                id="equipmentDetails"
+                placeholder="e.g. dumbbells + pull-up bar + bench"
+              />
+              {
+                errors.equipmentDetails && (
+                  <span class="error-msg">{errors.equipmentDetails[0]}</span>
+                )
+              }
             </div>
           </div>
-          
+
           <div class="form-row">
-            <div class="form-group">
-              <label for="frequency">Days per week</label>
-              <input type="number" id="frequency" name="frequency" required min="1" max="7" placeholder="4">
+            <div class="form-group" style="flex: 0 0 140px;">
+              <label for="frequency">Days / Week</label>
+              <input
+                type="number"
+                id="frequency"
+                name="frequency"
+                required
+                min="2"
+                max="6"
+                placeholder="4"
+              />
+              {
+                errors.frequency && (
+                  <span class="error-msg">{errors.frequency[0]}</span>
+                )
+              }
             </div>
-            <div class="form-group">
-              <label for="trainingDays">Preferred Days</label>
-              <input type="text" id="trainingDays" name="trainingDays" required placeholder="e.g. Mon, Tue, Thu, Fri">
+            <div class="form-group" style="flex: 1;">
+              <label>Training Days</label>
+              <div class="day-picker" id="day-picker">
+                <button type="button" class="day-btn" data-day="Mon">Mon</button
+                >
+                <button type="button" class="day-btn" data-day="Tue">Tue</button
+                >
+                <button type="button" class="day-btn" data-day="Wed">Wed</button
+                >
+                <button type="button" class="day-btn" data-day="Thu">Thu</button
+                >
+                <button type="button" class="day-btn" data-day="Fri">Fri</button
+                >
+                <button type="button" class="day-btn" data-day="Sat">Sat</button
+                >
+                <button type="button" class="day-btn" data-day="Sun">Sun</button
+                >
+              </div>
+              <div class="day-picker-label" id="day-picker-label">
+                <span id="day-count-text">Select your training days</span>
+              </div>
+              <input
+                type="hidden"
+                name="trainingDays"
+                id="trainingDays"
+                value=""
+              />
+              {
+                errors.trainingDays && (
+                  <span class="error-msg">{errors.trainingDays[0]}</span>
+                )
+              }
             </div>
           </div>
         </fieldset>
 
+        {
+          /* ── Experience & Goals ─────────────────────────────────────────── */
+        }
         <fieldset>
           <legend>Experience & Goals</legend>
           <div class="form-group">
-            <label for="failureExp">How accustomed are you to training to true failure?</label>
-            <textarea id="failureExp" name="failureExp" required placeholder="Describe your experience with pushing to failure..."></textarea>
+            <label for="failureExp"
+              >How accustomed are you to training to true failure?</label
+            >
+            <textarea
+              id="failureExp"
+              name="failureExp"
+              required
+              placeholder="Describe your experience with pushing sets to or near failure..."
+            ></textarea>
+            {
+              errors.failureExp && (
+                <span class="error-msg">{errors.failureExp[0]}</span>
+              )
+            }
           </div>
-          
           <div class="form-group">
             <label for="goals">Primary Goals</label>
-            <textarea id="goals" name="goals" required placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"></textarea>
+            <textarea
+              id="goals"
+              name="goals"
+              required
+              placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"
+            ></textarea>
+            {errors.goals && <span class="error-msg">{errors.goals[0]}</span>}
           </div>
-
           <div class="form-group">
-            <label for="weakPoints">Weak Points (leave empty if beginner)</label>
-            <input type="text" id="weakPoints" name="weakPoints" placeholder="e.g. Calves, Side Delts">
+            <label for="weakPoints"
+              >Weak Points <span style="color: var(--text-muted);"
+                >(optional, leave empty if beginner)</span
+              ></label
+            >
+            <input
+              type="text"
+              id="weakPoints"
+              name="weakPoints"
+              placeholder="e.g. Calves, Side Delts"
+            />
           </div>
         </fieldset>
 
+        {
+          /* ── Preferences & Medical ──────────────────────────────────────── */
+        }
         <fieldset>
           <legend>Preferences & Medical</legend>
           <div class="form-group">
-            <label for="injuries">Injuries or Limitations</label>
-            <textarea id="injuries" name="injuries" placeholder="List any past or current injuries that affect your lifting..."></textarea>
+            <label for="injuries"
+              >Injuries or Limitations <span style="color: var(--text-muted);"
+                >(optional)</span
+              ></label
+            >
+            <textarea
+              id="injuries"
+              name="injuries"
+              placeholder="List any past or current injuries that affect your lifting..."
+            ></textarea>
           </div>
-
           <div class="form-row">
             <div class="form-group">
-              <label for="likedExercises">Favorite Exercises</label>
-              <textarea id="likedExercises" name="likedExercises" placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
+              <label for="likedExercises"
+                >Favorite Exercises <span style="color: var(--text-muted);"
+                  >(optional)</span
+                ></label
+              >
+              <textarea
+                id="likedExercises"
+                name="likedExercises"
+                placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
             </div>
             <div class="form-group">
-              <label for="dislikedExercises">Disliked Exercises</label>
-              <textarea id="dislikedExercises" name="dislikedExercises" placeholder="e.g. Conventional Deadlift"></textarea>
+              <label for="dislikedExercises"
+                >Disliked Exercises <span style="color: var(--text-muted);"
+                  >(optional)</span
+                ></label
+              >
+              <textarea
+                id="dislikedExercises"
+                name="dislikedExercises"
+                placeholder="e.g. Conventional Deadlift"></textarea>
             </div>
           </div>
         </fieldset>
 
-        <button type="submit" class="submit-btn">Continue to Payment (30 EUR)</button>
+        <button type="submit" class="submit-btn"
+          >Continue to Payment (€30)</button
+        >
       </form>
+
+      {
+        isLoggedIn && (
+          <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+            Already purchased?{" "}
+            <a href="/dashboard" style="color: var(--gold);">
+              Go to your dashboard →
+            </a>
+          </p>
+        )
+      }
     </div>
+
+    <script>
+      // ── Unit toggle ──────────────────────────────────────────────────────
+      const unitBtns = document.querySelectorAll<HTMLButtonElement>(
+        ".unit-toggle button",
+      );
+      const unitInput = document.getElementById(
+        "unitSystem",
+      ) as HTMLInputElement;
+      const weightLabel = document.getElementById("weight-label")!;
+      const heightLabel = document.getElementById("height-label")!;
+      const weightInput = document.getElementById("weight") as HTMLInputElement;
+      const heightInput = document.getElementById("height") as HTMLInputElement;
+
+      unitBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const unit = btn.dataset.unit!;
+          unitBtns.forEach((b) => b.setAttribute("data-active", "false"));
+          btn.setAttribute("data-active", "true");
+          unitInput.value = unit;
+
+          if (unit === "metric") {
+            weightLabel.textContent = "Weight (kg)";
+            heightLabel.textContent = "Height (cm)";
+            weightInput.placeholder = "80";
+            heightInput.placeholder = "180";
+          } else {
+            weightLabel.textContent = "Weight (lbs)";
+            heightLabel.textContent = "Height (in)";
+            weightInput.placeholder = "176";
+            heightInput.placeholder = "71";
+          }
+        });
+      });
+
+      // ── Equipment "Other" reveal ─────────────────────────────────────────
+      const eqRadios = document.querySelectorAll<HTMLInputElement>(
+        'input[name="equipment"]',
+      );
+      const eqDetailsWrap = document.getElementById("equipment-details-wrap")!;
+
+      eqRadios.forEach((radio) => {
+        radio.addEventListener("change", () => {
+          if (radio.value === "Other" && radio.checked) {
+            eqDetailsWrap.classList.add("visible");
+          } else {
+            eqDetailsWrap.classList.remove("visible");
+          }
+        });
+      });
+
+      // ── Day picker ───────────────────────────────────────────────────────
+      const freqInput = document.getElementById(
+        "frequency",
+      ) as HTMLInputElement;
+      const dayPicker = document.getElementById("day-picker")!;
+      const dayPickerLabel = document.getElementById("day-picker-label")!;
+      const dayCountText = document.getElementById("day-count-text")!;
+      const dayBtns = dayPicker.querySelectorAll<HTMLButtonElement>(".day-btn");
+      const trainingDaysInput = document.getElementById(
+        "trainingDays",
+      ) as HTMLInputElement;
+
+      let selectedDays: string[] = [];
+      let maxDays = 0;
+
+      function updateDayPicker() {
+        const val = parseInt(freqInput.value);
+        if (isNaN(val) || val < 2 || val > 6) {
+          dayPicker.classList.remove("visible");
+          dayPickerLabel.classList.remove("visible");
+          maxDays = 0;
+          selectedDays = [];
+          syncDays();
+          return;
+        }
+
+        maxDays = val;
+        dayPicker.classList.add("visible");
+        dayPickerLabel.classList.add("visible");
+
+        // If we already have more selected than the new max, trim
+        while (selectedDays.length > maxDays) {
+          const removed = selectedDays.pop()!;
+          dayBtns.forEach((b) => {
+            if (b.dataset.day === removed) b.classList.remove("selected");
+          });
+        }
+
+        updateDayStates();
+        syncDays();
+      }
+
+      function updateDayStates() {
+        const atLimit = selectedDays.length >= maxDays;
+        dayBtns.forEach((btn) => {
+          const isSelected = selectedDays.includes(btn.dataset.day!);
+          btn.classList.toggle("disabled", atLimit && !isSelected);
+        });
+
+        const remaining = maxDays - selectedDays.length;
+        if (remaining > 0) {
+          dayCountText.textContent = `Select ${remaining} more day${remaining > 1 ? "s" : ""}`;
+        } else {
+          dayCountText.textContent = `All ${maxDays} days selected ✓`;
+        }
+      }
+
+      function syncDays() {
+        const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        selectedDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+        trainingDaysInput.value = selectedDays.join(",");
+      }
+
+      freqInput.addEventListener("input", updateDayPicker);
+      freqInput.addEventListener("change", updateDayPicker);
+
+      dayBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const day = btn.dataset.day!;
+          const idx = selectedDays.indexOf(day);
+
+          if (idx >= 0) {
+            // Deselect
+            selectedDays.splice(idx, 1);
+            btn.classList.remove("selected");
+          } else if (selectedDays.length < maxDays) {
+            // Select
+            selectedDays.push(day);
+            btn.classList.add("selected");
+          } else {
+            // At limit — shake animation
+            btn.style.animation = "none";
+            btn.offsetHeight; // reflow
+            btn.style.animation = "shake 0.3s ease";
+          }
+
+          updateDayStates();
+          syncDays();
+        });
+      });
+
+      // Init on page load (if frequency is pre-filled)
+      updateDayPicker();
+    </script>
+
+    <style>
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-3px);
+        }
+        40% {
+          transform: translateX(3px);
+        }
+        60% {
+          transform: translateX(-2px);
+        }
+        80% {
+          transform: translateX(2px);
+        }
+      }
+    </style>
   </body>
 </html>

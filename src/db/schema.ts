@@ -56,7 +56,8 @@ export const planRequests = sqliteTable("plan_requests", {
 	trainingFrequency: integer("trainingFrequency").notNull(),
 	trainingDays: text("trainingDays").notNull(),
 	injuries: text("injuries"),
-	equipment: text("equipment").notNull(), // "Gym" or "Home"
+	equipment: text("equipment").notNull(), // "Gym", "Home", or "Other"
+	equipmentDetails: text("equipmentDetails"), // free text when equipment is "Other"
 	failureExp: text("failureExp").notNull(),
 	goals: text("goals").notNull(),
 	weakPoints: text("weakPoints"),

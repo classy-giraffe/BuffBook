@@ -8,10 +8,9 @@ import { eq } from "drizzle-orm";
 export const prerender = false;
 
 export const GET: APIRoute = async (ctx) => {
-  const auth = getAuth();
-  const session = await auth.api.getSession({ headers: ctx.request.headers });
+  const { user } = ctx.locals;
   
-  if (!session?.user) {
+  if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -26,8 +25,8 @@ export const GET: APIRoute = async (ctx) => {
   if (!planRequest) return new Response("Not found", { status: 404 });
 
   // Only the owner or the admin can download the plan
-  const ADMIN_EMAIL = env.ADMIN_EMAIL || "admin@buffbook.com";
-  if (planRequest.userId !== session.user.id && session.user.email !== ADMIN_EMAIL) {
+  const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
+  if (planRequest.userId !== user.id && user.email !== ADMIN_EMAIL) {
     return new Response("Forbidden", { status: 403 });
   }
 

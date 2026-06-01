@@ -7,10 +7,9 @@ import { eq, desc } from "drizzle-orm";
 
 export const prerender = false;
 
-const auth = getAuth();
-const session = await auth.api.getSession({ headers: Astro.request.headers });
+const { session, user } = Astro.locals;
 
-if (!session?.user) {
+if (!user) {
   return Astro.redirect("/login");
 }
 
@@ -40,7 +39,7 @@ if (sessionId) {
 
 // Fetch the user's plan requests
 let requests = await db.query.planRequests.findMany({
-  where: eq(dbSchema.planRequests.userId, session.user.id),
+  where: eq(dbSchema.planRequests.userId, user.id),
   orderBy: [desc(dbSchema.planRequests.createdAt)],
 });
 
@@ -78,7 +77,7 @@ if (pendingRequests.length > 0) {
     }
     // Re-fetch after updates
     requests = await db.query.planRequests.findMany({
-      where: eq(dbSchema.planRequests.userId, session.user.id),
+      where: eq(dbSchema.planRequests.userId, user.id),
       orderBy: [desc(dbSchema.planRequests.createdAt)],
     });
   } catch (err) {
@@ -218,7 +217,7 @@ const getStatusBadge = (status: string) => {
     <nav>
       <a href="/" class="nav-logo">BuffBook</a>
       <div style="font-size: 0.9rem; color: var(--text-muted);">
-        {session.user.email}
+        {user.email}
       </div>
     </nav>
     

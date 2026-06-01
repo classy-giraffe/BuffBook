@@ -7,13 +7,12 @@ import { desc, ne } from "drizzle-orm";
 
 export const prerender = false;
 
-const auth = getAuth();
-const session = await auth.api.getSession({ headers: Astro.request.headers });
+const { user } = Astro.locals;
 
 // Hardcoded admin email — ideally from env var
-const ADMIN_EMAIL = env.ADMIN_EMAIL || "admin@buffbook.com"; 
+const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com"; 
 
-if (!session?.user || session.user.email !== ADMIN_EMAIL) {
+if (!user || user.email !== ADMIN_EMAIL) {
   return new Response("Forbidden", { status: 403 });
 }
 

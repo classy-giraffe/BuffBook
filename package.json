@@ -27,6 +27,7 @@
     "vite": "^7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260601.1",
     "drizzle-kit": "^0.31.10"
   }
 }

@@ -1,6 +1,7 @@
 {
   "extends": "./node_modules/astro/tsconfigs/strict.json",
   "compilerOptions": {
+    "types": ["@cloudflare/workers-types"],
     "paths": {
       "@components/*": [
         "./src/components/*"

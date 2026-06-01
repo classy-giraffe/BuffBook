@@ -8,11 +8,10 @@ import { eq } from "drizzle-orm";
 export const prerender = false;
 
 export const POST: APIRoute = async (ctx) => {
-  const auth = getAuth();
-  const session = await auth.api.getSession({ headers: ctx.request.headers });
+  const { user } = ctx.locals;
   
-  const ADMIN_EMAIL = env.ADMIN_EMAIL || "admin@buffbook.com";
-  if (!session?.user || session.user.email !== ADMIN_EMAIL) {
+  const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
+  if (!user || user.email !== ADMIN_EMAIL) {
     return new Response("Forbidden", { status: 403 });
   }
 

@@ -23,7 +23,8 @@
 		{
 			"binding": "DB",
 			"database_name": "buffbook_db",
-			"database_id": "79f3f5ef-dfe5-4ba0-80ab-f83281516a78"
+			"database_id": "79f3f5ef-dfe5-4ba0-80ab-f83281516a78",
+			"migrations_dir": "drizzle"
 		}
 	],
 	"r2_buckets": [

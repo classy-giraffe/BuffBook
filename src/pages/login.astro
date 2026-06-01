@@ -17,6 +17,7 @@ export const prerender = false;
         --text: #e8e8e8;
         --text-muted: #888;
         --radius: 12px;
+        --error: #ff4d4f;
       }
       body {
         background: var(--bg);
@@ -27,6 +28,7 @@ export const prerender = false;
         justify-content: center;
         min-height: 100vh;
         margin: 0;
+        background-image: radial-gradient(circle at top right, rgba(247,200,0,0.08), transparent 400px);
       }
       .login-card {
         background: var(--bg-glass);
@@ -55,10 +57,13 @@ export const prerender = false;
         font-size: 1rem;
         margin-bottom: 1rem;
         box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
       input:focus {
         outline: none;
         border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(247, 200, 0, 0.2);
       }
       button {
         width: 100%;
@@ -70,16 +75,26 @@ export const prerender = false;
         font-family: "Bebas Neue", sans-serif;
         font-size: 1.2rem;
         cursor: pointer;
-        transition: transform 0.1s;
+        transition: transform 0.1s, background 0.2s;
+      }
+      button:hover {
+        background: #ffe033;
       }
       button:active {
         transform: translateY(2px);
+      }
+      #error-msg {
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        display: none;
       }
     </style>
   </head>
   <body>
     <div class="login-card">
       <h1>Login to Dashboard</h1>
+      <div id="error-msg"></div>
       <form id="login-form">
         <input type="email" id="email" placeholder="Email Address" required />
         <input type="password" id="password" placeholder="Password" required />
@@ -94,8 +109,16 @@ export const prerender = false;
       import { authClient } from "../lib/auth-client";
       
       const form = document.getElementById("login-form");
+      const errorMsg = document.getElementById("error-msg") as HTMLDivElement;
+      
+      // Parse redirect URL from query params
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get("redirect") || "/dashboard";
+      
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
+        errorMsg.style.display = "none";
+        
         const email = (document.getElementById("email") as HTMLInputElement).value;
         const password = (document.getElementById("password") as HTMLInputElement).value;
         
@@ -105,9 +128,10 @@ export const prerender = false;
         });
         
         if (error) {
-          alert(error.message || "Failed to login");
+          errorMsg.textContent = error.message || "Failed to login";
+          errorMsg.style.display = "block";
         } else {
-          window.location.href = "/dashboard";
+          window.location.href = redirectUrl;
         }
       });
     </script>
