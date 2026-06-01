@@ -3,39 +3,74 @@
    Maps Starlight CSS variables to global.css tailwind theme variables.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-:root,
-[data-theme='light'],
-[data-theme='dark'] {
+:root, :root[data-theme='light'], [data-theme='light'] {
   /* Surface colours */
-  --sl-color-bg:            var(--background);
-  --sl-color-bg-nav:        var(--background);
-  --sl-color-bg-sidebar:    var(--background);
-  --sl-color-bg-inline-code:var(--muted);
-  --sl-color-bg-accent:     var(--muted);
+  --sl-color-bg:            var(--background, oklch(1 0 0));
+  --sl-color-bg-nav:        var(--background, oklch(1 0 0));
+  --sl-color-bg-sidebar:    var(--background, oklch(1 0 0));
+  --sl-color-bg-inline-code:var(--muted, oklch(0.97 0 0));
+  --sl-color-bg-accent:     var(--muted, oklch(0.97 0 0));
 
   /* Text */
-  --sl-color-white:         var(--foreground);
-  --sl-color-gray-1:        var(--foreground);
-  --sl-color-gray-2:        var(--muted-foreground);
-  --sl-color-gray-3:        var(--muted-foreground);
-  --sl-color-gray-4:        var(--muted-foreground);
-  --sl-color-gray-5:        var(--border);
-  --sl-color-gray-6:        var(--border);
-  --sl-color-black:         var(--background);
+  --sl-color-white:         var(--foreground, oklch(0.145 0 0));
+  --sl-color-gray-1:        var(--foreground, oklch(0.145 0 0));
+  --sl-color-gray-2:        var(--muted-foreground, oklch(0.556 0 0));
+  --sl-color-gray-3:        var(--muted-foreground, oklch(0.556 0 0));
+  --sl-color-gray-4:        var(--muted-foreground, oklch(0.556 0 0));
+  --sl-color-gray-5:        var(--border, oklch(0.922 0 0));
+  --sl-color-gray-6:        var(--border, oklch(0.922 0 0));
+  --sl-color-black:         var(--background, oklch(1 0 0));
 
   /* Hairlines */
-  --sl-color-hairline:      var(--border);
-  --sl-color-hairline-light:var(--border);
-  --sl-color-hairline-shade:var(--border);
+  --sl-color-hairline:      var(--border, oklch(0.922 0 0));
+  --sl-color-hairline-light:var(--border, oklch(0.922 0 0));
+  --sl-color-hairline-shade:var(--border, oklch(0.922 0 0));
 
   /* Typography */
   --sl-font:          'Geist Variable', sans-serif;
   --sl-font-mono:     'JetBrains Mono', monospace;
 
   /* Accent */
-  --sl-color-accent-low:    var(--primary);
-  --sl-color-accent:        var(--primary);
-  --sl-color-accent-high:   var(--primary);
+  --sl-color-accent-low:    var(--primary, oklch(0.205 0 0));
+  --sl-color-accent:        var(--primary, oklch(0.205 0 0));
+  --sl-color-accent-high:   var(--primary, oklch(0.205 0 0));
+}
+
+:root[data-theme='dark'], [data-theme='dark'] {
+  /* Surface colours */
+  --sl-color-bg:            var(--background, oklch(0.145 0 0));
+  --sl-color-bg-nav:        var(--background, oklch(0.145 0 0));
+  --sl-color-bg-sidebar:    var(--background, oklch(0.145 0 0));
+  --sl-color-bg-inline-code:var(--muted, oklch(0.269 0 0));
+  --sl-color-bg-accent:     var(--muted, oklch(0.269 0 0));
+
+  /* Text */
+  --sl-color-white:         var(--foreground, oklch(0.985 0 0));
+  --sl-color-gray-1:        var(--foreground, oklch(0.985 0 0));
+  --sl-color-gray-2:        var(--muted-foreground, oklch(0.708 0 0));
+  --sl-color-gray-3:        var(--muted-foreground, oklch(0.708 0 0));
+  --sl-color-gray-4:        var(--muted-foreground, oklch(0.708 0 0));
+  --sl-color-gray-5:        var(--border, oklch(1 0 0 / 10%));
+  --sl-color-gray-6:        var(--border, oklch(1 0 0 / 10%));
+  --sl-color-black:         var(--background, oklch(0.145 0 0));
+
+  /* Hairlines */
+  --sl-color-hairline:      var(--border, oklch(1 0 0 / 10%));
+  --sl-color-hairline-light:var(--border, oklch(1 0 0 / 10%));
+  --sl-color-hairline-shade:var(--border, oklch(1 0 0 / 10%));
+
+  /* Typography */
+  --sl-font:          'Geist Variable', sans-serif;
+  --sl-font-mono:     'JetBrains Mono', monospace;
+
+  /* Accent */
+  --sl-color-accent-low:    var(--primary, oklch(0.922 0 0));
+  --sl-color-accent:        var(--primary, oklch(0.922 0 0));
+  --sl-color-accent-high:   var(--primary, oklch(0.922 0 0));
+}
+
+body {
+  transition: none !important;
 }
 
 /* Allow theme switcher to show */
@@ -189,4 +224,18 @@ td, th {
 /* Note */
 .bb-callout--note {
   border-left: 4px solid var(--muted-foreground);
+}
+
+/* ── Bold Text ───────────────────────────────────────────────────────────── */
+.sl-markdown-content b,
+.sl-markdown-content strong {
+  font-weight: 800;
+  color: #000;
+}
+
+[data-theme='dark'] .sl-markdown-content b,
+[data-theme='dark'] .sl-markdown-content strong,
+:root[data-theme='dark'] .sl-markdown-content b,
+:root[data-theme='dark'] .sl-markdown-content strong {
+  color: #fff;
 }

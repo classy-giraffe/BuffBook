@@ -14,6 +14,22 @@ const { user } = Astro.props;
     <span class="font-bold tracking-tight">BuffBook</span>
   </a>
   <div class="flex items-center gap-6 text-sm text-muted-foreground">
+    <button id="theme-toggle" class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md" aria-label="Toggle theme">
+      <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+      </svg>
+      <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2"></path>
+        <path d="M12 20v2"></path>
+        <path d="m4.93 4.93 1.41 1.41"></path>
+        <path d="m17.66 17.66 1.41 1.41"></path>
+        <path d="M2 12h2"></path>
+        <path d="M20 12h2"></path>
+        <path d="m6.34 17.66-1.41 1.41"></path>
+        <path d="m19.07 4.93-1.41 1.41"></path>
+      </svg>
+    </button>
     {user ? (
       <>
         <span>{user.email}</span>
@@ -31,6 +47,34 @@ const { user } = Astro.props;
     signoutBtn.addEventListener("click", async () => {
       await authClient.signOut();
       window.location.href = "/login";
+    });
+  }
+
+  const toggleBtn = document.getElementById('theme-toggle');
+  const darkIcon = document.getElementById('theme-icon-dark');
+  const lightIcon = document.getElementById('theme-icon-light');
+
+  function updateIcon(theme: string | undefined) {
+    if (theme === 'light') {
+      darkIcon?.classList.remove('hidden');
+      lightIcon?.classList.add('hidden');
+    } else {
+      lightIcon?.classList.remove('hidden');
+      darkIcon?.classList.add('hidden');
+    }
+  }
+
+  if (toggleBtn && darkIcon && lightIcon) {
+    updateIcon(document.documentElement.dataset.theme);
+
+    toggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.dataset.theme;
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = newTheme;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('starlight-theme', newTheme);
+      }
+      updateIcon(newTheme);
     });
   }
 </script>

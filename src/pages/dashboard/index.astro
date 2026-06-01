@@ -4,7 +4,14 @@ import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
 import { eq, desc } from "drizzle-orm";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../../components/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/components/ui/table";
 import { Badge } from "../../components/components/ui/badge";
 import { Button } from "../../components/components/ui/button";
 
@@ -122,65 +129,90 @@ const getStatusBadge = (status: string) => {
 ---
 
 <DashboardLayout title="Dashboard — BuffBook" user={user}>
-  <div class="mb-8">
-    <h1 class="text-4xl font-black tracking-tight text-foreground">Your Dashboard</h1>
-    <p class="text-muted-foreground mt-2">Manage your custom gym plans here.</p>
-  </div>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">Your Dashboard</h1>
+        <p class="text-muted-foreground mt-1">Manage and track your custom gym plans.</p>
+      </div>
+      <a href="/custom-plans/apply">
+        <Button className="font-bold">Request New Plan</Button>
+      </a>
+    </div>
 
-  {
-    requests.length === 0 ? (
-      <div class="flex flex-col items-center justify-center py-24 px-6 border border-dashed rounded-xl border-border bg-card/50 text-center">
-        <p class="text-lg text-muted-foreground mb-6">You haven't requested any custom plans yet.</p>
-        <a href="/custom-plans/apply">
-          <Button size="lg" className="font-bold">Apply Now</Button>
-        </a>
-      </div>
-    ) : (
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {requests.map((req) => {
-          const status = getStatusBadge(req.status);
-          return (
-            <Card className="flex flex-col">
-              <CardHeader className="pb-3">
-                <div class="flex items-start justify-between gap-4">
-                  <CardTitle className="text-xl font-bold">Hypertrophy Plan</CardTitle>
-                  <Badge variant={status.variant as any} className={status.className}>
-                    {status.label}
-                  </Badge>
-                </div>
-                <p class="text-xs text-muted-foreground mt-1">
-                  Requested: {new Date(req.createdAt).toLocaleDateString()}
-                </p>
-              </CardHeader>
-              <CardContent className="flex-1">
-                {req.status === "pending_payment" && (
-                  <p class="text-sm text-muted-foreground">
-                    Your checkout was interrupted. Contact support to resume.
-                  </p>
-                )}
-                {req.status === "paid" && (
-                  <p class="text-sm text-muted-foreground">
-                    Your plan is currently being crafted. You will be notified
-                    when it's ready.
-                  </p>
-                )}
-                {req.status === "delivered" && (
-                  <p class="text-sm font-medium text-foreground">
-                    Your plan is ready! Download the PDF below.
-                  </p>
-                )}
-              </CardContent>
-              {req.status === "delivered" && (
-                <CardFooter>
-                  <a href={`/api/download/${req.id}`} target="_blank" class="w-full">
-                    <Button className="w-full font-bold">Download PDF</Button>
+    <div class="border rounded-md bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date Requested</TableHead>
+            <TableHead>Plan Details</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {
+            requests.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="h-48 text-center text-muted-foreground"
+                >
+                  <p class="mb-4">You haven't requested any custom plans yet.</p>
+                  <a href="/custom-plans/apply">
+                    <Button size="sm" className="font-bold">Apply Now</Button>
                   </a>
-                </CardFooter>
-              )}
-            </Card>
-          );
-        })}
-      </div>
-    )
-  }
+                </TableCell>
+              </TableRow>
+            ) : (
+              requests.map((req) => {
+                const status = getStatusBadge(req.status);
+                let subtext = "";
+                if (req.status === "pending_payment") subtext = "Checkout interrupted. Contact support.";
+                else if (req.status === "paid") subtext = "Being crafted by our coaches.";
+                else if (req.status === "delivered") subtext = "Ready for download.";
+
+                return (
+                  <TableRow>
+                    <TableCell className="font-medium text-muted-foreground whitespace-nowrap">
+                      {new Date(req.createdAt).toLocaleDateString(
+                        undefined,
+                        {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        },
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div class="font-semibold text-foreground">Hypertrophy Plan</div>
+                      <div class="text-xs text-muted-foreground">{subtext}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={status.variant as any} className={`rounded-sm whitespace-nowrap ${status.className}`}>
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {req.status === "delivered" ? (
+                        <a href={`/api/download/${req.id}`} target="_blank">
+                          <Button variant="outline" size="sm">
+                            Download PDF
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button variant="outline" size="sm" disabled>
+                          Download PDF
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )
+          }
+        </TableBody>
+      </Table>
+    </div>
+  </div>
 </DashboardLayout>

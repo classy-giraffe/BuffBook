@@ -5,6 +5,11 @@ import { Input } from "../components/components/ui/input";
 import { Button } from "../components/components/ui/button";
 import { Label } from "../components/components/ui/label";
 import "../styles/global.css";
+
+const { user } = Astro.locals;
+if (user) {
+  return Astro.redirect("/dashboard");
+}
 ---
 <!doctype html>
 <html lang="en">
@@ -12,6 +17,11 @@ import "../styles/global.css";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login — BuffBook</title>
+    <script is:inline>
+      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+    </script>
   </head>
   <body class="flex min-h-screen items-center justify-center bg-background text-foreground relative antialiased">
     <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 400px);"></div>

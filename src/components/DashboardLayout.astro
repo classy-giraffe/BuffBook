@@ -16,6 +16,11 @@ const { title = "Dashboard — BuffBook", user } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <script is:inline>
+      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+    </script>
   </head>
   <body class="min-h-screen bg-background text-foreground font-sans antialiased relative">
     {/* Subtle gradient background instead of full yellowish halo */}
