@@ -6,6 +6,11 @@ import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { getAuth } from "../../lib/auth";
+import { Button } from "../../components/components/ui/button";
+import { Input } from "../../components/components/ui/input";
+import { Label } from "../../components/components/ui/label";
+import { Card, CardContent } from "../../components/components/ui/card";
+import "../../styles/global.css";
 
 export const prerender = false;
 
@@ -198,800 +203,512 @@ if (Astro.request.method === "POST") {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apply for Custom Plan — BuffBook</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      /* ── Variables ─────────────────────────────────────────────────────── */
-      :root {
-        --gold: #f7c800;
-        --gold-dim: rgba(247, 200, 0, 0.15);
-        --gold-glow: rgba(247, 200, 0, 0.25);
-        --bg: #080808;
-        --bg-glass: rgba(17, 17, 17, 0.7);
-        --bg-input: rgba(0, 0, 0, 0.5);
-        --border: #292929;
-        --border-focus: var(--gold);
-        --text: #e8e8e8;
-        --text-muted: #777;
-        --text-label: #aaa;
-        --radius: 14px;
-        --radius-sm: 8px;
-        --error: #ff4d4f;
-        --success: #52c41a;
-      }
-
-      /* ── Base ──────────────────────────────────────────────────────────── */
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", sans-serif;
-        margin: 0;
-        padding: 0;
-        background-image:
-          radial-gradient(
-            ellipse 600px 400px at 80% 0%,
-            rgba(247, 200, 0, 0.07),
-            transparent
-          ),
-          radial-gradient(
-            ellipse 400px 300px at 10% 100%,
-            rgba(247, 200, 0, 0.04),
-            transparent
-          );
-        min-height: 100vh;
-      }
-
-      /* ── Container ─────────────────────────────────────────────────────── */
-      .container {
-        max-width: 780px;
-        margin: 0 auto;
-        padding: 3rem 1.5rem 5rem;
-      }
-
-      /* ── Header ────────────────────────────────────────────────────────── */
-      .page-header {
-        text-align: center;
-        margin-bottom: 2.5rem;
-      }
-      .page-header h1 {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: clamp(2.2rem, 5vw, 3.2rem);
-        color: var(--gold);
-        margin: 0 0 0.4rem;
-        letter-spacing: 0.02em;
-      }
-      .page-header p {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin: 0;
-        line-height: 1.5;
-      }
-
-      /* ── User banner ───────────────────────────────────────────────────── */
-      .user-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: var(--gold-dim);
-        border: 1px solid rgba(247, 200, 0, 0.2);
-        border-radius: var(--radius-sm);
-        padding: 0.8rem 1.2rem;
-        margin-bottom: 2rem;
-        font-size: 0.9rem;
-      }
-      .user-banner .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .user-banner .avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--gold);
-        color: #000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.75rem;
-        flex-shrink: 0;
-      }
-      .user-banner .user-name {
-        font-weight: 600;
-        color: #fff;
-      }
-      .user-banner .user-email {
-        color: var(--text-muted);
-        margin-left: 0.25rem;
-      }
-      .user-banner a {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        text-decoration: underline;
-        text-underline-offset: 2px;
-        transition: color 0.2s;
-      }
-      .user-banner a:hover {
-        color: var(--gold);
-      }
-
-      /* ── Form card ─────────────────────────────────────────────────────── */
-      form {
-        background: var(--bg-glass);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 2.5rem;
-        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
-      }
-
-      /* ── Fieldsets ─────────────────────────────────────────────────────── */
-      fieldset {
-        border: none;
-        margin: 0 0 2.5rem 0;
-        padding: 0;
-      }
-      fieldset:last-of-type {
-        margin-bottom: 1.5rem;
-      }
-      legend {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.4rem;
-        color: #fff;
-        width: 100%;
-        padding-bottom: 0.6rem;
-        margin-bottom: 1.2rem;
-        border-bottom: 1px solid var(--border);
-        letter-spacing: 0.03em;
-      }
-
-      /* ── Form groups ───────────────────────────────────────────────────── */
-      .form-group {
-        margin-bottom: 1.25rem;
-      }
-      .form-row {
-        display: flex;
-        gap: 1.25rem;
-      }
-      .form-row .form-group {
-        flex: 1;
-      }
-
-      label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 500;
-        margin-bottom: 0.4rem;
-        color: var(--text-label);
-      }
-
-      /* ── Inputs ────────────────────────────────────────────────────────── */
-      input[type="text"],
-      input[type="email"],
-      input[type="number"],
-      input[type="password"],
-      textarea {
-        width: 100%;
-        background: var(--bg-input);
-        border: 1px solid var(--border);
-        color: #fff;
-        padding: 0.75rem 1rem;
-        border-radius: var(--radius-sm);
-        font-family: "Inter", sans-serif;
-        font-size: 0.95rem;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
-      }
-      textarea {
-        resize: vertical;
-        min-height: 90px;
-      }
-      input:focus,
-      textarea:focus {
-        outline: none;
-        border-color: var(--border-focus);
-        box-shadow: 0 0 0 3px var(--gold-glow);
-      }
-
-      /* ── Unit toggle ───────────────────────────────────────────────────── */
-      .unit-toggle {
-        display: inline-flex;
-        background: var(--bg-input);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-        margin-bottom: 1.25rem;
-      }
-      .unit-toggle button {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        padding: 0.55rem 1.4rem;
-        font-family: "Inter", sans-serif;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition:
-          background 0.2s,
-          color 0.2s;
-        position: relative;
-      }
-      .unit-toggle button[data-active="true"] {
-        background: var(--gold);
-        color: #000;
-      }
-      .unit-toggle button:not([data-active="true"]):hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text);
-      }
-
-      /* ── Radio groups ──────────────────────────────────────────────────── */
-      .radio-group {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-      .radio-pill {
-        position: relative;
-      }
-      .radio-pill input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-      .radio-pill label {
-        display: inline-block;
-        padding: 0.6rem 1.4rem;
-        border: 1px solid var(--border);
-        border-radius: 100px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--text-muted);
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-bottom: 0;
-        user-select: none;
-      }
-      .radio-pill input[type="radio"]:checked + label {
-        background: var(--gold);
-        color: #000;
-        border-color: var(--gold);
-        font-weight: 600;
-      }
-      .radio-pill label:hover {
-        border-color: rgba(247, 200, 0, 0.5);
-        color: var(--text);
-      }
-
-      /* ── Equipment details reveal ──────────────────────────────────────── */
-      .equipment-details-wrap {
-        overflow: hidden;
-        max-height: 0;
-        opacity: 0;
-        transition:
-          max-height 0.35s ease,
-          opacity 0.3s ease,
-          margin-top 0.3s ease;
-        margin-top: 0;
-      }
-      .equipment-details-wrap.visible {
-        max-height: 120px;
-        opacity: 1;
-        margin-top: 1rem;
-      }
-
-      /* ── Day picker ────────────────────────────────────────────────────── */
-      .day-picker {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-top: 0.75rem;
-        overflow: hidden;
-        max-height: 0;
-        opacity: 0;
-        transition:
-          max-height 0.35s ease,
-          opacity 0.3s ease;
-      }
-      .day-picker.visible {
-        max-height: 100px;
-        opacity: 1;
-      }
-      .day-btn {
-        width: 52px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: var(--bg-input);
-        color: var(--text-muted);
-        font-family: "Inter", sans-serif;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        user-select: none;
-      }
-      .day-btn:hover:not(.disabled) {
-        border-color: rgba(247, 200, 0, 0.5);
-        color: var(--text);
-      }
-      .day-btn.selected {
-        background: var(--gold);
-        color: #000;
-        border-color: var(--gold);
-        transform: scale(1.05);
-      }
-      .day-btn.disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-      }
-      .day-picker-label {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-        overflow: hidden;
-        max-height: 0;
-        opacity: 0;
-        transition:
-          max-height 0.35s ease,
-          opacity 0.3s ease;
-      }
-      .day-picker-label.visible {
-        max-height: 40px;
-        opacity: 1;
-      }
-
-      /* ── Error messages ────────────────────────────────────────────────── */
-      .error-msg {
-        color: var(--error);
-        font-size: 0.82rem;
-        margin-top: 0.3rem;
-        display: block;
-      }
-      .error-banner {
-        background: rgba(255, 77, 79, 0.1);
-        border: 1px solid rgba(255, 77, 79, 0.3);
-        border-radius: var(--radius-sm);
-        padding: 0.8rem 1.2rem;
-        color: var(--error);
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-        text-align: center;
-      }
-
-      /* ── Submit button ─────────────────────────────────────────────────── */
-      .submit-btn {
-        width: 100%;
-        background: var(--gold);
-        color: #000;
-        border: none;
-        padding: 1.1rem;
-        border-radius: var(--radius);
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.4rem;
-        letter-spacing: 0.04em;
-        cursor: pointer;
-        transition:
-          background 0.2s,
-          transform 0.15s,
-          box-shadow 0.2s;
-        margin-top: 0.5rem;
-      }
-      .submit-btn:hover {
-        background: #ffe033;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(247, 200, 0, 0.25);
-      }
-      .submit-btn:active {
-        transform: translateY(0);
-        box-shadow: none;
-      }
-
-      /* ── Responsive ────────────────────────────────────────────────────── */
-      @media (max-width: 600px) {
-        .container {
-          padding: 2rem 1rem 4rem;
-        }
-        form {
-          padding: 1.5rem;
-        }
-        .form-row {
-          flex-direction: column;
-          gap: 0;
-        }
-        .user-banner {
-          flex-direction: column;
-          gap: 0.5rem;
-          text-align: center;
-        }
-        .day-btn {
-          width: 44px;
-          height: 40px;
-          font-size: 0.72rem;
-        }
-      }
-    </style>
   </head>
-  <body>
-    <div class="container">
-      <div class="page-header">
-        <h1>Custom Plan Assessment</h1>
-        <p>
+  <body
+    class="bg-background text-foreground font-sans antialiased min-h-screen relative flex items-center justify-center p-6 sm:p-12"
+  >
+    <div
+      class="pointer-events-none fixed inset-0 -z-10"
+      style="background: radial-gradient(ellipse 600px 400px at 80% 0%, hsl(var(--primary) / 0.07), transparent), radial-gradient(ellipse 400px 300px at 10% 100%, hsl(var(--primary) / 0.04), transparent);"
+    >
+    </div>
+
+    <div class="w-full max-w-3xl pb-16">
+      <div class="text-center mb-10">
+        <h1
+          class="text-4xl sm:text-5xl font-black tracking-tight text-primary mb-2"
+        >
+          Custom Plan Assessment
+        </h1>
+        <p class="text-muted-foreground text-lg">
           Fill out the form, pay, and receive your hand-crafted hypertrophy plan
-          within 72–96 hours.
+          within 72-96 hours.
         </p>
       </div>
 
-      {submissionError && <div class="error-banner">{submissionError}</div>}
-
-      {/* ── Logged-in user banner ──────────────────────────────────────── */}
       {
-        isLoggedIn && currentUser && (
-          <div class="user-banner">
-            <div class="user-info">
-              <div class="avatar">
-                {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-              <span class="user-name">{currentUser.name}</span>
-              <span class="user-email">({currentUser.email})</span>
-            </div>
-            <a href="/api/auth/sign-out">Not you? Sign out</a>
+        submissionError && (
+          <div class="bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 text-center mb-8 font-medium">
+            {submissionError}
           </div>
         )
       }
 
-      <form method="POST">
-        {/* ── Account (only for guests) ─────────────────────────────────── */}
-        {
-          !isLoggedIn && (
-            <fieldset>
-              <legend>Create Your Account</legend>
-              <p style="color: var(--text-muted); font-size: 0.85rem; margin: -0.5rem 0 1.2rem;">
-                You'll use these credentials to access your plan after purchase.
-              </p>
-              <div class="form-group">
-                <label for="name">Full Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  autocomplete="name"
-                  placeholder="John Doe"
-                />
-                {errors.name && <span class="error-msg">{errors.name[0]}</span>}
+      {
+        isLoggedIn && currentUser && (
+          <div class="flex flex-col sm:flex-row items-center justify-between bg-primary/10 border border-primary/20 rounded-lg p-3 px-5 mb-8 text-sm">
+            <div class="flex items-center gap-3 mb-2 sm:mb-0">
+              <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    autocomplete="email"
-                    placeholder="john@example.com"
-                  />
-                  {errors.email && (
-                    <span class="error-msg">{errors.email[0]}</span>
-                  )}
+              <div>
+                <span class="font-bold text-foreground">
+                  {currentUser.name}
+                </span>
+                <span class="text-muted-foreground ml-1">
+                  ({currentUser.email})
+                </span>
+              </div>
+            </div>
+            <button
+              id="apply-signout-btn"
+              type="button"
+              class="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
+            >
+              Not you? Sign out
+            </button>
+          </div>
+        )
+      }
+
+      <Card className="bg-card/50 backdrop-blur-xl border-border shadow-2xl">
+        <CardContent className="p-6 sm:p-10">
+          <form method="POST" class="space-y-12">
+            {
+              !isLoggedIn && (
+                <fieldset class="space-y-6">
+                  <legend class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full">
+                    Create Your Account
+                  </legend>
+                  <p class="text-sm text-muted-foreground -mt-4 mb-4">
+                    You'll use these credentials to access your plan after
+                    purchase.
+                  </p>
+                  <div class="space-y-3">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      autoComplete="name"
+                      placeholder="John Doe"
+                    />
+                    {errors.name && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.name[0]}
+                      </span>
+                    )}
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        autoComplete="email"
+                        placeholder="john@example.com"
+                      />
+                      {errors.email && (
+                        <span class="text-sm text-destructive font-medium block mt-1">
+                          {errors.email[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div class="space-y-3">
+                      <Label htmlFor="password">Password</Label>
+                      <Input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        autoComplete="new-password"
+                        placeholder="Min. 8 characters"
+                        minLength={8}
+                      />
+                      {errors.password && (
+                        <span class="text-sm text-destructive font-medium block mt-1">
+                          {errors.password[0]}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </fieldset>
+              )
+            }
+
+            {
+              isLoggedIn && currentUser && (
+                <input
+                  type="hidden"
+                  name="name"
+                  value={currentUser.name || ""}
+                />
+              )
+            }
+
+            <fieldset class="space-y-6">
+              <legend
+                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
+                >Body Metrics</legend
+              >
+
+              <div class="space-y-3">
+                <Label>Unit System</Label>
+                <div class="inline-flex bg-muted rounded-md p-1 unit-toggle">
+                  <button
+                    type="button"
+                    data-unit="metric"
+                    data-active="true"
+                    class="px-4 py-2 rounded-sm text-sm font-medium transition-colors data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm text-muted-foreground hover:text-foreground"
+                    >Metric (kg / cm)</button
+                  >
+                  <button
+                    type="button"
+                    data-unit="imperial"
+                    data-active="false"
+                    class="px-4 py-2 rounded-sm text-sm font-medium transition-colors data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm text-muted-foreground hover:text-foreground"
+                    >Imperial (lbs / in)</button
+                  >
                 </div>
-                <div class="form-group">
-                  <label for="password">Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
+                <input
+                  type="hidden"
+                  name="unitSystem"
+                  id="unitSystem"
+                  value="metric"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    type="number"
+                    id="age"
+                    name="age"
                     required
-                    autocomplete="new-password"
-                    placeholder="Min. 8 characters"
-                    minlength="8"
+                    min="14"
+                    max="100"
+                    placeholder="25"
                   />
-                  {errors.password && (
-                    <span class="error-msg">{errors.password[0]}</span>
-                  )}
+                  {
+                    errors.age && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.age[0]}
+                      </span>
+                    )
+                  }
+                </div>
+                <div class="space-y-3">
+                  <Label htmlFor="weight" id="weight-label">Weight (kg)</Label>
+                  <Input
+                    type="number"
+                    id="weight"
+                    name="weight"
+                    required
+                    placeholder="80"
+                    step="any"
+                  />
+                  {
+                    errors.weight && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.weight[0]}
+                      </span>
+                    )
+                  }
+                </div>
+                <div class="space-y-3">
+                  <Label htmlFor="height" id="height-label">Height (cm)</Label>
+                  <Input
+                    type="number"
+                    id="height"
+                    name="height"
+                    required
+                    placeholder="180"
+                    step="any"
+                  />
+                  {
+                    errors.height && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.height[0]}
+                      </span>
+                    )
+                  }
                 </div>
               </div>
             </fieldset>
-          )
-        }
 
-        {/* Hidden name for logged-in users */}
-        {
-          isLoggedIn && currentUser && (
-            <input type="hidden" name="name" value={currentUser.name || ""} />
-          )
-        }
-
-        {/* ── Body Metrics ──────────────────────────────────────────────── */}
-        <fieldset>
-          <legend>Body Metrics</legend>
-
-          <label style="margin-bottom: 0.3rem;">Unit System</label>
-          <div class="unit-toggle">
-            <button type="button" data-unit="metric" data-active="true"
-              >Metric (kg / cm)</button
-            >
-            <button type="button" data-unit="imperial" data-active="false"
-              >Imperial (lbs / in)</button
-            >
-          </div>
-          <input
-            type="hidden"
-            name="unitSystem"
-            id="unitSystem"
-            value="metric"
-          />
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="age">Age</label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                required
-                min="14"
-                max="100"
-                placeholder="25"
-              />
-              {errors.age && <span class="error-msg">{errors.age[0]}</span>}
-            </div>
-            <div class="form-group">
-              <label for="weight" id="weight-label">Weight (kg)</label>
-              <input
-                type="number"
-                id="weight"
-                name="weight"
-                required
-                placeholder="80"
-                step="any"
-              />
-              {
-                errors.weight && (
-                  <span class="error-msg">{errors.weight[0]}</span>
-                )
-              }
-            </div>
-            <div class="form-group">
-              <label for="height" id="height-label">Height (cm)</label>
-              <input
-                type="number"
-                id="height"
-                name="height"
-                required
-                placeholder="180"
-                step="any"
-              />
-              {
-                errors.height && (
-                  <span class="error-msg">{errors.height[0]}</span>
-                )
-              }
-            </div>
-          </div>
-        </fieldset>
-
-        {
-          /* ── Training Setup ─────────────────────────────────────────────── */
-        }
-        <fieldset>
-          <legend>Training Setup</legend>
-
-          <div class="form-group">
-            <label>Equipment</label>
-            <div class="radio-group" id="equipment-group">
-              <div class="radio-pill">
-                <input
-                  type="radio"
-                  name="equipment"
-                  id="eq-gym"
-                  value="Gym"
-                  checked
-                />
-                <label for="eq-gym">Full Gym</label>
-              </div>
-              <div class="radio-pill">
-                <input
-                  type="radio"
-                  name="equipment"
-                  id="eq-home"
-                  value="Home"
-                />
-                <label for="eq-home">Home Setup</label>
-              </div>
-              <div class="radio-pill">
-                <input
-                  type="radio"
-                  name="equipment"
-                  id="eq-other"
-                  value="Other"
-                />
-                <label for="eq-other">Other</label>
-              </div>
-            </div>
-            <div class="equipment-details-wrap" id="equipment-details-wrap">
-              <input
-                type="text"
-                name="equipmentDetails"
-                id="equipmentDetails"
-                placeholder="e.g. dumbbells + pull-up bar + bench"
-              />
-              {
-                errors.equipmentDetails && (
-                  <span class="error-msg">{errors.equipmentDetails[0]}</span>
-                )
-              }
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group" style="flex: 0 0 140px;">
-              <label for="frequency">Days / Week</label>
-              <input
-                type="number"
-                id="frequency"
-                name="frequency"
-                required
-                min="2"
-                max="6"
-                placeholder="4"
-              />
-              {
-                errors.frequency && (
-                  <span class="error-msg">{errors.frequency[0]}</span>
-                )
-              }
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Training Days</label>
-              <div class="day-picker" id="day-picker">
-                <button type="button" class="day-btn" data-day="Mon">Mon</button
-                >
-                <button type="button" class="day-btn" data-day="Tue">Tue</button
-                >
-                <button type="button" class="day-btn" data-day="Wed">Wed</button
-                >
-                <button type="button" class="day-btn" data-day="Thu">Thu</button
-                >
-                <button type="button" class="day-btn" data-day="Fri">Fri</button
-                >
-                <button type="button" class="day-btn" data-day="Sat">Sat</button
-                >
-                <button type="button" class="day-btn" data-day="Sun">Sun</button
-                >
-              </div>
-              <div class="day-picker-label" id="day-picker-label">
-                <span id="day-count-text">Select your training days</span>
-              </div>
-              <input
-                type="hidden"
-                name="trainingDays"
-                id="trainingDays"
-                value=""
-              />
-              {
-                errors.trainingDays && (
-                  <span class="error-msg">{errors.trainingDays[0]}</span>
-                )
-              }
-            </div>
-          </div>
-        </fieldset>
-
-        {
-          /* ── Experience & Goals ─────────────────────────────────────────── */
-        }
-        <fieldset>
-          <legend>Experience & Goals</legend>
-          <div class="form-group">
-            <label for="failureExp"
-              >How accustomed are you to training to true failure?</label
-            >
-            <textarea
-              id="failureExp"
-              name="failureExp"
-              required
-              placeholder="Describe your experience with pushing sets to or near failure..."
-            ></textarea>
-            {
-              errors.failureExp && (
-                <span class="error-msg">{errors.failureExp[0]}</span>
-              )
-            }
-          </div>
-          <div class="form-group">
-            <label for="goals">Primary Goals</label>
-            <textarea
-              id="goals"
-              name="goals"
-              required
-              placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"
-            ></textarea>
-            {errors.goals && <span class="error-msg">{errors.goals[0]}</span>}
-          </div>
-          <div class="form-group">
-            <label for="weakPoints"
-              >Weak Points <span style="color: var(--text-muted);"
-                >(optional, leave empty if beginner)</span
-              ></label
-            >
-            <input
-              type="text"
-              id="weakPoints"
-              name="weakPoints"
-              placeholder="e.g. Calves, Side Delts"
-            />
-          </div>
-        </fieldset>
-
-        {
-          /* ── Preferences & Medical ──────────────────────────────────────── */
-        }
-        <fieldset>
-          <legend>Preferences & Medical</legend>
-          <div class="form-group">
-            <label for="injuries"
-              >Injuries or Limitations <span style="color: var(--text-muted);"
-                >(optional)</span
-              ></label
-            >
-            <textarea
-              id="injuries"
-              name="injuries"
-              placeholder="List any past or current injuries that affect your lifting..."
-            ></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="likedExercises"
-                >Favorite Exercises <span style="color: var(--text-muted);"
-                  >(optional)</span
-                ></label
+            <fieldset class="space-y-6">
+              <legend
+                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
+                >Training Setup</legend
               >
-              <textarea
-                id="likedExercises"
-                name="likedExercises"
-                placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="dislikedExercises"
-                >Disliked Exercises <span style="color: var(--text-muted);"
-                  >(optional)</span
-                ></label
-              >
-              <textarea
-                id="dislikedExercises"
-                name="dislikedExercises"
-                placeholder="e.g. Conventional Deadlift"></textarea>
-            </div>
-          </div>
-        </fieldset>
 
-        <button type="submit" class="submit-btn"
-          >Continue to Payment (€30)</button
-        >
-      </form>
+              <div class="space-y-3">
+                <Label>Equipment</Label>
+                <div class="flex flex-wrap gap-3">
+                  <div class="relative group">
+                    <input
+                      type="radio"
+                      name="equipment"
+                      id="eq-gym"
+                      value="Gym"
+                      checked
+                      class="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="eq-gym"
+                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-colors hover:border-primary/50 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-checked:font-bold"
+                      >Full Gym</Label
+                    >
+                  </div>
+                  <div class="relative group">
+                    <input
+                      type="radio"
+                      name="equipment"
+                      id="eq-home"
+                      value="Home"
+                      class="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="eq-home"
+                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-colors hover:border-primary/50 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-checked:font-bold"
+                      >Home Setup</Label
+                    >
+                  </div>
+                  <div class="relative group">
+                    <input
+                      type="radio"
+                      name="equipment"
+                      id="eq-other"
+                      value="Other"
+                      class="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="eq-other"
+                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-colors hover:border-primary/50 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-checked:font-bold"
+                      >Other</Label
+                    >
+                  </div>
+                </div>
+                <div
+                  class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-32 [&.visible]:opacity-100 [&.visible]:mt-4"
+                  id="equipment-details-wrap"
+                >
+                  <Input
+                    type="text"
+                    name="equipmentDetails"
+                    id="equipmentDetails"
+                    placeholder="e.g. dumbbells + pull-up bar + bench"
+                  />
+                  {
+                    errors.equipmentDetails && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.equipmentDetails[0]}
+                      </span>
+                    )
+                  }
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-6 items-start">
+                <div class="space-y-3 w-full sm:w-32">
+                  <Label htmlFor="frequency">Days / Week</Label>
+                  <Input
+                    type="number"
+                    id="frequency"
+                    name="frequency"
+                    required
+                    min="2"
+                    max="6"
+                    placeholder="4"
+                  />
+                  {
+                    errors.frequency && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.frequency[0]}
+                      </span>
+                    )
+                  }
+                </div>
+                <div class="space-y-3 flex-1">
+                  <Label>Training Days</Label>
+                  <div
+                    class="flex flex-wrap gap-2 overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-32 [&.visible]:opacity-100 mt-2"
+                    id="day-picker"
+                  >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Mon">Mon</button
+                    >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Tue">Tue</button
+                    >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Wed">Wed</button
+                    >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Thu">Thu</button
+                    >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Fri">Fri</button
+                    >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Sat">Sat</button
+                    >
+                    <button
+                      type="button"
+                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
+                      data-day="Sun">Sun</button
+                    >
+                  </div>
+                  <div
+                    class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-12 [&.visible]:opacity-100 text-xs text-muted-foreground mt-2"
+                    id="day-picker-label"
+                  >
+                    <span id="day-count-text">Select your training days</span>
+                  </div>
+                  <input
+                    type="hidden"
+                    name="trainingDays"
+                    id="trainingDays"
+                    value=""
+                  />
+                  {
+                    errors.trainingDays && (
+                      <span class="text-sm text-destructive font-medium block mt-1">
+                        {errors.trainingDays[0]}
+                      </span>
+                    )
+                  }
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="space-y-6">
+              <legend
+                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
+                >Experience & Goals</legend
+              >
+              <div class="space-y-3">
+                <Label htmlFor="failureExp"
+                  >How accustomed are you to training to true failure?</Label
+                >
+                <textarea
+                  id="failureExp"
+                  name="failureExp"
+                  required
+                  class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Describe your experience with pushing sets to or near failure..."
+                ></textarea>
+                {
+                  errors.failureExp && (
+                    <span class="text-sm text-destructive font-medium block mt-1">
+                      {errors.failureExp[0]}
+                    </span>
+                  )
+                }
+              </div>
+              <div class="space-y-3">
+                <Label htmlFor="goals">Primary Goals</Label>
+                <textarea
+                  id="goals"
+                  name="goals"
+                  required
+                  class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"
+                ></textarea>
+                {
+                  errors.goals && (
+                    <span class="text-sm text-destructive font-medium block mt-1">
+                      {errors.goals[0]}
+                    </span>
+                  )
+                }
+              </div>
+              <div class="space-y-3">
+                <Label htmlFor="weakPoints"
+                  >Weak Points <span class="text-muted-foreground font-normal"
+                    >(optional, leave empty if beginner)</span
+                  ></Label
+                >
+                <Input
+                  type="text"
+                  id="weakPoints"
+                  name="weakPoints"
+                  placeholder="e.g. Calves, Side Delts"
+                />
+              </div>
+            </fieldset>
+
+            <fieldset class="space-y-6">
+              <legend
+                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
+                >Preferences & Medical</legend
+              >
+              <div class="space-y-3">
+                <Label htmlFor="injuries"
+                  >Injuries or Limitations <span
+                    class="text-muted-foreground font-normal">(optional)</span
+                  ></Label
+                >
+                <textarea
+                  id="injuries"
+                  name="injuries"
+                  class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="List any past or current injuries that affect your lifting..."
+                ></textarea>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                  <Label htmlFor="likedExercises"
+                    >Favorite Exercises <span
+                      class="text-muted-foreground font-normal">(optional)</span
+                    ></Label
+                  >
+                  <textarea
+                    id="likedExercises"
+                    name="likedExercises"
+                    class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
+                </div>
+                <div class="space-y-3">
+                  <Label htmlFor="dislikedExercises"
+                    >Disliked Exercises <span
+                      class="text-muted-foreground font-normal">(optional)</span
+                    ></Label
+                  >
+                  <textarea
+                    id="dislikedExercises"
+                    name="dislikedExercises"
+                    class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="e.g. Conventional Deadlift"></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full h-14 text-xl font-bold mt-8 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all"
+            >
+              Continue to Payment (€30)
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {
         isLoggedIn && (
-          <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+          <p class="text-center mt-6 text-sm text-muted-foreground">
             Already purchased?{" "}
-            <a href="/dashboard" style="color: var(--gold);">
+            <a
+              href="/dashboard"
+              class="text-primary hover:underline font-semibold"
+            >
               Go to your dashboard →
             </a>
           </p>
@@ -1000,6 +717,16 @@ if (Astro.request.method === "POST") {
     </div>
 
     <script>
+      import { authClient } from "../../lib/auth-client";
+      
+      const applySignoutBtn = document.getElementById("apply-signout-btn");
+      if (applySignoutBtn) {
+        applySignoutBtn.addEventListener("click", async () => {
+          await authClient.signOut();
+          window.location.href = "/custom-plans/apply";
+        });
+      }
+
       // ── Unit toggle ──────────────────────────────────────────────────────
       const unitBtns = document.querySelectorAll<HTMLButtonElement>(
         ".unit-toggle button",

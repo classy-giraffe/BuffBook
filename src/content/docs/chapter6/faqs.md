@@ -1,5 +1,5 @@
 ---
-title: 6.9 FAQs
+title: 6.8 FAQs
 ---
 
 **Q: Should I always try to improve my strength on every lift every week?**  
@@ -29,8 +29,10 @@ More than 3–4 exercises per muscle in a mesocycle fragments volume and makes p
 **Q: Should I use the same rep range for all exercises?**  
 Technically, yes, you could. My personal recommendation is to keep a small range (e.g., 4-8) for compounds and a slightly higher range (e.g., 6-10) for isolation work, as explained in Section 5.3.2. Ultimately, the best rep range is the one you can push hard consistently. If you find that 6–10 allows you to hit RIR 1–2 more reliably across exercises, stick with it.
 
-**Q: Should I use the same exercises every time I train a muscle, or should I vary them?**  
-If you train a muscle twice a week, you can either repeat the same exercises (the repeated‑workout approach) or use different ones (the "1+1 split"). Repeating the same workout is simpler and makes it easier to track progression. However, a 1+1 split can be useful if you want to emphasize specific muscle heads that one exercise misses (e.g., leg extensions for the rectus femoris if you already squat) or to vary the joint stress across the week. Both are valid; for general hypertrophy, repeating the same high‑quality movements is usually more efficient.
+**Q: In a split where some days are repeated, should these days be the same?**  
+When you split volume across two sessions per muscle per week, one of the cleanest ways to do it is to repeat the exact same workout on both days. For an upper/lower split, this means you have one Lower workout and one Upper workout, each performed twice a week (e.g., Lower on Monday and Thursday, Upper on Tuesday and Friday). This approach ensures that every muscle fiber is recruited with the same exercises at the same joint angles and muscle lengths, twice a week. There is no guesswork about whether a region received a stimulus on only one day; the frequency is a genuine 2× for all regions.
+
+The "1+1 split" (using different exercises for the same muscle across sessions) is a refinement for when your exercise selection deliberately differentiates regions (e.g., a long‑head triceps movement and a lateral‑head movement on separate days). But if your goal is straightforward—add size to the whole body, with a slight emphasis on a few muscles—the repeated‑workout template is not a compromise; it is a strength. It simplifies progression tracking, reduces setup time, and guarantees that the fibers you care about are stimulated twice a week with the highest quality per set.
 
 **Q: Does fractional volume mean I can skip direct arm work entirely?**  
 If you press and pull heavily, you likely need less direct arm work, but not zero. A small dose like 4 sets per week is enough in most cases to keep arms growing alongside the rest of the body.

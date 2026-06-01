@@ -6,74 +6,22 @@ interface Props {
 const { user } = Astro.props;
 ---
 
-<nav>
-  <a href="/" class="nav-logo">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<nav class="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-8 backdrop-blur-md">
+  <a href="/" class="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition-opacity">
+    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-primary" xmlns="http://www.w3.org/2000/svg">
       <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"></path>
     </svg>
-    BuffBook
+    <span class="font-bold tracking-tight">BuffBook</span>
   </a>
-  <div class="nav-user">
+  <div class="flex items-center gap-6 text-sm text-muted-foreground">
     {user ? (
       <>
         <span>{user.email}</span>
-        <button id="signout-btn" class="sign-out">Sign Out</button>
+        <button id="signout-btn" class="font-medium text-foreground hover:text-primary transition-colors">Sign Out</button>
       </>
     ) : null}
   </div>
 </nav>
-
-<style>
-  nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2rem;
-    height: 60px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(17, 17, 17, 0.8);
-    backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .nav-logo {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.4rem;
-    color: var(--gold);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .nav-logo svg {
-    width: 24px;
-    height: 24px;
-    fill: var(--gold);
-  }
-  .nav-user {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-  }
-  .sign-out {
-    background: none;
-    border: none;
-    padding: 0;
-    font-family: inherit;
-    font-size: inherit;
-    color: var(--text);
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-  .sign-out:hover {
-    color: var(--gold);
-  }
-</style>
 
 <script>
   import { authClient } from "../lib/auth-client";

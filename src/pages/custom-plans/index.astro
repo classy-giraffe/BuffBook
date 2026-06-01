@@ -1,8 +1,16 @@
 ---
-// Custom Plans Landing Page
+import { Button } from "../../components/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/components/ui/card";
+import "../../styles/global.css";
 ---
+
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,196 +19,119 @@
       name="description"
       content="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level."
     />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      :root {
-        --gold: #f7c800;
-        --gold-dim: #b38e00;
-        --bg: #080808;
-        --bg-card: #111111;
-        --bg-card-hover: #181818;
-        --border: #222222;
-        --text: #e8e8e8;
-        --text-muted: #888888;
-        --radius: 8px;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", sans-serif;
-        line-height: 1.6;
-        -webkit-font-smoothing: antialiased;
-      }
-      a {
-        text-decoration: none;
-        color: inherit;
-      }
-      
-      nav {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 clamp(1.5rem, 5vw, 4rem);
-        height: 60px;
-        background: rgba(8, 8, 8, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border);
-      }
-      .nav-logo {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.4rem;
-        letter-spacing: 0.08em;
-        color: var(--gold);
-      }
-      .nav-logo svg {
-        width: 24px; height: 24px; fill: var(--gold);
-      }
-
-      .hero {
-        min-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 6rem clamp(1.5rem, 5vw, 4rem) 4rem;
-        position: relative;
-        overflow: hidden;
-      }
-      .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(247, 200, 0, 0.07) 0%, transparent 70%);
-        pointer-events: none;
-      }
-      .hero-eyebrow {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--gold);
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-      }
-      .hero-eyebrow::before, .hero-eyebrow::after {
-        content: "";
-        width: 2rem; height: 1px;
-        background: var(--gold);
-        opacity: 0.5;
-      }
-      .hero h1 {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: clamp(3rem, 8vw, 6rem);
-        line-height: 0.95;
-        letter-spacing: 0.02em;
-        color: #fff;
-        margin-bottom: 1.5rem;
-        max-width: 900px;
-      }
-      .hero h1 span { color: var(--gold); }
-      .hero-sub {
-        font-size: clamp(1rem, 2vw, 1.2rem);
-        color: var(--text-muted);
-        max-width: 600px;
-        margin: 0 auto 2.5rem;
-      }
-      .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--gold);
-        color: #000;
-        font-weight: 700;
-        padding: 1rem 2.5rem;
-        border-radius: var(--radius);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(247, 200, 0, 0.25);
-      }
-      
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        max-width: 1000px;
-        margin: 0 auto 5rem;
-        padding: 0 clamp(1.5rem, 5vw, 4rem);
-      }
-      .feature-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        padding: 2rem;
-        border-radius: var(--radius);
-      }
-      .feature-card h3 {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.8rem;
-        color: var(--gold);
-        margin-bottom: 0.5rem;
-      }
-      .feature-card p {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-      }
-    </style>
   </head>
-  <body>
-    <nav>
-      <a href="/" class="nav-logo">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"></path>
+  <body
+    class="bg-background text-foreground font-sans antialiased relative min-h-screen flex flex-col"
+  >
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-6 md:px-12 backdrop-blur-md"
+    >
+      <a
+        href="/"
+        class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          class="h-6 w-6 fill-primary"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
+          ></path>
         </svg>
         BuffBook
       </a>
-      <a href="/" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Back to Book</a>
+      <a href="/">
+        <Button size="sm" variant="outline" className="font-bold"
+          >Back to Book</Button
+        >
+      </a>
     </nav>
 
-    <section class="hero">
-      <p class="hero-eyebrow">Personalized Programming</p>
-      <h1>Hand-crafted <span>Just For You.</span></h1>
-      <p class="hero-sub">
-        No AI. No cookie-cutter templates. You fill out a comprehensive assessment, and I personally build your ideal hypertrophy plan from scratch in 72-96 hours.
-      </p>
-      <a href="/custom-plans/apply" class="btn-primary">Get Your Plan — 30 EUR</a>
-    </section>
+    <main class="flex-1">
+      <section
+        class="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
+      >
+        <div
+          class="pointer-events-none absolute inset-0 -z-10"
+          style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.07) 0%, transparent 70%);"
+        >
+        </div>
 
-    <section class="features">
-      <div class="feature-card">
-        <h3>100% Custom</h3>
-        <p>Built completely from scratch based on your weak points, injuries, and available equipment.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Science-Backed</h3>
-        <p>Uses the exact peer-reviewed principles outlined in the BuffBook.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Complete Guide</h3>
-        <p>Delivered as a detailed PDF including warm-ups, progression schemes, and logging instructions.</p>
-      </div>
-    </section>
+        <div
+          class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-6"
+        >
+          <div class="h-px w-8 bg-primary/50"></div>
+          Personalized Programming
+          <div class="h-px w-8 bg-primary/50"></div>
+        </div>
+
+        <h1
+          class="max-w-4xl text-5xl sm:text-7xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
+        >
+          Hand-crafted <span class="text-primary">Just For You.</span>
+        </h1>
+
+        <p
+          class="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+        >
+          No AI. No cookie-cutter templates. You fill out a comprehensive
+          assessment, and I personally build your ideal hypertrophy plan from
+          scratch in 72-96 hours.
+        </p>
+
+        <a href="/custom-plans/apply">
+          <Button
+            size="lg"
+            className="h-14 px-8 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
+          >
+            Get Your Plan — 30 EUR
+          </Button>
+        </a>
+      </section>
+
+      <section
+        class="max-w-5xl mx-auto px-6 pb-24 grid grid-cols-1 sm:grid-cols-3 gap-8"
+      >
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-2xl font-black text-primary"
+              >100% Custom</CardTitle
+            >
+          </CardHeader>
+          <CardContent className="flex-1">
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              Built completely from scratch based on your weak points, injuries,
+              and available equipment.
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-2xl font-black text-primary"
+              >Science-Backed</CardTitle
+            >
+          </CardHeader>
+          <CardContent className="flex-1">
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              Uses the exact peer-reviewed principles outlined in the BuffBook.
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-2xl font-black text-primary"
+              >Complete Guide</CardTitle
+            >
+          </CardHeader>
+          <CardContent className="flex-1">
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              Delivered as a detailed PDF including warm-ups, progression
+              schemes, and logging instructions.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+    </main>
   </body>
 </html>

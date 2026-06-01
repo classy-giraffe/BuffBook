@@ -1,0 +1,222 @@
+---
+import DashboardLayout from "../../../components/DashboardLayout.astro";
+import { Badge } from "../../../components/components/ui/badge";
+import { Button } from "../../../components/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/components/ui/card";
+import { Input } from "../../../components/components/ui/input";
+import { Label } from "../../../components/components/ui/label";
+import { CheckCircle2, ChevronLeft } from "lucide-react";
+import { drizzle } from "drizzle-orm/d1";
+import { env } from "cloudflare:workers";
+import * as dbSchema from "../../../db/schema";
+import { eq } from "drizzle-orm";
+import "../../../styles/global.css";
+
+export const prerender = false;
+
+const { user } = Astro.locals;
+const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
+
+if (!user || user.email !== ADMIN_EMAIL) {
+  return Astro.redirect("/login");
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect("/admin");
+}
+
+const db = drizzle(env.DB, { schema: dbSchema });
+
+const result = await db
+  .select({
+    request: dbSchema.planRequests,
+    user: {
+      email: dbSchema.user.email,
+      name: dbSchema.user.name,
+    }
+  })
+  .from(dbSchema.planRequests)
+  .leftJoin(dbSchema.user, eq(dbSchema.planRequests.userId, dbSchema.user.id))
+  .where(eq(dbSchema.planRequests.id, id))
+  .limit(1);
+
+const orderData = result[0];
+
+if (!orderData) {
+  return Astro.redirect("/admin");
+}
+
+const { request, user: requestUser } = orderData;
+
+const getStatusDetails = (status: string) => {
+  switch (status) {
+    case 'paid': return { label: 'Needs Fulfillment', variant: 'destructive' as const };
+    case 'delivered': return { label: 'Delivered', variant: 'default' as const };
+    default: return { label: status, variant: 'secondary' as const };
+  }
+};
+
+const status = getStatusDetails(request.status);
+---
+
+<DashboardLayout title={`Order - ${requestUser?.email}`} user={user}>
+  <div class="max-w-6xl mx-auto space-y-8 pb-16">
+    <div>
+      <a href="/admin" class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-6">
+        <ChevronLeft className="w-4 h-4" />
+        Back to Orders
+      </a>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-black tracking-tight text-foreground">Order Details</h1>
+          <p class="text-muted-foreground mt-1 text-lg">Client: {requestUser?.email}</p>
+        </div>
+        <div>
+          <Badge variant={status.variant} className="text-sm px-3 py-1 uppercase tracking-widest rounded-sm">
+            {status.label}
+          </Badge>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Left Column */}
+      <div class="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-black uppercase tracking-wide text-foreground border-b border-border pb-3">Physical Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div class="bg-muted/50 p-4 rounded-lg border border-border">
+              <div class="text-xs uppercase tracking-widest text-muted-foreground mb-1">Name</div>
+              <div class="text-lg font-medium text-foreground">{request.name}</div>
+            </div>
+            <div class="bg-muted/50 p-4 rounded-lg border border-border">
+              <div class="text-xs uppercase tracking-widest text-muted-foreground mb-1">Age</div>
+              <div class="text-lg font-medium text-foreground">{request.age} yrs</div>
+            </div>
+            <div class="bg-muted/50 p-4 rounded-lg border border-border">
+              <div class="text-xs uppercase tracking-widest text-muted-foreground mb-1">Weight</div>
+              <div class="text-lg font-medium text-foreground">{request.weight}</div>
+            </div>
+            <div class="bg-muted/50 p-4 rounded-lg border border-border">
+              <div class="text-xs uppercase tracking-widest text-muted-foreground mb-1">Height</div>
+              <div class="text-lg font-medium text-foreground">{request.height}</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-black uppercase tracking-wide text-foreground border-b border-border pb-3">Training Preferences</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul class="space-y-3 text-muted-foreground text-sm leading-relaxed">
+              <li><strong class="text-foreground">Frequency:</strong> {request.trainingFrequency} days/week</li>
+              <li><strong class="text-foreground">Available Days:</strong> {request.trainingDays}</li>
+              <li><strong class="text-foreground">Equipment:</strong> {request.equipment} {request.equipmentDetails ? `(${request.equipmentDetails})` : ''}</li>
+              <li><strong class="text-foreground">Failure Exp:</strong> {request.failureExp}</li>
+              <li><strong class="text-foreground">Injuries/Limitations:</strong> <span class="text-destructive font-medium">{request.injuries || 'None'}</span></li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Column */}
+      <div class="space-y-8 flex flex-col">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-black uppercase tracking-wide text-foreground border-b border-border pb-3">Goals & Focus</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Primary Goals</div>
+              <div class="bg-muted/30 p-4 rounded-lg border border-border text-muted-foreground text-sm leading-relaxed">
+                {request.goals}
+              </div>
+            </div>
+
+            <div>
+              <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Weak Points to Focus</div>
+              <div class="bg-muted/30 p-4 rounded-lg border border-border text-muted-foreground text-sm leading-relaxed">
+                {request.weakPoints || 'None specified'}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Liked Exercises</div>
+                <div class="bg-primary/5 border border-primary/20 p-4 rounded-lg text-primary text-sm leading-relaxed font-medium">
+                  {request.likedExercises || 'None specified'}
+                </div>
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Disliked Exercises</div>
+                <div class="bg-destructive/5 border border-destructive/20 p-4 rounded-lg text-destructive text-sm leading-relaxed font-medium">
+                  {request.dislikedExercises || 'None specified'}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Area */}
+        <div class="mt-auto">
+          {request.status === 'paid' && (
+            <Card className="border-primary/50 bg-primary/5 shadow-lg shadow-primary/5">
+              <CardHeader>
+                <CardTitle className="text-xl text-primary font-bold">Fulfill Order</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p class="text-sm text-muted-foreground mb-6">Upload the completed custom plan PDF. This will notify the client and mark the order as delivered.</p>
+                <form action="/api/admin/upload-plan" method="post" enctype="multipart/form-data" class="space-y-4">
+                  <input type="hidden" name="requestId" value={request.id} />
+                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="pdf">Plan PDF Document</Label>
+                    <Input id="pdf" name="pdf" type="file" accept="application/pdf" required className="bg-background cursor-pointer" />
+                  </div>
+                  <Button type="submit" size="lg" className="w-full font-bold">Upload PDF & Complete Order</Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {request.status === 'delivered' && (
+            <Card className="border-green-500/30 bg-green-500/5">
+              <CardContent className="pt-8 pb-6 flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-green-500" />
+                </div>
+                <h4 class="text-xl font-bold text-green-500 mb-2">Order Completed</h4>
+                <p class="text-sm text-muted-foreground mb-6">This custom plan was successfully delivered.</p>
+                
+                <a href={`/api/download/${request.id}`} target="_blank" class="w-full mb-6">
+                  <Button variant="outline" className="w-full border-green-500/50 text-green-600 hover:bg-green-500/10 hover:text-green-700">
+                    View Uploaded PDF
+                  </Button>
+                </a>
+                
+                <div class="w-full pt-6 border-t border-dashed border-green-500/30 text-left">
+                  <details class="group">
+                    <summary class="cursor-pointer text-sm font-medium text-primary hover:text-primary/80 transition-colors list-none flex items-center">
+                      <span class="border-b border-primary/30 group-hover:border-primary">Made a mistake? Update PDF</span>
+                    </summary>
+                    <form action="/api/admin/upload-plan" method="post" enctype="multipart/form-data" class="mt-4 space-y-4 p-4 bg-background rounded-lg border border-border shadow-inner">
+                      <input type="hidden" name="requestId" value={request.id} />
+                      <div class="grid w-full items-center gap-1.5">
+                        <Label htmlFor="new-pdf" className="text-xs">New PDF Document</Label>
+                        <Input id="new-pdf" name="pdf" type="file" accept="application/pdf" required className="bg-background cursor-pointer h-9 text-xs" />
+                      </div>
+                      <Button type="submit" variant="secondary" size="sm" className="w-full">Overwrite PDF</Button>
+                    </form>
+                  </details>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>

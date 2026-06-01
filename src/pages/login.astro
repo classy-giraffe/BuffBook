@@ -1,5 +1,10 @@
 ---
 export const prerender = false;
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/components/ui/card";
+import { Input } from "../components/components/ui/input";
+import { Button } from "../components/components/ui/button";
+import { Label } from "../components/components/ui/label";
+import "../styles/global.css";
 ---
 <!doctype html>
 <html lang="en">
@@ -7,117 +12,48 @@ export const prerender = false;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login — BuffBook</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <style>
-      :root {
-        --gold: #f7c800;
-        --bg: #080808;
-        --bg-glass: rgba(17, 17, 17, 0.7);
-        --border: #333;
-        --text: #e8e8e8;
-        --text-muted: #888;
-        --radius: 12px;
-        --error: #ff4d4f;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", sans-serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        margin: 0;
-        background-image: radial-gradient(circle at top right, rgba(247,200,0,0.08), transparent 400px);
-      }
-      .login-card {
-        background: var(--bg-glass);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--border);
-        padding: 3rem 2rem;
-        border-radius: var(--radius);
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-      }
-      h1 {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 2.5rem;
-        color: var(--gold);
-        margin-bottom: 1.5rem;
-      }
-      input {
-        width: 100%;
-        background: rgba(0,0,0,0.5);
-        border: 1px solid var(--border);
-        color: #fff;
-        padding: 0.8rem 1rem;
-        border-radius: 6px;
-        font-size: 1rem;
-        margin-bottom: 1rem;
-        box-sizing: border-box;
-        font-family: "Inter", sans-serif;
-        transition: border-color 0.2s, box-shadow 0.2s;
-      }
-      input:focus {
-        outline: none;
-        border-color: var(--gold);
-        box-shadow: 0 0 0 2px rgba(247, 200, 0, 0.2);
-      }
-      button {
-        width: 100%;
-        background: var(--gold);
-        color: #000;
-        border: none;
-        padding: 1rem;
-        border-radius: 6px;
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: transform 0.1s, background 0.2s;
-      }
-      button:hover {
-        background: #ffe033;
-      }
-      button:active {
-        transform: translateY(2px);
-      }
-      #error-msg {
-        color: var(--error);
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
-        display: none;
-      }
-    </style>
   </head>
-  <body>
-    <div class="login-card">
-      <h1>Login to Dashboard</h1>
-      <div id="error-msg"></div>
-      <form id="login-form">
-        <input type="email" id="email" placeholder="Email Address" required />
-        <input type="password" id="password" placeholder="Password" required />
-        <button type="submit">Sign In</button>
-      </form>
-      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
-        Don't have an account? <a href="/custom-plans/apply" style="color: var(--gold);">Apply for a plan</a>
-      </p>
-    </div>
+  <body class="flex min-h-screen items-center justify-center bg-background text-foreground relative antialiased">
+    <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 400px);"></div>
     
+    <div class="w-full max-w-md p-4">
+      <Card>
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bold tracking-tight text-primary">BuffBook</CardTitle>
+          <CardDescription>Enter your credentials to login to the dashboard.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div id="error-msg" class="text-sm font-medium text-destructive mb-4 hidden bg-destructive/10 p-3 rounded-md border border-destructive/20 text-center"></div>
+          <form id="login-form" class="space-y-4">
+            <div class="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input id="email" type="email" placeholder="m@example.com" required />
+            </div>
+            <div class="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required />
+            </div>
+            <Button type="submit" className="w-full font-bold">Sign In</Button>
+          </form>
+          <div class="mt-6 text-center text-sm text-muted-foreground">
+            Don't have an account? <a href="/custom-plans/apply" class="text-primary font-medium hover:underline">Apply for a plan</a>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
     <script>
       import { authClient } from "../lib/auth-client";
       
       const form = document.getElementById("login-form");
       const errorMsg = document.getElementById("error-msg") as HTMLDivElement;
       
-      // Parse redirect URL from query params
       const params = new URLSearchParams(window.location.search);
       const redirectUrl = params.get("redirect") || "/dashboard";
       
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        errorMsg.style.display = "none";
+        errorMsg.classList.add("hidden");
         
         const email = (document.getElementById("email") as HTMLInputElement).value;
         const password = (document.getElementById("password") as HTMLInputElement).value;
@@ -129,7 +65,7 @@ export const prerender = false;
         
         if (error) {
           errorMsg.textContent = error.message || "Failed to login";
-          errorMsg.style.display = "block";
+          errorMsg.classList.remove("hidden");
         } else {
           window.location.href = redirectUrl;
         }

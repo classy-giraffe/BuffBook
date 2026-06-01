@@ -1,14 +1,26 @@
 ---
 import DashboardLayout from "../../components/DashboardLayout.astro";
+import { AdminFilters } from "../../components/AdminFilters";
+import { Badge } from "../../components/components/ui/badge";
+import { Button } from "../../components/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/components/ui/table";
 import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
-import { eq, desc, ne } from "drizzle-orm";
+import { eq, desc, asc, ne, and, like, or } from "drizzle-orm";
+import "../../styles/global.css";
 
 export const prerender = false;
 
 const { user } = Astro.locals;
-const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
+const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
 if (!user || user.email !== ADMIN_EMAIL) {
   return Astro.redirect("/login");
@@ -16,99 +28,133 @@ if (!user || user.email !== ADMIN_EMAIL) {
 
 const db = drizzle(env.DB, { schema: dbSchema });
 
+const filterStatus = Astro.url.searchParams.get("status") || "all";
+const sortOrder = Astro.url.searchParams.get("sort") || "desc";
+const searchQuery = Astro.url.searchParams.get("search") || "";
+
+let conditions: any[] = [ne(dbSchema.planRequests.status, "pending_payment")];
+
+if (filterStatus === "paid" || filterStatus === "delivered") {
+  conditions.push(eq(dbSchema.planRequests.status, filterStatus));
+}
+
+if (searchQuery) {
+  conditions.push(
+    or(
+      like(dbSchema.planRequests.name, `%${searchQuery}%`),
+      like(dbSchema.user.email, `%${searchQuery}%`),
+    ),
+  );
+}
+
 const allRequests = await db
   .select({
     request: dbSchema.planRequests,
     user: {
       email: dbSchema.user.email,
       name: dbSchema.user.name,
-    }
+    },
   })
   .from(dbSchema.planRequests)
   .leftJoin(dbSchema.user, eq(dbSchema.planRequests.userId, dbSchema.user.id))
-  .where(ne(dbSchema.planRequests.status, "pending_payment"))
-  .orderBy(desc(dbSchema.planRequests.createdAt));
+  .where(and(...conditions))
+  .orderBy(
+    sortOrder === "asc"
+      ? asc(dbSchema.planRequests.createdAt)
+      : desc(dbSchema.planRequests.createdAt),
+  );
 
-const getStatusBadge = (status: string) => {
+const getStatusDetails = (status: string) => {
   switch (status) {
-    case 'paid': return { label: 'Needs Fulfillment', color: '#f7c800' };
-    case 'delivered': return { label: 'Delivered', color: '#52c41a' };
-    default: return { label: status, color: '#888' };
+    case "paid":
+      return { label: "Needs Fulfillment", variant: "destructive" as const };
+    case "delivered":
+      return { label: "Delivered", variant: "default" as const };
+    default:
+      return { label: status, variant: "secondary" as const };
   }
 };
 ---
 
 <DashboardLayout title="Admin Dashboard" user={user}>
-  <div class="container">
-    <h1>Admin Dashboard</h1>
-    <p class="subtitle">Manage and fulfill custom gym plans.</p>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-foreground">Orders</h1>
+      <p class="text-muted-foreground mt-1">
+        Manage and track custom plan requests.
+      </p>
+    </div>
 
-    {allRequests.length === 0 ? (
-      <div class="empty-state">
-        <p>No paid requests found.</p>
-      </div>
-    ) : (
-      <div class="grid" style="grid-template-columns: 1fr;">
-        {allRequests.map(({ request, user: requestUser }) => {
-          const status = getStatusBadge(request.status);
-          return (
-            <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 2rem;">
-              <div>
-                <div class="card-header" style="margin-bottom: 1rem;">
-                  <div class="card-title">Request for {requestUser?.email}</div>
-                  <div class="badge" style={`background: ${status.color};`}>{status.label}</div>
-                </div>
-                <div class="card-date" style="margin-bottom: 1.5rem;">Requested: {new Date(request.createdAt).toLocaleDateString()}</div>
-                
-                <h4 style="margin-bottom: 0.5rem; color: var(--gold);">User Details</h4>
-                <ul style="font-size: 0.9rem; color: var(--text-muted); padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6;">
-                  <li><strong>Name:</strong> {request.name}</li>
-                  <li><strong>Age:</strong> {request.age}</li>
-                  <li><strong>Weight:</strong> {request.weight}</li>
-                  <li><strong>Height:</strong> {request.height}</li>
-                  <li><strong>Experience to Failure:</strong> {request.failureExp}</li>
-                </ul>
+    <AdminFilters
+      client:load
+      initialSearch={searchQuery}
+      initialStatus={filterStatus}
+      initialSort={sortOrder}
+    />
 
-                <h4 style="margin-bottom: 0.5rem; color: var(--gold);">Training Preferences</h4>
-                <ul style="font-size: 0.9rem; color: var(--text-muted); padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6;">
-                  <li><strong>Frequency:</strong> {request.trainingFrequency} days/week</li>
-                  <li><strong>Days:</strong> {request.trainingDays}</li>
-                  <li><strong>Equipment:</strong> {request.equipment} {request.equipmentDetails ? `(${request.equipmentDetails})` : ''}</li>
-                  <li><strong>Injuries:</strong> {request.injuries || 'None'}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 style="margin-bottom: 0.5rem; color: var(--gold);">Goals & Focus</h4>
-                <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
-                  <p style="margin-bottom: 0.5rem;"><strong>Goals:</strong> {request.goals}</p>
-                  <p style="margin-bottom: 0.5rem;"><strong>Weak Points:</strong> {request.weakPoints || 'None'}</p>
-                  <p style="margin-bottom: 0.5rem;"><strong>Liked Exercises:</strong> {request.likedExercises || 'None'}</p>
-                  <p style="margin-bottom: 0.5rem;"><strong>Disliked Exercises:</strong> {request.dislikedExercises || 'None'}</p>
-                </div>
-
-                {request.status === 'paid' && (
-                  <div style="background: rgba(247, 200, 0, 0.05); border: 1px solid rgba(247, 200, 0, 0.2); padding: 1.5rem; border-radius: var(--radius);">
-                    <h4 style="margin-bottom: 1rem; color: var(--gold);">Fulfill Order</h4>
-                    <form action="/api/admin/upload-plan" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1rem;">
-                      <input type="hidden" name="requestId" value={request.id} />
-                      <input type="file" name="pdf" accept="application/pdf" required style="font-size: 0.9rem; background: var(--bg); padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; color: var(--text);" />
-                      <button type="submit" class="btn btn-primary" style="font-size: 1rem;">Upload PDF & Complete</button>
-                    </form>
-                  </div>
-                )}
-                {request.status === 'delivered' && (
-                  <div style="background: rgba(82, 196, 26, 0.05); border: 1px solid rgba(82, 196, 26, 0.2); padding: 1.5rem; border-radius: var(--radius);">
-                    <h4 style="margin-bottom: 0.5rem; color: #52c41a;">Order Completed</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">The plan was delivered successfully.</p>
-                    <a href={`/api/download/${request.id}`} target="_blank" class="btn" style="display: block; width: 100%; text-align: center;">View Uploaded PDF</a>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    )}
+    <div class="border rounded-md bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date</TableHead>
+            <TableHead>Customer</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {
+            allRequests.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="h-32 text-center text-muted-foreground"
+                >
+                  No orders found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              allRequests.map(({ request, user: requestUser }) => {
+                const status = getStatusDetails(request.status);
+                return (
+                  <TableRow>
+                    <TableCell className="font-medium text-muted-foreground">
+                      {new Date(request.createdAt).toLocaleDateString(
+                        undefined,
+                        {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        },
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div class="font-semibold text-foreground">
+                        {request.name}
+                      </div>
+                      <div class="text-xs text-muted-foreground">
+                        {requestUser?.email}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={status.variant} className="rounded-sm">
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <a href={`/admin/orders/${request.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Order
+                        </Button>
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )
+          }
+        </TableBody>
+      </Table>
+    </div>
   </div>
 </DashboardLayout>

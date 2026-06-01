@@ -1,10 +1,12 @@
 ---
 import DashboardLayout from "../../components/DashboardLayout.astro";
-import { getAuth } from "../../lib/auth";
 import { drizzle } from "drizzle-orm/d1";
 import { env } from "cloudflare:workers";
 import * as dbSchema from "../../db/schema";
 import { eq, desc } from "drizzle-orm";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../../components/components/ui/card";
+import { Badge } from "../../components/components/ui/badge";
+import { Button } from "../../components/components/ui/button";
 
 export const prerender = false;
 
@@ -25,11 +27,21 @@ if (sessionId) {
       apiVersion: "2024-04-10" as any,
     });
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
-    
-    if (checkoutSession.payment_status === "paid" && checkoutSession.metadata?.requestId) {
-      await db.update(dbSchema.planRequests)
-        .set({ status: "paid", stripeSessionId: sessionId, updatedAt: new Date() })
-        .where(eq(dbSchema.planRequests.id, checkoutSession.metadata.requestId));
+
+    if (
+      checkoutSession.payment_status === "paid" &&
+      checkoutSession.metadata?.requestId
+    ) {
+      await db
+        .update(dbSchema.planRequests)
+        .set({
+          status: "paid",
+          stripeSessionId: sessionId,
+          updatedAt: new Date(),
+        })
+        .where(
+          eq(dbSchema.planRequests.id, checkoutSession.metadata.requestId),
+        );
     }
   } catch (err) {
     console.error("Stripe session verification error:", err);
@@ -45,15 +57,17 @@ let requests = await db.query.planRequests.findMany({
 });
 
 // Sweep: check any "pending_payment" requests and verify with Stripe
-const pendingRequests = requests.filter(r => r.status === "pending_payment");
+const pendingRequests = requests.filter((r) => r.status === "pending_payment");
 if (pendingRequests.length > 0) {
   try {
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" as any });
-    
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-04-10" as any,
+    });
+
     for (const req of pendingRequests) {
       let isPaid = false;
-      
+
       if (req.stripeSessionId) {
         // Direct lookup by session ID
         const cs = await stripe.checkout.sessions.retrieve(req.stripeSessionId);
@@ -62,17 +76,23 @@ if (pendingRequests.length > 0) {
         // Fallback: search recent checkout sessions for this request's metadata
         const sessions = await stripe.checkout.sessions.list({ limit: 20 });
         const match = sessions.data.find(
-          s => s.metadata?.requestId === req.id && s.payment_status === "paid"
+          (s) =>
+            s.metadata?.requestId === req.id && s.payment_status === "paid",
         );
         if (match) {
           isPaid = true;
           req.stripeSessionId = match.id;
         }
       }
-      
+
       if (isPaid) {
-        await db.update(dbSchema.planRequests)
-          .set({ status: "paid", stripeSessionId: req.stripeSessionId || undefined, updatedAt: new Date() })
+        await db
+          .update(dbSchema.planRequests)
+          .set({
+            status: "paid",
+            stripeSessionId: req.stripeSessionId || undefined,
+            updatedAt: new Date(),
+          })
           .where(eq(dbSchema.planRequests.id, req.id));
       }
     }
@@ -89,50 +109,78 @@ if (pendingRequests.length > 0) {
 // A helper for status badges
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'pending_payment': return { label: 'Pending Payment', color: '#ff4d4f' };
-    case 'paid': return { label: 'In Progress (72-96 hrs)', color: '#f7c800' };
-    case 'delivered': return { label: 'Delivered', color: '#52c41a' };
-    default: return { label: status, color: '#888' };
+    case "pending_payment":
+      return { label: "Pending Payment", variant: "destructive", className: "" };
+    case "paid":
+      return { label: "In Progress (72-96 hrs)", variant: "default", className: "bg-amber-500 hover:bg-amber-600 text-amber-50" };
+    case "delivered":
+      return { label: "Delivered", variant: "default", className: "bg-green-600 hover:bg-green-700 text-green-50" };
+    default:
+      return { label: status, variant: "secondary", className: "" };
   }
 };
 ---
 
 <DashboardLayout title="Dashboard — BuffBook" user={user}>
-  <div class="container">
-    <h1>Your Dashboard</h1>
-    <p class="subtitle">Manage your custom gym plans here.</p>
-    
-    {requests.length === 0 ? (
-      <div class="empty-state">
-        <p>You haven't requested any custom plans yet.</p>
-        <br/>
-        <a href="/custom-plans/apply" class="btn btn-primary" style="display:inline-block; padding:0.8rem 1.5rem;">Apply Now</a>
+  <div class="mb-8">
+    <h1 class="text-4xl font-black tracking-tight text-foreground">Your Dashboard</h1>
+    <p class="text-muted-foreground mt-2">Manage your custom gym plans here.</p>
+  </div>
+
+  {
+    requests.length === 0 ? (
+      <div class="flex flex-col items-center justify-center py-24 px-6 border border-dashed rounded-xl border-border bg-card/50 text-center">
+        <p class="text-lg text-muted-foreground mb-6">You haven't requested any custom plans yet.</p>
+        <a href="/custom-plans/apply">
+          <Button size="lg" className="font-bold">Apply Now</Button>
+        </a>
       </div>
     ) : (
-      <div class="grid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {requests.map((req) => {
           const status = getStatusBadge(req.status);
           return (
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Hypertrophy Plan</div>
-                <div class="badge" style={`background: ${status.color};`}>{status.label}</div>
-              </div>
-              <div class="card-date">Requested: {new Date(req.createdAt).toLocaleDateString()}</div>
-              
-              {req.status === 'pending_payment' && (
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Your checkout was interrupted. Contact support to resume.</p>
+            <Card className="flex flex-col">
+              <CardHeader className="pb-3">
+                <div class="flex items-start justify-between gap-4">
+                  <CardTitle className="text-xl font-bold">Hypertrophy Plan</CardTitle>
+                  <Badge variant={status.variant as any} className={status.className}>
+                    {status.label}
+                  </Badge>
+                </div>
+                <p class="text-xs text-muted-foreground mt-1">
+                  Requested: {new Date(req.createdAt).toLocaleDateString()}
+                </p>
+              </CardHeader>
+              <CardContent className="flex-1">
+                {req.status === "pending_payment" && (
+                  <p class="text-sm text-muted-foreground">
+                    Your checkout was interrupted. Contact support to resume.
+                  </p>
+                )}
+                {req.status === "paid" && (
+                  <p class="text-sm text-muted-foreground">
+                    Your plan is currently being crafted. You will be notified
+                    when it's ready.
+                  </p>
+                )}
+                {req.status === "delivered" && (
+                  <p class="text-sm font-medium text-foreground">
+                    Your plan is ready! Download the PDF below.
+                  </p>
+                )}
+              </CardContent>
+              {req.status === "delivered" && (
+                <CardFooter>
+                  <a href={`/api/download/${req.id}`} target="_blank" class="w-full">
+                    <Button className="w-full font-bold">Download PDF</Button>
+                  </a>
+                </CardFooter>
               )}
-              {req.status === 'paid' && (
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Your plan is currently being crafted. You will be notified when it's ready.</p>
-              )}
-              {req.status === 'delivered' && (
-                <a href={`/api/download/${req.id}`} target="_blank" class="btn btn-primary">Download PDF</a>
-              )}
-            </div>
+            </Card>
           );
         })}
       </div>
-    )}
-  </div>
+    )
+  }
 </DashboardLayout>

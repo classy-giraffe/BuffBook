@@ -1,5 +1,17 @@
 ---
 // Custom homepage — bypasses Starlight entirely
+import { Button } from "../components/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "../components/components/ui/card";
+import { Badge } from "../components/components/ui/badge";
+import "../styles/global.css";
+
 const chapters = [
   {
     num: "00",
@@ -55,7 +67,7 @@ const GA_ID = "G-NG1D7QNQS7";
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -65,760 +77,219 @@ const GA_ID = "G-NG1D7QNQS7";
       content="A comprehensive, evidence-based guide to muscle hypertrophy and resistance training. No fluff. Just the science."
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      :root {
-        --gold: #f7c800;
-        --gold-dim: #b38e00;
-        --bg: #080808;
-        --bg-card: #111111;
-        --bg-card-hover: #181818;
-        --border: #222222;
-        --text: #e8e8e8;
-        --text-muted: #888888;
-        --radius: 8px;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", sans-serif;
-        font-size: 16px;
-        line-height: 1.6;
-        -webkit-font-smoothing: antialiased;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      /* ── NAV ─────────────────────────────────────────────────────────────── */
-      nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 clamp(1.5rem, 5vw, 4rem);
-        height: 60px;
-        background: rgba(8, 8, 8, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border);
-      }
-
-      .nav-logo {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.4rem;
-        letter-spacing: 0.08em;
-        color: var(--gold);
-      }
-
-      .nav-logo svg {
-        width: 24px;
-        height: 24px;
-        fill: var(--gold);
-      }
-
-      .nav-links {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .nav-link {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-muted);
-        transition: color 0.2s;
-        letter-spacing: 0.04em;
-      }
-
-      .nav-link:hover {
-        color: var(--text);
-      }
-
-      .nav-cta {
-        font-size: 0.85rem;
-        font-weight: 600;
-        background: var(--gold);
-        color: #000;
-        padding: 0.45rem 1.1rem;
-        border-radius: var(--radius);
-        letter-spacing: 0.04em;
-        transition:
-          background 0.2s,
-          transform 0.15s;
-      }
-
-      .nav-cta:hover {
-        background: #ffe033;
-        transform: translateY(-1px);
-      }
-
-      /* ── HERO ────────────────────────────────────────────────────────────── */
-      .hero {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 6rem clamp(1.5rem, 5vw, 4rem) 4rem;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-          radial-gradient(
-            ellipse 70% 60% at 50% 40%,
-            rgba(247, 200, 0, 0.07) 0%,
-            transparent 70%
-          ),
-          radial-gradient(
-            ellipse 40% 30% at 20% 80%,
-            rgba(247, 200, 0, 0.04) 0%,
-            transparent 60%
-          );
-        pointer-events: none;
-      }
-
-      .hero-eyebrow {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--gold);
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-      }
-
-      .hero-eyebrow::before,
-      .hero-eyebrow::after {
-        content: "";
-        width: 2rem;
-        height: 1px;
-        background: var(--gold);
-        opacity: 0.5;
-      }
-
-      .hero h1 {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: clamp(3.5rem, 10vw, 8rem);
-        line-height: 0.95;
-        letter-spacing: 0.02em;
-        color: #fff;
-        margin-bottom: 1.5rem;
-        max-width: 900px;
-      }
-
-      .hero h1 span {
-        color: var(--gold);
-        display: block;
-      }
-
-      .hero-sub {
-        font-size: clamp(1rem, 2vw, 1.2rem);
-        color: var(--text-muted);
-        max-width: 560px;
-        margin: 0 auto 2.5rem;
-        font-weight: 400;
-        line-height: 1.7;
-      }
-
-      .hero-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--gold);
-        color: #000;
-        font-weight: 700;
-        font-size: 0.95rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        padding: 0.85rem 2rem;
-        border-radius: var(--radius);
-        transition:
-          background 0.2s,
-          transform 0.15s,
-          box-shadow 0.2s;
-      }
-
-      .btn-primary:hover {
-        background: #ffe033;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(247, 200, 0, 0.25);
-      }
-
-      .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        padding: 0.85rem 1.5rem;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        transition:
-          border-color 0.2s,
-          color 0.2s;
-      }
-
-      .btn-secondary:hover {
-        border-color: #444;
-        color: var(--text);
-      }
-
-      .hero-stat-row {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        margin-top: 3rem;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .hero-stat {
-        text-align: center;
-      }
-
-      .hero-stat-num {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 2rem;
-        color: var(--gold);
-        letter-spacing: 0.05em;
-        line-height: 1;
-      }
-
-      .hero-stat-label {
-        font-size: 0.72rem;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-top: 0.2rem;
-      }
-
-      .hero-stat-divider {
-        width: 1px;
-        height: 2rem;
-        background: var(--border);
-      }
-
-      /* ── SECTION LAYOUT ──────────────────────────────────────────────────── */
-      section {
-        padding: 5rem clamp(1.5rem, 5vw, 4rem);
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .section-label {
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--gold);
-        margin-bottom: 0.75rem;
-      }
-
-      .section-title {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: clamp(2rem, 5vw, 3.5rem);
-        letter-spacing: 0.03em;
-        color: #fff;
-        line-height: 1;
-        margin-bottom: 1rem;
-      }
-
-      .section-desc {
-        font-size: 1rem;
-        color: var(--text-muted);
-        max-width: 520px;
-        line-height: 1.7;
-      }
-
-      /* ── CHAPTER GRID ────────────────────────────────────────────────────── */
-      .chapters-header {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        margin-bottom: 2.5rem;
-        gap: 2rem;
-        flex-wrap: wrap;
-      }
-
-      .chapter-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        background: var(--border);
-      }
-
-      .chapter-card {
-        background: var(--bg-card);
-        padding: 1.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        transition: background 0.2s;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .chapter-card::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--gold);
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
-      }
-
-      .chapter-card:hover {
-        background: var(--bg-card-hover);
-      }
-
-      .chapter-card:hover::after {
-        transform: scaleX(1);
-      }
-
-      .chapter-num {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 0.85rem;
-        letter-spacing: 0.2em;
-        color: var(--gold);
-        opacity: 0.7;
-      }
-
-      .chapter-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #fff;
-        line-height: 1.3;
-      }
-
-      .chapter-desc {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        flex: 1;
-      }
-
-      .chapter-arrow {
-        font-size: 0.8rem;
-        color: var(--gold);
-        opacity: 0;
-        transform: translateX(-4px);
-        transition:
-          opacity 0.2s,
-          transform 0.2s;
-        align-self: flex-start;
-      }
-
-      .chapter-card:hover .chapter-arrow {
-        opacity: 1;
-        transform: translateX(0);
-      }
-
-      /* ── PILLARS ─────────────────────────────────────────────────────────── */
-      .pillars-section {
-        border-top: 1px solid var(--border);
-      }
-
-      .pillars-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-      }
-
-      .pillar {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .pillar-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        background: rgba(247, 200, 0, 0.1);
-        border: 1px solid rgba(247, 200, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-      }
-
-      .pillar-title {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.3rem;
-        letter-spacing: 0.05em;
-        color: #fff;
-      }
-
-      .pillar-desc {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      /* ── PLANS ───────────────────────────────────────────────────────────── */
-      .plans-section {
-        border-top: 1px solid var(--border);
-      }
-
-      .plans-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1px;
-        margin-top: 2.5rem;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        background: var(--border);
-      }
-
-      @media (max-width: 700px) {
-        .plans-grid { grid-template-columns: 1fr; }
-      }
-
-      .plan-card {
-        background: var(--bg-card);
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .plan-card--featured {
-        background: #0f0f00;
-        border: 1px solid rgba(247, 200, 0, 0.2);
-        border-radius: var(--radius);
-        position: relative;
-      }
-
-      .plan-badge {
-        display: inline-block;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: #000;
-        background: var(--gold);
-        padding: 0.2rem 0.6rem;
-        border-radius: 4px;
-        align-self: flex-start;
-      }
-
-      .plan-title {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.6rem;
-        letter-spacing: 0.05em;
-        color: #fff;
-        line-height: 1;
-      }
-
-      .plan-desc {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-        flex: 1;
-      }
-
-      .plan-list {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-      }
-
-      .plan-list li::before {
-        content: '✓ ';
-        color: var(--gold);
-        font-weight: 700;
-      }
-
-      .plan-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--gold);
-        letter-spacing: 0.04em;
-        margin-top: 0.5rem;
-        transition: gap 0.2s;
-      }
-
-      .plan-link:hover { gap: 0.7rem; }
-
-      .free-banner {
-        margin-top: 1.5rem;
-        padding: 1rem 1.5rem;
-        background: rgba(247, 200, 0, 0.05);
-        border: 1px solid rgba(247, 200, 0, 0.15);
-        border-radius: var(--radius);
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-      }
-
-      .free-banner strong { color: var(--gold); }
-
-      /* ── QUOTE ───────────────────────────────────────────────────────────── */
-      .quote-section {
-        border-top: 1px solid var(--border);
-        text-align: center;
-      }
-
-      blockquote {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: clamp(1.5rem, 4vw, 2.5rem);
-        letter-spacing: 0.03em;
-        color: #fff;
-        line-height: 1.2;
-        max-width: 800px;
-        margin: 0 auto 1.5rem;
-      }
-
-      blockquote span {
-        color: var(--gold);
-      }
-
-      .quote-cta {
-        margin-top: 2.5rem;
-        display: flex;
-        justify-content: center;
-      }
-
-      /* ── FOOTER ──────────────────────────────────────────────────────────── */
-      footer {
-        border-top: 1px solid var(--border);
-        padding: 2rem clamp(1.5rem, 5vw, 4rem);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .footer-logo {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 1.1rem;
-        letter-spacing: 0.08em;
-        color: var(--gold);
-      }
-
-      .footer-links {
-        display: flex;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-      }
-
-      .footer-link {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        transition: color 0.2s;
-      }
-
-      .footer-link:hover {
-        color: var(--text);
-      }
-
-      .footer-copy {
-        font-size: 0.8rem;
-        color: #555;
-      }
-
-      /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
-      @media (max-width: 640px) {
-        .hero-stat-row {
-          gap: 1.25rem;
-        }
-        .hero-stat-divider {
-          display: none;
-        }
-        .chapters-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        footer {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-      }
-    </style>
 
     <!-- Google Analytics via Partytown (off main thread) -->
     <script
       type="text/partytown"
       src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
-    <script type="text/partytown" set:html={`
+    <script
+      type="text/partytown"
+      set:html={`
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () {
         dataLayer.push(arguments);
       };
       window.gtag("js", new Date());
       window.gtag("config", "${GA_ID}", { anonymize_ip: true });
-    `} />
+    `}
+    />
   </head>
 
-  <body>
+  <body
+    class="bg-background text-foreground font-sans antialiased relative min-h-screen"
+  >
     <!-- NAV -->
-    <nav>
-      <a href="/" class="nav-logo">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-6 md:px-12 backdrop-blur-md"
+    >
+      <a
+        href="/"
+        class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          class="h-6 w-6 fill-primary"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
           ></path>
         </svg>
         BuffBook
       </a>
-      <div class="nav-links">
-        <a href="/glossary/" class="nav-link">Glossary</a>
+      <div class="flex items-center gap-6">
+        <a
+          href="/glossary/"
+          class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >Glossary</a
+        >
         <a
           href="https://github.com/classy-giraffe/BuffBook"
-          class="nav-link"
+          class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           target="_blank"
           rel="noopener">GitHub</a
         >
-        <a href="/introduction/state-of-industry/" class="nav-cta"
-          >Start Reading</a
-        >
+
       </div>
     </nav>
 
     <!-- HERO -->
-    <section class="hero">
-      <p class="hero-eyebrow">Evidence-Based Training</p>
-      <h1>
+    <section
+      class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
+    >
+      <div
+        class="pointer-events-none absolute inset-0 -z-10"
+        style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 20% 80%, hsl(var(--primary) / 0.05) 0%, transparent 60%);"
+      >
+      </div>
+
+      <div
+        class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-6"
+      >
+        <div class="h-px w-8 bg-primary/50"></div>
+        Evidence-Based Training
+        <div class="h-px w-8 bg-primary/50"></div>
+      </div>
+
+      <h1
+        class="max-w-4xl text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
+      >
         The science of
-        <span>getting bigger.</span>
+        <span class="block text-primary">getting bigger.</span>
       </h1>
-      <p class="hero-sub">
+
+      <p
+        class="max-w-xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+      >
         A free, peer-reviewed and opinionated guide to muscle hypertrophy. No
         supplements to sell, no program to shill. You'll learn the science and
         how to use it.
       </p>
-      <div class="hero-actions">
-        <a href="/introduction/state-of-industry/" class="btn-primary">
-          Start Reading
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="/introduction/state-of-industry/">
+          <Button
+            size="lg"
+            className="h-14 px-8 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
           >
+            Start Reading
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              class="ml-2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+            >
+          </Button>
         </a>
         <a
           href="https://github.com/classy-giraffe/BuffBook"
-          class="btn-secondary"
           target="_blank"
           rel="noopener"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
-            ><path
-              d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.72.08-.72 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.82.57C20.57 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"
-            ></path></svg
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-14 px-8 text-base font-semibold"
           >
-          View on GitHub
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="mr-2"
+              ><path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.72.08-.72 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.82.57C20.57 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"
+              ></path></svg
+            >
+            View on GitHub
+          </Button>
         </a>
       </div>
-      <div class="hero-stat-row">
-        <div class="hero-stat">
-          <div class="hero-stat-num">7</div>
-          <div class="hero-stat-label">Chapters</div>
+
+      <div
+        class="mt-20 flex flex-wrap items-center justify-center gap-x-12 gap-y-8 px-4"
+      >
+        <div class="text-center">
+          <div class="text-4xl font-black text-primary tracking-tight">8</div>
+          <div
+            class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1"
+          >
+            Chapters
+          </div>
         </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">100+</div>
-          <div class="hero-stat-label">Pages</div>
+        <div class="hidden sm:block h-10 w-px bg-border"></div>
+        <div class="text-center">
+          <div class="text-4xl font-black text-primary tracking-tight">
+            100+
+          </div>
+          <div
+            class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1"
+          >
+            Pages
+          </div>
         </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">0</div>
-          <div class="hero-stat-label">Products sold</div>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">Free</div>
-          <div class="hero-stat-label">Forever</div>
+        <div class="hidden sm:block h-10 w-px bg-border"></div>
+        <div class="text-center">
+          <div class="text-4xl font-black text-primary tracking-tight">
+            Free
+          </div>
+          <div
+            class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1"
+          >
+            Forever
+          </div>
         </div>
       </div>
     </section>
 
     <!-- CHAPTERS -->
-    <section>
-      <div class="chapters-header">
+    <section class="max-w-7xl mx-auto px-6 py-24 border-t">
+      <div
+        class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
+      >
         <div>
-          <p class="section-label">What's inside</p>
-          <h2 class="section-title">8 Chapters. No Fluff.</h2>
+          <div
+            class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+          >
+            What's inside
+          </div>
+          <h2
+            class="text-4xl sm:text-5xl font-black tracking-tight text-foreground"
+          >
+            8 Chapters. No Fluff.
+          </h2>
         </div>
-        <p class="section-desc">
+        <p class="max-w-lg text-lg text-muted-foreground">
           From the biology of hypertrophy to building your first mesocycle — in
           the order that actually makes sense.
         </p>
       </div>
-      <div class="chapter-grid">
+
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border rounded-xl overflow-hidden"
+      >
         {
           chapters.map((ch) => (
-            <a href={ch.href} class="chapter-card">
-              <span class="chapter-num">CH. {ch.num}</span>
-              <span class="chapter-title">{ch.title}</span>
-              <span class="chapter-desc">{ch.desc}</span>
-              <span class="chapter-arrow">Read →</span>
+            <a
+              href={ch.href}
+              class="group bg-card p-6 flex flex-col gap-3 transition-colors hover:bg-muted relative overflow-hidden"
+            >
+              <div class="absolute bottom-0 left-0 right-0 h-1 bg-primary scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
+              <span class="text-xs font-bold uppercase tracking-[0.2em] text-primary/70">
+                CH. {ch.num}
+              </span>
+              <span class="text-lg font-bold text-foreground leading-snug">
+                {ch.title}
+              </span>
+              <span class="text-sm text-muted-foreground leading-relaxed flex-1">
+                {ch.desc}
+              </span>
+              <span class="text-sm font-semibold text-primary opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 mt-2">
+                Read →
+              </span>
             </a>
           ))
         }
@@ -826,132 +297,263 @@ const GA_ID = "G-NG1D7QNQS7";
     </section>
 
     <!-- PILLARS -->
-    <section class="pillars-section">
-      <p class="section-label">Why BuffBook</p>
-      <h2 class="section-title">Built differently.</h2>
-      <div class="pillars-grid">
-        <div class="pillar">
-          <div class="pillar-icon">🔬</div>
-          <div class="pillar-title">Evidence-Based</div>
-          <p class="pillar-desc">
+    <section class="max-w-7xl mx-auto px-6 py-24 border-t">
+      <div
+        class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+      >
+        Why BuffBook
+      </div>
+      <h2
+        class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-16"
+      >
+        Built differently.
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="flex flex-col gap-4">
+          <div
+            class="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl"
+          >
+            🔬
+          </div>
+          <h3 class="text-2xl font-bold tracking-tight text-foreground">
+            Evidence
+          </h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
             Every claim is grounded in peer-reviewed research. We cite primary
             sources, not YouTube channels or bro-science forums.
           </p>
         </div>
-        <div class="pillar">
-          <div class="pillar-icon">🚫</div>
-          <div class="pillar-title">No Products</div>
-          <p class="pillar-desc">
-            No supplements to sell, no coaching to push, no affiliate links. The
-            information is the product. It's completely free.
+        <div class="flex flex-col gap-4">
+          <div
+            class="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl"
+          >
+            🛠️
+          </div>
+          <h3 class="text-2xl font-bold tracking-tight text-foreground">
+            Experience
+          </h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Built upon years of in-the-trenches training. We balance scientific literature with practical knowledge of what actually produces results.
           </p>
         </div>
-        <div class="pillar">
-          <div class="pillar-icon">⚡</div>
-          <div class="pillar-title">Actionable</div>
-          <p class="pillar-desc">
-            Theory is worthless without application. Each chapter translates
-            research into concrete decisions you can make in the gym.
-          </p>
-        </div>
-        <div class="pillar">
-          <div class="pillar-icon">🔍</div>
-          <div class="pillar-title">Searchable</div>
-          <p class="pillar-desc">
-            Full-text search across all 100+ pages. Find exactly what you need,
-            when you need it, without scrolling through noise.
+        <div class="flex flex-col gap-4">
+          <div
+            class="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl"
+          >
+            🧠
+          </div>
+          <h3 class="text-2xl font-bold tracking-tight text-foreground">
+            Coaching
+          </h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Translating theory into practice. We provide actionable advice refined through coaching countless clients through plateaus and progression.
           </p>
         </div>
       </div>
     </section>
 
     <!-- CUSTOM PLANS -->
-    <section class="plans-section">
-      <p class="section-label">Custom Plans</p>
-      <h2 class="section-title">Want someone to do the thinking?</h2>
-      <p class="section-desc">
-        BuffBook will always be free. But if you'd rather skip the learning curve
-        and just follow a plan built for you — that option exists.
-      </p>
-      <div class="plans-grid">
-        <div class="plan-card">
-          <div class="plan-title">The Book</div>
-          <p class="plan-desc">
-            Everything you need to build an effective training program — the science, the rationale, and the practical application. Read it, understand it, apply it yourself.
-          </p>
-          <ul class="plan-list">
-            <li>Full evidence-based curriculum</li>
-            <li>100+ pages, searchable</li>
-            <li>Chapter exercises and frameworks</li>
-            <li>No account required</li>
-          </ul>
-          <a href="/introduction/state-of-industry/" class="plan-link">
-            Start reading — it's free →
-          </a>
-        </div>
-        <div class="plan-card plan-card--featured">
-          <span class="plan-badge" style="background: var(--gold); color: #000;">Available Now</span>
-          <div class="plan-title">Custom Plans</div>
-          <p class="plan-desc">
-            For people who just want to show up and lift. No reading required — I'll handle the program design based on your goals, schedule, equipment, and training history.
-          </p>
-          <ul class="plan-list">
-            <li>Fully personalized mesocycle</li>
-            <li>Exercise selection matched to you</li>
-            <li>Volume & progression laid out</li>
-            <li>One-time delivery, no subscription</li>
-          </ul>
-          <a href="/custom-plans" class="plan-link">
-            Get Your Custom Plan →
-          </a>
-        </div>
+    <section class="max-w-7xl mx-auto px-6 py-24 border-t">
+      <div
+        class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+      >
+        Custom Plans
       </div>
-      <div class="free-banner">
-        <strong>The content on this site will never be paywalled.</strong> Custom plans are an option for people who want a shortcut — not a requirement. Every concept, framework, and piece of evidence in BuffBook is free and always will be.
+      <h2
+        class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-4"
+      >
+        Want someone to do the thinking?
+      </h2>
+      <p class="max-w-2xl text-lg text-muted-foreground mb-12">
+        BuffBook will always be free. But if you'd rather skip the learning
+        curve and just follow a plan built for you — that option exists.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-3xl font-black">The Book</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Everything you need to build an effective training program — the
+              science, the rationale, and the practical application. Read it,
+              understand it, apply it yourself.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <ul class="space-y-3 text-sm text-muted-foreground">
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > Full evidence-based curriculum
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > 100+ pages, searchable
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > Chapter exercises and frameworks
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > No account required
+              </li>
+            </ul>
+          </CardContent>
+          <CardFooter>
+            <a
+              href="/introduction/state-of-industry/"
+              class="text-primary font-bold text-sm hover:underline flex items-center gap-1"
+            >
+              Start reading — it's free <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+              >
+            </a>
+          </CardFooter>
+        </Card>
+
+        <Card
+          className="flex flex-col border-primary/30 relative overflow-hidden bg-primary/5"
+        >
+          <div class="absolute top-0 right-0 p-6">
+            <Badge
+              variant="default"
+              className="font-bold tracking-widest uppercase text-[0.65rem]"
+              >Available Now</Badge
+            >
+          </div>
+          <CardHeader>
+            <CardTitle className="text-3xl font-black">Custom Plans</CardTitle>
+            <CardDescription className="text-base mt-2">
+              For people who just want to show up and lift. No reading required
+              — I'll handle the program design based on your goals, schedule,
+              equipment, and training history.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <ul class="space-y-3 text-sm text-muted-foreground">
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > Fully personalized mesocycle
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > Exercise selection matched to you
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > Volume & progression laid out
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg
+                > One-time delivery, no subscription
+              </li>
+            </ul>
+          </CardContent>
+          <CardFooter>
+            <a
+              href="/custom-plans"
+              class="text-primary font-bold text-sm hover:underline flex items-center gap-1"
+            >
+              Get Your Custom Plan <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+              >
+            </a>
+          </CardFooter>
+        </Card>
+      </div>
+
+      <div
+        class="mt-8 p-6 bg-primary/5 border border-primary/10 rounded-xl text-sm text-muted-foreground leading-relaxed"
+      >
+        <strong class="text-primary"
+          >The content on this site will never be paywalled.</strong
+        > Custom plans are an option for people who want a shortcut — not a requirement.
+        Every concept, framework, and piece of evidence in BuffBook is free and always
+        will be.
       </div>
     </section>
 
     <!-- QUOTE / CTA -->
-    <section class="quote-section">
-      <blockquote>
+    <section class="max-w-4xl mx-auto px-6 py-24 border-t text-center">
+      <blockquote
+        class="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-foreground mb-6"
+      >
         "The goal of programming is straightforward: get stronger on the <span
-          >right exercises</span
+          class="text-primary">right exercises</span
         >, consistently, over a long period of time."
       </blockquote>
       <p
-        style="color: var(--text-muted); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;"
+        class="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground mb-12"
       >
         — BuffBook, Chapter 6
       </p>
-      <div class="quote-cta">
-        <a href="/introduction/state-of-industry/" class="btn-primary">
-          Start from Chapter 0
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
-          >
-        </a>
-      </div>
+
     </section>
 
     <!-- FOOTER -->
-    <footer>
-      <span class="footer-logo">BuffBook</span>
-      <div class="footer-links">
-        <a href="/introduction/state-of-industry/" class="footer-link">Read</a>
-        <a href="/glossary/" class="footer-link">Glossary</a>
-        <a
-          href="https://github.com/classy-giraffe/BuffBook"
-          class="footer-link"
-          target="_blank"
-          rel="noopener">GitHub</a
+    <footer class="border-t py-12 px-6">
+      <div
+        class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6"
+      >
+        <span class="font-bold tracking-tight text-lg text-primary"
+          >BuffBook</span
+        >
+
+        <span class="text-sm text-muted-foreground font-medium"
+          >Built with 💛 by classy-giraffe</span
         >
       </div>
-      <span class="footer-copy">Built with 💛 by classy-giraffe</span>
     </footer>
   </body>
 </html>
