@@ -9,6 +9,7 @@ import {
 import { Separator } from "@components/ui/separator";
 import { FaqAccordion } from "../../components/FaqAccordion";
 import "../../styles/global.css";
+import MarketingLayout from "../../layouts/MarketingLayout.astro";
 
 const faqs = [
   {
@@ -30,64 +31,22 @@ const faqs = [
 ];
 ---
 
-<!doctype html>
-<html lang="en" class="scroll-smooth" data-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Custom Gym Plans - BuffBook</title>
-    <meta
-      name="description"
-      content="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level."
-    />
-    <script is:inline>
-      document.documentElement.dataset.theme = 'dark';
-    </script>
-  </head>
-  <body
-    class="bg-background text-foreground font-sans antialiased relative min-h-screen flex flex-col"
-  >
-    <nav
-      class="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-6 md:px-12 backdrop-blur-md"
-    >
-      <a
-        href="/"
-        class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          class="h-6 w-6 fill-primary"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
-          ></path>
-        </svg>
-        BuffBook
-      </a>
-      <a href="/">
-        <Button size="sm" variant="outline" className="font-bold"
-          >Back to Book</Button
-        >
-      </a>
-    </nav>
-
+<MarketingLayout title="Custom Gym Plans - BuffBook" description="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level.">
     <main class="flex-1">
       <section
-        class="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
+        class="relative flex min-h-[75vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
       >
         <div
-          class="pointer-events-none absolute inset-0 -z-10"
-          style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.07) 0%, transparent 70%);"
+          class="pointer-events-none absolute inset-0 -z-10 bg-background"
         >
+          <!-- Subtle top gradient -->
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary/5 blur-[100px] rounded-full"></div>
         </div>
 
         <div
-          class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-6"
+          class="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground mb-8"
         >
-          <div class="h-px w-8 bg-primary/50"></div>
           Personalized Programming
-          <div class="h-px w-8 bg-primary/50"></div>
         </div>
 
         <h1
@@ -104,64 +63,58 @@ const faqs = [
           scratch in 72-96 hours.
         </p>
 
-        <a href="/custom-plans/apply">
-          <Button
-            size="lg"
-            className="h-14 px-8 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
-          >
-            Get Your Plan - 30 EUR
-          </Button>
-        </a>
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+          <a href="/custom-plans/apply">
+            <Button
+              size="lg"
+              className="h-12 px-8 text-sm font-semibold tracking-wide rounded-full shadow-sm"
+            >
+              Apply Now
+            </Button>
+          </a>
+          <a href="#how-it-works" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2">
+            See how it works &darr;
+          </a>
+        </div>
       </section>
 
-      <section class="max-w-3xl mx-auto px-6 pb-24">
-        <h2 class="text-3xl font-black tracking-tight text-foreground mb-10 text-center">Here is exactly what you get:</h2>
+      <section id="how-it-works" class="max-w-5xl mx-auto px-6 py-24 scroll-mt-16">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl font-black tracking-tight text-foreground mb-4">Here is exactly what you get:</h2>
+          <p class="text-muted-foreground text-lg max-w-xl mx-auto">A structured, science-based approach to your training, delivered in four comprehensive parts.</p>
+        </div>
         
-        <div class="space-y-12">
-          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
-            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">1</div>
-            <div>
-              <h3 class="text-2xl font-black text-foreground mb-3">A Fully Customized Mesocycle</h3>
-              <p class="text-muted-foreground leading-relaxed text-lg">
-                A training program built specifically around your individual biomechanics, goals, and training history. You tell me what you want to achieve, and I build the exact roadmap to get you there without any guesswork.
-              </p>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
+            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">01</div>
+            <h3 class="text-2xl font-black text-foreground mb-3">A Fully Customized Mesocycle</h3>
+            <p class="text-muted-foreground leading-relaxed text-lg">
+              A training program built specifically around your individual biomechanics, goals, and training history. You tell me what you want to achieve, and I build the exact roadmap to get you there without any guesswork.
+            </p>
           </div>
           
-          <Separator className="opacity-30" />
-
-          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
-            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">2</div>
-            <div>
-              <h3 class="text-2xl font-black text-foreground mb-3">Science-Backed Progression</h3>
-              <p class="text-muted-foreground leading-relaxed text-lg">
-                Your sets, reps, and progression schemes are mathematically matched to your recovery capacity. Using the peer-reviewed principles outlined in the BuffBook, I ensure you apply the exact amount of volume needed to grow - no more, no less.
-              </p>
-            </div>
+          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
+            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">02</div>
+            <h3 class="text-2xl font-black text-foreground mb-3">Science-Backed Progression</h3>
+            <p class="text-muted-foreground leading-relaxed text-lg">
+              Your sets, reps, and progression schemes are mathematically matched to your recovery capacity. Using the peer-reviewed principles outlined in the BuffBook, I ensure you apply the exact amount of volume needed to grow - no more, no less.
+            </p>
           </div>
 
-          <Separator className="opacity-30" />
-
-          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
-            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">3</div>
-            <div>
-              <h3 class="text-2xl font-black text-foreground mb-3">Personalized Exercise Selection</h3>
-              <p class="text-muted-foreground leading-relaxed text-lg">
-                Not everyone is built to barbell squat or bench press. I personally review your past injuries, weak points, and available equipment to select exercises that are highly stimulating and safe for your specific leverages.
-              </p>
-            </div>
+          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
+            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">03</div>
+            <h3 class="text-2xl font-black text-foreground mb-3">Personalized Exercise Selection</h3>
+            <p class="text-muted-foreground leading-relaxed text-lg">
+              Not everyone is built to barbell squat or bench press. I personally review your past injuries, weak points, and available equipment to select exercises that are highly stimulating and safe for your specific leverages.
+            </p>
           </div>
 
-          <Separator className="opacity-30" />
-
-          <div class="flex flex-col sm:flex-row gap-6 sm:items-start">
-            <div class="h-12 w-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl shadow-sm">4</div>
-            <div>
-              <h3 class="text-2xl font-black text-foreground mb-3">Detailed Execution Guide</h3>
-              <p class="text-muted-foreground leading-relaxed text-lg">
-                You won't just get a confusing spreadsheet. You'll receive a detailed PDF breakdown with specific form cues for each exercise, warm-up strategies, and exact instructions on how to log your progression accurately.
-              </p>
-            </div>
+          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
+            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">04</div>
+            <h3 class="text-2xl font-black text-foreground mb-3">Detailed Execution Guide</h3>
+            <p class="text-muted-foreground leading-relaxed text-lg">
+              You won't just get a confusing spreadsheet. You'll receive a detailed PDF breakdown with specific form cues for each exercise, warm-up strategies, and exact instructions on how to log your progression accurately.
+            </p>
           </div>
         </div>
       </section>
@@ -176,5 +129,4 @@ const faqs = [
         <FaqAccordion client:visible items={faqs} />
       </section>
     </main>
-  </body>
-</html>
+</MarketingLayout>
