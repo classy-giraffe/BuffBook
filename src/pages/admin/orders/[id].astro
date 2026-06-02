@@ -15,9 +15,9 @@ import "../../../styles/global.css";
 export const prerender = false;
 
 const { user } = Astro.locals;
-const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
+const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
-if (!user || user.email !== ADMIN_EMAIL) {
+if (!user || !ADMIN_EMAIL || user.email !== ADMIN_EMAIL) {
   return Astro.redirect("/login");
 }
 

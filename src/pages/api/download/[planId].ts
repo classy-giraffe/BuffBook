@@ -24,8 +24,8 @@ export const GET: APIRoute = async (ctx) => {
   if (!planRequest) return new Response("Not found", { status: 404 });
 
   // Only the owner or the admin can download the plan
-  const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
-  if (planRequest.userId !== user.id && user.email !== ADMIN_EMAIL) {
+  const ADMIN_EMAIL = env.ADMIN_EMAIL;
+  if (planRequest.userId !== user.id && (!ADMIN_EMAIL || user.email !== ADMIN_EMAIL)) {
     return new Response("Forbidden", { status: 403 });
   }
 

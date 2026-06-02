@@ -9,8 +9,8 @@ export const prerender = false;
 export const POST: APIRoute = async (ctx) => {
   const { user } = ctx.locals;
   
-  const ADMIN_EMAIL = env.ADMIN_EMAIL || "chitilivorno@gmail.com";
-  if (!user || user.email !== ADMIN_EMAIL) {
+  const ADMIN_EMAIL = env.ADMIN_EMAIL;
+  if (!user || !ADMIN_EMAIL || user.email !== ADMIN_EMAIL) {
     return new Response("Forbidden", { status: 403 });
   }
 

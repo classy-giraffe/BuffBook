@@ -60,6 +60,18 @@ export function createAuth(env: any) {
                 }
             }
         },
+        databaseHooks: {
+            user: {
+                create: {
+                    before: async (user) => {
+                        if (env.ADMIN_EMAIL && user.email === env.ADMIN_EMAIL) {
+                            throw new Error("Admin registration blocked.");
+                        }
+                        return { data: user };
+                    }
+                }
+            }
+        },
         secret: env.BETTER_AUTH_SECRET,
         baseURL: env.BETTER_AUTH_URL,
     });
