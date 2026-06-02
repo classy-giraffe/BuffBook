@@ -2,9 +2,9 @@
 title: "Summary & References"
 ---
 
-- **Stability is King:** The more stable an exercise (e.g., using machines or external bracing), the better the nervous system can recruit high-threshold motor units and produce force for hypertrophy.
+- **Stability is King:** The more stable an exercise (e.g., using machines or external bracing), the better the nervous system can recruit high-threshold [motor units](/chapter2/motor-units) and produce force for hypertrophy.
 - **The Two-Exercise Rule:** To fully stimulate a muscle, select one exercise that emphasizes the lengthened position and (if volume allows) a second that emphasizes the shortened position.
-- **Joint Actions:** Align exercises with the anatomical functions of the target muscle. Avoid active insufficiency (training a muscle when it is too short to produce force) unless isolating specific heads.
+- **[Joint Actions](/chapter4/joint-actions):** Align exercises with the anatomical functions of the target muscle. Avoid active insufficiency (training a muscle when it is too short to produce force) unless isolating specific heads.
 - **Resistance Profiles:** Choose equipment (machines, cables, or free weights) that provides a resistance profile matching the muscle's strength curve, ensuring tension remains high where it matters most.
 
 ---

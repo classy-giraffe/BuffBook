@@ -2,7 +2,7 @@
 title: 7.4.3 Fats
 ---
 
-Dietary fat is not the enemy that 1990s diet culture made it out to be. Fat is an essential macronutrient: your body cannot function properly without it. It serves as the structural backbone of every cell membrane, is required for the absorption of fat-soluble vitamins (A, D, E, K), and is a precursor for critical hormones—including testosterone and estrogen, both of which play roles in muscle growth and recovery.
+Dietary fat is not the enemy that 1990s diet culture made it out to be. Fat is an essential [macronutrient](/chapter7/macronutrients): your body cannot function properly without it. It serves as the structural backbone of every cell membrane, is required for the absorption of fat-soluble vitamins (A, D, E, K), and is a precursor for critical hormones—including testosterone and estrogen, both of which play roles in muscle growth and recovery.
 
 **Minimum intake:** A commonly cited threshold for maintaining hormonal health is approximately **0.5–0.7 g/kg of bodyweight per day**. Dropping below this—particularly for extended periods during aggressive diets—can lead to hormonal disruption, including suppressed testosterone in men and menstrual irregularity in women.
 
@@ -15,4 +15,4 @@ Dietary fat is not the enemy that 1990s diet culture made it out to be. Fat is a
 | **Saturated** | Butter, red meat, coconut oil, cheese | Keep moderate — not "toxic," but excessive intake is associated with elevated LDL |
 | **Trans fats** | Partially hydrogenated oils, some processed foods | Avoid — no safe level; directly atherogenic |
 
-**Practical approach:** Don't fear fat, but respect its caloric density. At 9 kcal/g, fat is more than twice as energy-dense as protein or carbohydrate. A tablespoon of olive oil (~120 kcal) can easily go unnoticed in cooking but adds up quickly. When setting up your macros, meet the minimum fat threshold, then allocate the remaining calories to carbohydrates.
+**Practical approach:** Don't fear fat, but respect its caloric density. At 9 kcal/g, fat is more than twice as energy-dense as [protein](/chapter7/protein) or carbohydrate. A tablespoon of olive oil (~120 kcal) can easily go unnoticed in cooking but adds up quickly. When setting up your macros, meet the minimum fat threshold, then allocate the remaining calories to carbohydrates.

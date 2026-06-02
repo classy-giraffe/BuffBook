@@ -4,7 +4,7 @@ title: 6.7 When Progress Stalls
 
 When the weight on the bar stops climbing for several weeks despite consistent training, investigate in order:
 
-1. **Am I recovered?** Sleep, protein, total calories. The most common culprit is under‑recovery.
+1. **Am I recovered?** Sleep, [protein](/chapter7/protein), total calories. The most common culprit is under‑recovery.
 2. **Is the exercise still loadable?** If you've been stuck on a dumbbell lateral raise for months, switch to a cable version to get a fresh progression slope.
 3. **Has volume crept too high?** If joints ache and performance is declining, cut total hard sets across the board by 20–30% for a week and see if strength rebounds.
 4. **If nothing else works, consider a reactive reduction** as described in Section 6.6—but only if the above three factors have been addressed first.

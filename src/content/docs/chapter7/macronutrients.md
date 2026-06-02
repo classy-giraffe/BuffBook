@@ -2,11 +2,11 @@
 title: 7.4 Macronutrients
 ---
 
-Macronutrients are the three categories of nutrients that provide energy: **protein**, **carbohydrates**, and **fats**. Each plays a distinct role in the body beyond simply supplying calories. We also cover two additional substances in this section: **fiber**—a type of carbohydrate that deserves its own discussion because of how consistently undervalued it is—and **alcohol**, which supplies calories but comes with significant costs.
+Macronutrients are the three categories of nutrients that provide energy: **[protein](/chapter7/protein)**, **carbohydrates**, and **fats**. Each plays a distinct role in the body beyond simply supplying calories. We also cover two additional substances in this section: **fiber**—a type of carbohydrate that deserves its own discussion because of how consistently undervalued it is—and **alcohol**, which supplies calories but comes with significant costs.
 
 The practical order of priority when setting up your nutrition is:
 
-1. **Set your calories** (Section 7.3 — energy balance)
+1. **Set your calories** (Section 7.3 — [energy balance](/chapter7/cico))
 2. **Set your protein** (the non-negotiable macro for anyone who trains)
 3. **Set your fats** (minimum threshold for hormonal health)
 4. **Fill the rest with carbohydrates** (the flexible macro)

@@ -4,10 +4,10 @@ title: 1.1 The Mechanotransduction Pathway
 
 Muscles do not grow because they are holding a weight; they grow because they are deforming under that weight. When you lift something heavy, the physical strain on the muscle fibers—the individual cells that make up your muscles—triggers a cascade of chemical signals, a process called mechanotransduction.
 
-Think of the muscle cell as a tent. The fabric is the cell membrane (sarcolemma), and the poles are the structural proteins inside (the cytoskeleton). When you apply a heavy load, you pull on those poles. The pulling creates tension that is sensed by specific proteins embedded in the cell’s structure.
+Think of the muscle cell as a tent. The fabric is the cell membrane (sarcolemma), and the poles are the structural [proteins](/chapter7/protein) inside (the cytoskeleton). When you apply a heavy load, you pull on those poles. The pulling creates tension that is sensed by specific proteins embedded in the cell's structure.
 
 The primary sensors are **integrins**—proteins that bridge the outside of the cell to the inside. When the muscle is stretched or placed under high tension, integrins physically deform. This deformation activates an enzyme called **Focal Adhesion Kinase (FAK)**, which sets off a chain reaction inside the cell [1].
 
-Crucially, mechanical tension also triggers the release of **Phosphatidic Acid (PA)** via the enzyme **Phospholipase D (PLD)**. PA is a lipid molecule that acts as a direct chemical messenger. When the cell senses enough deformation, it produces PA, which then seeks out the master switch of muscle growth: **mTORC1** [2].
+Crucially, [mechanical tension](/chapter2/mechanical-tension) also triggers the release of **Phosphatidic Acid (PA)** via the enzyme **Phospholipase D (PLD)**. PA is a lipid molecule that acts as a direct chemical messenger. When the cell senses enough deformation, it produces PA, which then seeks out the master switch of muscle growth: **mTORC1** [2].
 
 ![Molecular Pathways of Muscle Hypertrophy](/chapter1/images/mTOR.png)

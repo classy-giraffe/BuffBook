@@ -4,7 +4,7 @@ title: 7.5 Micronutrients
 
 Micronutrients—vitamins and minerals—do not directly build muscle or provide energy, but they are essential cofactors in virtually every metabolic process your body runs. Enzyme function, immune response, bone health, oxygen transport, nerve conduction, and hormone production all depend on adequate micronutrient status. A chronic deficiency in even a single micronutrient can impair recovery, reduce training performance, and undermine overall health.
 
-The good news: if you eat a varied diet with plenty of vegetables, fruits, lean proteins, and whole grains, you are likely covering most of your micronutrient needs. The problem is that many people don't.
+The good news: if you eat a varied diet with plenty of vegetables, fruits, lean [proteins](/chapter7/protein), and whole grains, you are likely covering most of your micronutrient needs. The problem is that many people don't.
 
 ### Common Deficiencies in Western Diets
 

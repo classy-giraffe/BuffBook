@@ -4,7 +4,7 @@ title: 5.7.2 Double Progression
 
 Because the muscle grows by adapting to the tension it experiences, you must expose it to incrementally greater tension over time. The most reliable method for doing this in hypertrophy training is **double progression**:
 
-1. **Add reps first.** Select a rep range (e.g., 8–12). Start with a weight you can lift for 8 reps at RIR 1–2. Over subsequent sessions, add reps until you reach the top of the range (12 reps) while maintaining the same RIR.
+1. **Add reps first.** Select a rep range (e.g., 8–12). Start with a weight you can lift for 8 reps at [RIR](/chapter5/rir) 1–2. Over subsequent sessions, add reps until you reach the top of the range (12 reps) while maintaining the same RIR.
 2. **Add load, drop reps.** When you can complete all sets at the top of the rep range, increase the load by the smallest available increment. The new heavier weight will drop you back to the bottom of the rep range. Repeat.
 
 ![The Double Progression Model](/chapter5/images/double_progression.png)

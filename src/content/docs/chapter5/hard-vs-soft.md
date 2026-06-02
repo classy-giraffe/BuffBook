@@ -2,7 +2,7 @@
 title: 5.2.3 Hard vs. Soft Volume
 ---
 
-Not all “sets” are equal. A set of 5 reps to absolute failure with a slow final rep produces maximal fiber‑level tension in all recruited fibers. A set of 10 reps stopped at RIR 4—where the last rep moved fast and only low‑threshold MUs were active—is soft volume. It inflates the set count without contributing to the growth stimulus.
+Not all “sets” are equal. A set of 5 reps to absolute failure with a slow final rep produces maximal fiber‑level tension in all recruited fibers. A set of 10 reps stopped at [RIR](/chapter5/rir) 4—where the last rep moved fast and only low‑threshold MUs were active—is soft volume. It inflates the set count without contributing to the growth stimulus.
 
 This distinction matters enormously when you compare programs. A program that logs 20 “sets” per muscle per week but takes most of them to RIR 4 is providing less effective stimulus than one with 10 sets at RIR 1–2. For the rest of this chapter, “volume” refers to hard sets (0–2 RIR) unless stated otherwise.
 

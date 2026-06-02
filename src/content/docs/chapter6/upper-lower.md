@@ -34,7 +34,7 @@ Observe how the split is organized to match the client's needs. Lower days are p
 | Hip Adduction Machine | 1 | 6-10 |
 
 Explanation:
-We first identify each joint action that we want to train:
+We first identify each [joint action](/chapter4/joint-actions) that we want to train:
 - **Glutes:** Hip Extension, Hip Abduction
 - **Quads:** Knee Extension
 - **Hamstrings:** Knee Flexion

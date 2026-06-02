@@ -5,8 +5,8 @@ title: "Summary & References"
 - **Hypertrophy is region-specific.** Muscles grow non-uniformly. SMH (passive tension) and NMM (leverage-based recruitment) both explain why the lengthened position is uniquely effective. The practical lesson: prioritize exercises that challenge muscles at long lengths to stimulate growth across the widest portion of the muscle.
 - **Lengthened training is a tool, not a dogma.** The effect is real but often modest; the magnitude depends on how much extra length the exercise creates. Apply it with flexibility, not rigidity.
 - **Eccentrics amplify tension but also damage.** A controlled eccentric (2–3 seconds) maximizes mechanical stimulus without excessive damage. Extreme eccentric overload is counterproductive.
-- **Fiber types don’t require separate programs.** Both Type I and Type II fibers grow when recruited under high mechanical tension. Rep range, load, and tempo are programming trade-offs for recovery and fatigue management—not tools to “target” specific fiber types.
-- **The bottom line:** Proximity to failure dictates which motor units are recruited; bar speed determines how much tension those recruited fibers experience. Use heavy or moderate loads and allow the bar to slow naturally as fatigue rises. Deliberately slow reps with light loads do not bypass the need for high-threshold motor unit recruitment and are mostly a waste of training time.
+- **Fiber types don't require separate programs.** Both Type I and Type II fibers grow when recruited under high [mechanical tension](/chapter2/mechanical-tension). Rep range, load, and tempo are programming trade-offs for recovery and fatigue management—not tools to “target” specific fiber types.
+- **The bottom line:** Proximity to failure dictates which [motor units](/chapter2/motor-units) are recruited; bar speed determines how much tension those recruited fibers experience. Use heavy or moderate loads and allow the bar to slow naturally as fatigue rises. Deliberately slow reps with light loads do not bypass the need for high-threshold motor unit recruitment and are mostly a waste of training time.
 
 ---
 
@@ -32,5 +32,5 @@ title: "Summary & References"
 | [16] | Herzog W. The role of titin in eccentric muscle contraction. *J Exp Biol.* 2014;217(16):2825–2833. | doi: 10.1242/jeb.099127 |
 | [17] | Frank D, Frey N. Cardiac Z-disc signaling network. *J Biol Chem.* 2011;286(12):9897–9904. | doi: 10.1074/jbc.R110.174268 |
 | [18] | Grgic J, Schoenfeld BJ. Are the hypertrophic adaptations to high and low-load resistance training muscle fiber type specific? *Front Physiol.* 2018;9:402. | doi: 10.3389/fphys.2018.00402 |
-| [19] | Schoenfeld BJ. Does exercise-induced muscle damage play a role in skeletal muscle hypertrophy? *J Strength Cond Res.* 2012;26(5):1441–1453. | doi: 10.1519/JSC.0b013e31824f3e2c |
+| [19] | Schoenfeld BJ. Does exercise-induced [muscle damage](/chapter2/muscle-damage) play a role in skeletal muscle hypertrophy? *J Strength Cond Res.* 2012;26(5):1441–1453. | doi: 10.1519/JSC.0b013e31824f3e2c |
 

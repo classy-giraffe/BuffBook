@@ -2,8 +2,8 @@
 title: "Summary & References"
 ---
 
-- **Mechanotransduction:** Muscle growth begins with physical deformation of the fibers—the weight on the bar only matters if it creates enough internal tension to trigger integrins and release Phosphatidic Acid. Fast or light movements fail because they don’t generate that deformation.
-- **mTORC1:** This protein complex is the master regulator of muscle protein synthesis, activated primarily by mechanical tension (via Phosphatidic Acid) and amino acids (especially leucine).
+- **[Mechanotransduction](/chapter1/mechanotransduction):** Muscle growth begins with physical deformation of the fibers—the weight on the bar only matters if it creates enough internal tension to trigger integrins and release Phosphatidic Acid. Fast or light movements fail because they don't generate that deformation.
+- **mTORC1:** This protein complex is the master regulator of muscle protein synthesis, activated primarily by [mechanical tension](/chapter2/mechanical-tension) (via Phosphatidic Acid) and amino acids (especially leucine).
 - **Growth Capacity:** Long-term hypertrophy is supported by ribosome biogenesis (increasing the cell's protein-building machinery) and the recruitment of satellite cells (donating new nuclei to support larger muscle volumes).
 - **Muscle Memory:** Once satellite cells donate nuclei to a fiber, those nuclei are retained even during periods of detraining, allowing for faster muscle regain in the future.
 

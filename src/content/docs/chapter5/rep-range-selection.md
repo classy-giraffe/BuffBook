@@ -2,7 +2,7 @@
 title: 5.3.2 Rep Range Selection
 ---
 When it comes to hypetrophy, we already discussed how rep ranges are mostly a commodity for the end user. However, based on my own experience and research, this is what I usually prescribe:
-- **Heavy compounds (4–8 reps):** On stable, multi‑joint exercises like the leg press, squat, or bench press, low‑rep work allows very high loads to be used with full motor unit recruitment from rep one. The exercise is supported by a large muscle mass and external stability, so form can be maintained even at near‑maximal loads.
+- **Heavy compounds (4–8 reps):** On stable, multi‑joint exercises like the leg press, squat, or bench press, low‑rep work allows very high loads to be used with full [motor unit](/chapter2/motor-units) recruitment from rep one. The exercise is supported by a large muscle mass and external stability, so form can be maintained even at near‑maximal loads.
 
 - **Moderate‑range isolation (6-10 reps):** For the vast majority of isolation exercises—lateral raises, bicep curls, tricep pushdowns, leg extensions, hamstring curls—moderate rep ranges are the sweet spot. Going too heavy (e.g., a 4RM lateral raise) forces excessive momentum and compromises isolation. Staying in the 6-10 range provides a balance of sufficient load for early recruitment and enough reps for the target muscle to approach failure before stabilisers fail or technique breaks down. This is where the majority of hypertrophy work should land.
 

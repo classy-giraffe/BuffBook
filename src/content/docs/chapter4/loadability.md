@@ -2,7 +2,7 @@
 title: 4.2.2 Ease of Loadability
 ---
 
-A muscle grows because it experiences tension it cannot easily handle. Over time, it adapts, and the old load becomes insufficient. This is why progressive overload—gradually increasing the tension demand—is not a training “phase” but the entire engine of long-term hypertrophy. If an exercise cannot be loaded progressively in small, measurable increments, it eventually fails as a growth tool.
+A muscle grows because it experiences tension it cannot easily handle. Over time, it adapts, and the old load becomes insufficient. This is why [progressive overload](/chapter5/progressive-overload)—gradually increasing the tension demand—is not a training “phase” but the entire engine of long-term hypertrophy. If an exercise cannot be loaded progressively in small, measurable increments, it eventually fails as a growth tool.
 
 Ease of loadability means:
 

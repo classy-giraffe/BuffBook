@@ -3,7 +3,7 @@ title: 6.8 FAQs
 ---
 
 **Q: Should I always try to improve my strength on every lift every week?**  
-No. The trend over a mesocycle should be upward, but week‑to‑week variation is normal. Don't force progression on a flat day. Bodybuilding is not about hitting a PR every session; it's about consistently applying effort and letting the body adapt over time, which includes plateaus and occasional regressions. Chasing a PR every week is a recipe for burnout and form breakdown, which can lead to injury and potentially move tension away from the target muscle.
+No. The trend over a [mesocycle](/chapter6/mesocycle) should be upward, but week‑to‑week variation is normal. Don't force progression on a flat day. Bodybuilding is not about hitting a PR every session; it's about consistently applying effort and letting the body adapt over time, which includes plateaus and occasional regressions. Chasing a PR every week is a recipe for burnout and form breakdown, which can lead to injury and potentially move tension away from the target muscle.
 
 **Q: How do I know if a muscle needs emphasis?**  
 It's not just about lagging; it's about what you want to look like. If you want wider shoulders, you can emphasise side delts even if they aren't "lagging." The mesocycle is simply a tool to direct focus. Over a year, you address different goals sequentially. With time, you will have a clear sense of what you want to improve next. Usually, this is why people hire coaches—to have an expert eye identify the next priority and design a mesocycle around it. But you can learn to do it yourself with practice.
@@ -11,7 +11,7 @@ It's not just about lagging; it's about what you want to look like. If you want 
 **Q: Can I train a muscle only once per week and still grow?**  
 Yes, but 2× is more efficient. If your schedule only allows once, do that—it's far better than nothing.
 
-**Q: Should I train each muscle/joint action?**
+**Q: Should I train each muscle/[joint action](/chapter4/joint-actions)?**
 Not necessarily. If you have time constraint, pick exercises that cover multiple joint actions at once (e.g., a hack squat covers hip and knee extension, a lat pulldown covers shoulder extension and elbow flexion). If you have more time, you can add an extra exercise to cover the missing joint action (e.g., a leg curl for knee flexion, a face pull for shoulder horizontal abduction). But if you have to choose between doing one exercise per muscle or skipping it entirely, do the one exercise. It's better to train a muscle incompletely than not at all. In many women programs, I purposefully skip calves, forearms and in many cases chest as well, because the time is better spent on the muscles that matter more to the client's goals.
 
 **Q: Should I do cardio?**
@@ -27,7 +27,7 @@ Don't cram it back in. Just continue the plan. One missed session in a 12‑week
 More than 3–4 exercises per muscle in a mesocycle fragments volume and makes progression tracking difficult. Stick to 2–3, executed hard. Rotate next block.
 
 **Q: Should I use the same rep range for all exercises?**  
-Technically, yes, you could. My personal recommendation is to keep a small range (e.g., 4-8) for compounds and a slightly higher range (e.g., 6-10) for isolation work, as explained in Section 5.3.2. Ultimately, the best rep range is the one you can push hard consistently. If you find that 6–10 allows you to hit RIR 1–2 more reliably across exercises, stick with it.
+Technically, yes, you could. My personal recommendation is to keep a small range (e.g., 4-8) for compounds and a slightly higher range (e.g., 6-10) for isolation work, as explained in Section 5.3.2. Ultimately, the best rep range is the one you can push hard consistently. If you find that 6–10 allows you to hit [RIR](/chapter5/rir) 1–2 more reliably across exercises, stick with it.
 
 **Q: In a split where some days are repeated, should these days be the same?**  
 When you split volume across two sessions per muscle per week, one of the cleanest ways to do it is to repeat the exact same workout on both days. For an upper/lower split, this means you have one Lower workout and one Upper workout, each performed twice a week (e.g., Lower on Monday and Thursday, Upper on Tuesday and Friday). This approach ensures that every muscle fiber is recruited with the same exercises at the same joint angles and muscle lengths, twice a week. There is no guesswork about whether a region received a stimulus on only one day; the frequency is a genuine 2× for all regions.
@@ -38,7 +38,7 @@ The "1+1 split" (using different exercises for the same muscle across sessions) 
 If you press and pull heavily, you likely need less direct arm work, but not zero. A small dose like 4 sets per week is enough in most cases to keep arms growing alongside the rest of the body.
 
 **Q: Do I need to do SBD (squat, bench, deadlift) to build a good physique?**
-No. They are effective, but not essential. I would even go as far as to say that for most people, they are not the best choice for building a great physique. A free bar squat can easily be replaced by a leg press, a hack squat or a pendulum squat: all of which are more quad‑dominant and easier to learn. Deadlifts can be replaced by RDLs or SLDL, depending if you want more glute or hamstring emphasis. Bench press can be replaced by a dumbbell press, which allows for a more natural range of motion and better pectoral activation. The key is to choose exercises that allow you to apply progressive overload effectively while targeting the muscles you want to develop. With that said, if you enjoy SBD and they fit your goals, there's no reason to avoid them. They can be great tools in the right context.
+No. They are effective, but not essential. I would even go as far as to say that for most people, they are not the best choice for building a great physique. A free bar squat can easily be replaced by a leg press, a hack squat or a pendulum squat: all of which are more quad‑dominant and easier to learn. Deadlifts can be replaced by RDLs or SLDL, depending if you want more glute or hamstring emphasis. Bench press can be replaced by a dumbbell press, which allows for a more natural range of motion and better pectoral activation. The key is to choose exercises that allow you to apply [progressive overload](/chapter5/progressive-overload) effectively while targeting the muscles you want to develop. With that said, if you enjoy SBD and they fit your goals, there's no reason to avoid them. They can be great tools in the right context.
 
 **Q: Is hypertrophy training for men different than for women?**
 Not really. The principles are the same. However, goals may differ: women may prioritize leg and glute development more than upper body. It's also worth noting that women generally have a higher proportion of type I muscle fibers, making them more resistant to higher volume training and possibly slightly more responsive to higher rep ranges.

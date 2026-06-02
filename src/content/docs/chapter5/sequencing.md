@@ -6,9 +6,9 @@ The order in which you perform your exercises within a session, and how you dist
 
 ### Intra-Session Sequencing: Priority and Freshness
 
-As a training session progresses, both local and systemic fatigue accumulate. This means that the quality of your sets—measured by your ability to recruit high-threshold motor units and maintain high fiber-level tension—inevitably decays. Exercises performed at the end of a long session are performed under conditions of high central fatigue, which can blunt the hypertrophic signal even if the set feels "hard."
+As a training session progresses, both local and systemic fatigue accumulate. This means that the quality of your sets—measured by your ability to recruit high-threshold [motor units](/chapter2/motor-units) and maintain high fiber-level tension—inevitably decays. Exercises performed at the end of a long session are performed under conditions of high central fatigue, which can blunt the hypertrophic signal even if the set feels "hard."
 
-If your primary goal for a mesocycle is to grow your glutes or your lats, those exercises must be performed first in the session when your nervous system is fresh and your energy is highest.
+If your primary goal for a [mesocycle](/chapter6/mesocycle) is to grow your glutes or your lats, those exercises must be performed first in the session when your nervous system is fresh and your energy is highest.
 
 A common dilemma is whether to perform compound or isolation exercises first. Let's make a few general observations using the example of quadriceps training:
 - If the sole focus of the mesocycle is quadriceps hypertrophy, then starting with an exercise like a leg extension or a sissy squat is definitely the best option, as it allows you to target the quads with maximal quality and focus.
@@ -40,7 +40,7 @@ This is why a split like Upper/Lower is usually programmed as so:
 
 ### Rest Intervals
 
-Rest intervals between sets should be long enough for the target muscle to recover sufficiently to perform the next set with high quality—meaning high motor unit recruitment, controlled technique, and proximity to the intended RIR. In practice, **3-5 minutes** for compound movements and **2-3 minutes** for isolation exercises is a sensible default. It's worth noting that unilateral exercises need **2-3** minutes of rest as well, between limbs. Shorter rest periods (30–60 seconds) increase metabolic stress and cardiovascular demand but compromise per-set force output, which means fewer stimulating reps per set and a blunted hypertrophic signal. The simple rule is: rest until you feel ready to match or come close to the performance of your previous set, then go.
+Rest intervals between sets should be long enough for the target muscle to recover sufficiently to perform the next set with high quality—meaning high motor unit recruitment, controlled technique, and proximity to the intended RIR. In practice, **3-5 minutes** for compound movements and **2-3 minutes** for isolation exercises is a sensible default. It's worth noting that unilateral exercises need **2-3** minutes of rest as well, between limbs. Shorter rest periods (30–60 seconds) increase [metabolic stress](/chapter2/metabolic-stress) and cardiovascular demand but compromise per-set force output, which means fewer stimulating reps per set and a blunted hypertrophic signal. The simple rule is: rest until you feel ready to match or come close to the performance of your previous set, then go.
 
 ### Warming Up
 

@@ -2,10 +2,10 @@
 title: "Summary & References"
 ---
 
-- **The Core Driver:** Hypertrophy is triggered by the combination of high-threshold motor unit recruitment and high fiber-level mechanical tension; one without the other results in minimal growth.
-- **Size Principle:** To stimulate growth-prone Type II fibers, you must recruit them through high effort (proximity to failure) or heavy external loads; otherwise, they stay dormant and no hypertrophy occurs.
+- **The Core Driver:** Hypertrophy is triggered by the combination of high-threshold motor unit recruitment and high fiber-level [mechanical tension](/chapter2/mechanical-tension); one without the other results in minimal growth.
+- **[Size Principle](/chapter2/size-principle):** To stimulate growth-prone Type II fibers, you must recruit them through high effort (proximity to failure) or heavy external loads; otherwise, they stay dormant and no hypertrophy occurs.
 - **Tension Gatekeeper:** The Force-Velocity Curve dictates that fibers experience the highest tension when contracting at slow velocities—either due to a heavy load or as a result of fatigue at the end of a set. Even maximal effort fails to cause growth if contraction speed is high.
-- **Myth Busting:** Metabolic stress (the "burn"), the "pump," and muscle damage are correlates of hard training, not causal drivers of growth. 
+- **Myth Busting:** [Metabolic stress](/chapter2/metabolic-stress) (the "burn"), the "pump," and muscle damage are correlates of hard training, not causal drivers of growth. 
 - **Chase performance, not soreness:** Excessive muscle damage can actively impair the anabolic response, and DOMS is a poor indicator of a productive workout.
 
 ---

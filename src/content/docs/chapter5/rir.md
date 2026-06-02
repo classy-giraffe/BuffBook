@@ -8,17 +8,17 @@ Reps in Reserve (RIR) is a practical tool for quantifying proximity to failure [
 - **RIR 1:** You could have done exactly one more rep.
 - **RIR 2:** Two more reps were possible.
 - **RIR 3:** Three more reps; the bar is slowing but you are far from failure.
-- **RIR 4+:** The set is effectively warm‑up territory for high‑threshold motor units.
+- **RIR 4+:** The set is effectively warm‑up territory for high‑threshold [motor units](/chapter2/motor-units).
 
 Meta‑analytic evidence and mechanistic logic converge on the same conclusion: the hypertrophic stimulus plateaus somewhere around RIR 3, and most sets should be taken to RIR 0–2 for optimal growth per set [6,7]. 
 
 Training to absolute failure (RIR 0) on every set is a recovery trap—it disproportionately increases fatigue relative to the small additional stimulus it provides over RIR 1–2. 
 
-A sensible mesocycle (a dedicated training block of 8–16 weeks; see Chapter 6) will leave most sets at RIR 1–2, with occasional RIR 0 sets used judiciously (e.g., on the last set of an exercise, or during an intensification phase).
+A sensible [mesocycle](/chapter6/mesocycle) (a dedicated training block of 8–16 weeks; see Chapter 6) will leave most sets at RIR 1–2, with occasional RIR 0 sets used judiciously (e.g., on the last set of an exercise, or during an intensification phase).
 
 **Load-Dependency: Why RIR Targets Scale with Intensity**
 
-The requirement for proximity to failure is not uniform across all rep ranges. As established by the size principle and recruitment mechanics [9]:
+The requirement for proximity to failure is not uniform across all rep ranges. As established by the [size principle](/chapter2/size-principle) and recruitment mechanics [9]:
 
 - **Heavy loads (1–5 RM):** Demand full motor unit recruitment from the very first rep. A set of 3 reps at RIR 2 (a 5RM load) still provides near‑maximal MU recruitment and high tension on every rep.
 - **Light loads (15–30 RM):** Must be taken much closer to failure (RIR 0–1). Because early reps are easy, the largest motor units are only recruited at the very end of the set. If you stop a light set at RIR 3, you may never reach the "stimulating reps" required for growth.
