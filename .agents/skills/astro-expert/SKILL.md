@@ -126,6 +126,7 @@ This expert skill consolidates 1 individual skills:
 3. **ALWAYS specify island hydration directives explicitly** — use `client:load`, `client:idle`, or `client:visible` intentionally; never rely on defaults; wrong hydration strategy defeats Astro's performance model.
 4. **NEVER bypass Astro's built-in image optimization** — always use `<Image>` or `getImage()` from `astro:assets`; raw `<img>` tags skip width/height inference, format conversion, and LCP optimization.
 5. **NEVER use `Astro.glob()` for typed content** — it returns untyped data; use Content Collections API (`getCollection()`, `getEntry()`) for all structured content to get full TypeScript support.
+6. **ALWAYS use `import { env } from 'cloudflare:workers'`** — in Astro v6+ with Cloudflare, `Astro.locals.runtime.env` is removed. You must import the environment variables directly from the `cloudflare:workers` module.
 
 ## Anti-Patterns
 

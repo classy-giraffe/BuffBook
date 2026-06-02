@@ -7,11 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { drizzle } from "drizzle-orm/d1";
 import * as dbSchema from "../../db/schema";
 import { eq } from "drizzle-orm";
+import { env } from "cloudflare:workers";
 
 export const prerender = false;
 
 // We check if the admin already exists
-const env = Astro.locals.runtime.env;
 const db = drizzle(env.DB, { schema: dbSchema });
 
 const ADMIN_EMAIL = env.ADMIN_EMAIL;
@@ -30,35 +30,35 @@ if (existingAdmin) {
 
 <DashboardLayout title="Admin Setup - BuffBook" user={null}>
   <div class="min-h-[80vh] flex items-center justify-center p-6">
-    <Card class="w-full max-w-md glass border-primary/20 shadow-2xl relative overflow-hidden">
+    <Card className="w-full max-w-md glass border-primary/20 shadow-2xl relative overflow-hidden">
       <div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
       
-      <CardHeader class="relative z-10 pb-6 text-center">
+      <CardHeader className="relative z-10 pb-6 text-center">
         <div class="mx-auto bg-primary/20 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
           <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
           </svg>
         </div>
-        <CardTitle class="text-3xl font-black tracking-tight">Admin Setup</CardTitle>
-        <CardDescription class="text-base mt-2">
+        <CardTitle className="text-3xl font-black tracking-tight">Admin Setup</CardTitle>
+        <CardDescription className="text-base mt-2">
           Initialize your admin account. Since public signups are blocked for your email, you must set your password here.
         </CardDescription>
       </CardHeader>
       
       <form action="/api/admin/setup" method="post">
-        <CardContent class="relative z-10 space-y-4">
+        <CardContent className="relative z-10 space-y-4">
           <div class="space-y-2">
-            <Label for="email" class="text-xs uppercase font-bold tracking-wider text-muted-foreground">Admin Email</Label>
-            <Input id="email" type="email" value={ADMIN_EMAIL} disabled class="bg-muted/50 font-medium" />
+            <Label htmlFor="email" className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Admin Email</Label>
+            <Input id="email" type="email" value={ADMIN_EMAIL} disabled className="bg-muted/50 font-medium" />
           </div>
           <div class="space-y-2">
-            <Label for="password" class="text-xs uppercase font-bold tracking-wider text-muted-foreground">Set Password</Label>
-            <Input id="password" name="password" type="password" required placeholder="Choose a strong password" class="border-primary/20 focus-visible:ring-primary" />
+            <Label htmlFor="password" className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Set Password</Label>
+            <Input id="password" name="password" type="password" required placeholder="Choose a strong password" className="border-primary/20 focus-visible:ring-primary" />
           </div>
         </CardContent>
         
-        <CardFooter class="relative z-10 pt-4">
-          <Button type="submit" class="w-full font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow">
+        <CardFooter className="relative z-10 pt-4">
+          <Button type="submit" className="w-full font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow">
             Initialize Admin Account
           </Button>
         </CardFooter>

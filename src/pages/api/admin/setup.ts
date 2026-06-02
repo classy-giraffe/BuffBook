@@ -1,10 +1,9 @@
 import type { APIRoute } from "astro";
 import { drizzle } from "drizzle-orm/d1";
 import * as dbSchema from "../../../db/schema";
-import { eq } from "drizzle-orm";
+import { env } from "cloudflare:workers";
 
 export const POST: APIRoute = async (ctx) => {
-  const env = ctx.locals.runtime.env;
   const ADMIN_EMAIL = env.ADMIN_EMAIL;
   
   if (!ADMIN_EMAIL) {
