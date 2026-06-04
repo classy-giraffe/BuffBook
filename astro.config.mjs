@@ -275,7 +275,13 @@ export default defineConfig({
     config: {
       forward: ['dataLayer.push', 'gtag'],
     },
-  }), sitemap(), react()],
+
+  }), sitemap({
+    filter: (page) =>
+      page !== "https://buffbook.org/admin" &&
+      page !== "https://buffbook.org/api/admin/setup" &&
+      page !== "https://buffbook.org/api/admin/upload-plan"
+  }), react()],
 
   adapter: cloudflare({}),
 
