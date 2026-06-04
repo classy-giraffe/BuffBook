@@ -18,7 +18,7 @@ import { Separator } from "@components/ui/separator";
 
 export const prerender = false;
 
-const { session, user } = Astro.locals;
+const { user } = Astro.locals;
 
 if (!user) {
   return Astro.redirect("/login");
@@ -31,9 +31,7 @@ const sessionId = Astro.url.searchParams.get("session_id");
 if (sessionId) {
   try {
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: "2026-05-27.dahlia" as any,
-    });
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (
@@ -69,9 +67,7 @@ const pendingRequests = requests.filter((r) => r.status === "pending_payment");
 if (pendingRequests.length > 0) {
   try {
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: "2026-05-27.dahlia" as any,
-    });
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
     for (const req of pendingRequests) {
       let isPaid = false;

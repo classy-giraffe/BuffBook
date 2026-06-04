@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),
@@ -9,8 +9,8 @@ export const user = sqliteTable("user", {
 	createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 	age: integer("age"),
-	weight: integer("weight"), // in kg/lbs
-	height: integer("height"), // in cm/inches
+	weight: integer("weight"),
+	height: integer("height")
 });
 
 export const session = sqliteTable("session", {
@@ -22,7 +22,9 @@ export const session = sqliteTable("session", {
 	ipAddress: text("ipAddress"),
 	userAgent: text("userAgent"),
 	userId: text("userId").notNull().references(() => user.id)
-});
+}, (table) => [
+	index("session_user_id_idx").on(table.userId),
+]);
 
 export const account = sqliteTable("account", {
 	id: text("id").primaryKey(),
@@ -38,7 +40,9 @@ export const account = sqliteTable("account", {
 	password: text("password"),
 	createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull()
-});
+}, (table) => [
+	index("account_user_id_idx").on(table.userId),
+]);
 
 export const verification = sqliteTable("verification", {
 	id: text("id").primaryKey(),
@@ -49,26 +53,36 @@ export const verification = sqliteTable("verification", {
 	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull()
 });
 
+export const rateLimit = sqliteTable("rateLimit", {
+	id: text("id").primaryKey(),
+	key: text("key").notNull().unique(),
+	count: integer("count").notNull(),
+	lastRequest: integer("lastRequest").notNull(),
+});
+
 export const planRequests = sqliteTable("plan_requests", {
 	id: text("id").primaryKey(),
 	userId: text("userId").notNull().references(() => user.id),
 	name: text("name").notNull(),
 	age: integer("age").notNull(),
-	weight: integer("weight").notNull(), // in kg/lbs
-	height: integer("height").notNull(), // in cm/inches
+	weight: integer("weight").notNull(),
+	height: integer("height").notNull(),
 	trainingFrequency: integer("trainingFrequency").notNull(),
 	trainingDays: text("trainingDays").notNull(),
 	injuries: text("injuries"),
-	equipment: text("equipment").notNull(), // "Gym", "Home", or "Other"
-	equipmentDetails: text("equipmentDetails"), // free text when equipment is "Other"
+	equipment: text("equipment").notNull(),
+	equipmentDetails: text("equipmentDetails"),
 	failureExp: text("failureExp").notNull(),
 	goals: text("goals").notNull(),
 	weakPoints: text("weakPoints"),
 	likedExercises: text("likedExercises"),
 	dislikedExercises: text("dislikedExercises"),
-	status: text("status").notNull().default("pending_payment"), // pending_payment, paid, delivered
+	status: text("status").notNull().default("pending_payment"),
 	stripeSessionId: text("stripeSessionId"),
-	pdfKey: text("pdfKey"), // R2 bucket key once delivered
+	pdfKey: text("pdfKey"),
 	createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull()
-});
+}, (table) => [
+	index("plan_requests_user_id_idx").on(table.userId),
+	index("plan_requests_status_idx").on(table.status),
+]);

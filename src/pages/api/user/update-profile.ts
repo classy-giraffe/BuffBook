@@ -14,11 +14,10 @@ export const POST: APIRoute = async (ctx) => {
   }
 
   try {
-    const { age, weight, height } = (await ctx.request.json()) as any;
+    const { age, weight, height } = await ctx.request.json() as { age?: string; weight?: string; height?: string };
     const db = drizzle(env.DB, { schema: dbSchema });
 
-    // Ensure they are numbers (or null)
-    const updateData: any = {};
+    const updateData: Record<string, Date | number> = {};
     if (age) updateData.age = parseInt(age);
     if (weight) updateData.weight = parseInt(weight);
     if (height) updateData.height = parseInt(height);

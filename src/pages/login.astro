@@ -161,11 +161,9 @@ if (user) {
         if (data) {
             const res = await fetch("/api/auth/check-admin");
             const { isAdmin } = (await res.json()) as { isAdmin: boolean };
-            
+
             if (isAdmin) {
-                await authClient.signOut();
-                errorMsg.textContent = "Admins must log in at /admin/login.";
-                errorMsg.classList.remove("hidden");
+                window.location.href = "/admin/login";
                 return;
             }
         }

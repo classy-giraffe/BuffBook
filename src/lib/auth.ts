@@ -2,70 +2,54 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import * as dbSchema from "../db/schema";
+import { hashPassword, verifyPassword } from "./password";
 
-export function createAuth(env: any) {
+export function createAuth(env: Env) {
     const db = drizzle(env.DB, { schema: dbSchema });
     return betterAuth({
         database: drizzleAdapter(db, {
             provider: "sqlite",
+            schema: { ...dbSchema },
         }),
         user: {
             additionalFields: {
                 age: { type: "number", required: false },
                 weight: { type: "number", required: false },
                 height: { type: "number", required: false }
+            },
+            changeEmail: {
+                enabled: true
             }
         },
         emailAndPassword: {
             enabled: true,
+            minPasswordLength: 12,
+            maxPasswordLength: 128,
+            sendResetPassword: async ({ user, url }) => {
+                console.log(`Password reset requested for ${user.email}: ${url}`);
+            },
             password: {
-                hash: async (password: string) => {
-                    const salt = crypto.getRandomValues(new Uint8Array(16));
-                    const key = await crypto.subtle.importKey(
-                        "raw",
-                        new TextEncoder().encode(password),
-                        { name: "PBKDF2" },
-                        false,
-                        ["deriveBits"]
-                    );
-                    const hash = await crypto.subtle.deriveBits(
-                        { name: "PBKDF2", salt, iterations: 10000, hash: "SHA-256" },
-                        key,
-                        256
-                    );
-                    const saltHex = Array.from(salt).map((b: number) => b.toString(16).padStart(2, '0')).join('');
-                    const hashHex = Array.from(new Uint8Array(hash)).map((b: number) => b.toString(16).padStart(2, '0')).join('');
-                    return `${saltHex}:${hashHex}`;
-                },
+                hash: hashPassword,
                 verify: async (arg1: any, arg2?: string) => {
                     const password = typeof arg1 === 'object' ? arg1.password : arg1;
                     const hash = typeof arg1 === 'object' ? arg1.hash : arg2;
                     if (!password || !hash) return false;
-                    
-                    const parts = hash.split(':');
-                    if (parts.length !== 2) return false;
-                    const [saltHex, originalHashHex] = parts;
-                    
-                    const saltMatch = saltHex.match(/.{1,2}/g);
-                    if (!saltMatch) return false;
-                    const salt = new Uint8Array(saltMatch.map((byte: string) => parseInt(byte, 16)));
-                    
-                    const key = await crypto.subtle.importKey(
-                        "raw",
-                        new TextEncoder().encode(password),
-                        { name: "PBKDF2" },
-                        false,
-                        ["deriveBits"]
-                    );
-                    const newHash = await crypto.subtle.deriveBits(
-                        { name: "PBKDF2", salt, iterations: 10000, hash: "SHA-256" },
-                        key,
-                        256
-                    );
-                    const newHashHex = Array.from(new Uint8Array(newHash)).map((b: number) => b.toString(16).padStart(2, '0')).join('');
-                    return newHashHex === originalHashHex;
+                    return verifyPassword(password, hash);
                 }
             }
+        },
+        emailVerification: {
+            sendVerificationEmail: async ({ user, url }) => {
+                console.log(`Verification email for ${user.email}: ${url}`);
+            },
+        },
+        rateLimit: {
+            enabled: true,
+            storage: "database",
+            customRules: {
+                "/api/auth/sign-in/email": { window: 60, max: 5 },
+                "/api/auth/sign-up/email": { window: 60, max: 3 },
+            },
         },
         databaseHooks: {
             user: {
@@ -78,6 +62,17 @@ export function createAuth(env: any) {
                     }
                 }
             }
+        },
+        advanced: {
+            useSecureCookies: env.BETTER_AUTH_URL?.startsWith("https://") ?? false,
+            cookiePrefix: "buffbook",
+            defaultCookieAttributes: {
+                sameSite: "lax",
+            },
+            ipAddress: {
+                ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
+                disableIpTracking: false,
+            },
         },
         secret: env.BETTER_AUTH_SECRET,
         baseURL: env.BETTER_AUTH_URL,

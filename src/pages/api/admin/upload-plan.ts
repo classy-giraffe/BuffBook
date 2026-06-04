@@ -19,13 +19,20 @@ export const POST: APIRoute = async (ctx) => {
     const requestId = formData.get("requestId")?.toString();
     const file = formData.get("pdf") as File;
 
-    if (!requestId || !file || file.type !== "application/pdf") {
+    if (!requestId || !file) {
       return new Response("Invalid request", { status: 400 });
+    }
+
+    if (file.type !== "application/pdf") {
+      return new Response("Only PDF files are accepted", { status: 400 });
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      return new Response("File too large (max 50MB)", { status: 400 });
     }
 
     const pdfKey = `plans/${requestId}.pdf`;
     
-    // Upload to R2
     await env.PLANS_BUCKET.put(pdfKey, await file.arrayBuffer(), {
       httpMetadata: {
         contentType: "application/pdf"

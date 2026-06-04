@@ -1,10 +1,10 @@
 ---
 import { z } from "astro/zod";
-import Stripe from "stripe";
+import { treeifyError } from "zod";
 import { drizzle } from "drizzle-orm/d1";
 import * as dbSchema from "../../db/schema";
-import { eq } from "drizzle-orm";
 import { createAuth } from "../../lib/auth";
+import { createCheckoutSession } from "../../lib/stripe";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
@@ -61,7 +61,11 @@ if (Astro.request.method === "POST") {
     const validated = formSchema.safeParse(data);
 
     if (!validated.success) {
-      errors = validated.error.flatten().fieldErrors as any;
+      const errTree = treeifyError(validated.error);
+      errors = {};
+      for (const [key, val] of Object.entries(errTree.properties ?? {})) {
+        if (val) errors[key] = val.errors;
+      }
     } else {
       // Extra validations
       if (!isLoggedIn && !validated.data.email) {
@@ -94,9 +98,8 @@ if (Astro.request.method === "POST") {
         });
 
         if (dbUser) {
-          // Existing user not logged in - they need to log in first
           errors.email = [
-            "An account with this email already exists. Please log in first.",
+            "Unable to create account. Please log in first or use a different email.",
           ];
           throw new Error("Account exists");
         }
@@ -151,43 +154,16 @@ if (Astro.request.method === "POST") {
       });
 
       // ── Stripe checkout ──────────────────────────────────────────────────
-      const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: "2026-05-27.dahlia" as any,
+      const checkoutUrl = await createCheckoutSession({
+        stripeSecretKey: env.STRIPE_SECRET_KEY,
+        requestId,
+        customerEmail: isLoggedIn ? currentUser!.email : validated.data.email!,
+        siteUrl: Astro.url.origin,
+        cancelUrl: `${Astro.url.origin}/custom-plans/apply`,
+        db: env.DB,
       });
 
-      const siteUrl = Astro.url.origin;
-
-      const stripeSession = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "eur",
-              product_data: {
-                name: "Custom Hypertrophy Plan",
-                description: "Hand-crafted 72-96hr turnaround",
-              },
-              unit_amount: 3000,
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: `${siteUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${siteUrl}/custom-plans/apply`,
-        customer_email: isLoggedIn ? currentUser!.email : validated.data.email!,
-        metadata: {
-          requestId: requestId,
-        },
-      });
-
-      if (stripeSession.url) {
-        await db
-          .update(dbSchema.planRequests)
-          .set({ stripeSessionId: stripeSession.id, updatedAt: new Date() })
-          .where(eq(dbSchema.planRequests.id, requestId));
-        return Astro.redirect(stripeSession.url);
-      }
+      return Astro.redirect(checkoutUrl);
     }
   } catch (err: any) {
     console.error("APPLY FORM ERROR:", err?.message || err, err?.stack || "");

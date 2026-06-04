@@ -17,6 +17,10 @@ export function AccountSettings({ user, open, onOpenChange }: { user: any, open:
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   
+  // Delete Account State
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteMsg, setDeleteMsg] = useState<{ text: string, type: "success" | "error" } | null>(null);
+  
   // Feedback States
   const [profileMsg, setProfileMsg] = useState<{ text: string, type: "success" | "error" } | null>(null);
   const [accountMsg, setAccountMsg] = useState<{ text: string, type: "success" | "error" } | null>(null);
@@ -70,6 +74,26 @@ export function AccountSettings({ user, open, onOpenChange }: { user: any, open:
       }
     } catch (err: any) {
       setAccountMsg({ text: err.message, type: "error" });
+    }
+    setIsUpdating(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsUpdating(true);
+    setDeleteMsg(null);
+    try {
+      const res = await fetch("/api/user/delete-account", {
+        method: "POST",
+      });
+      if (res.ok) {
+        setDeleteMsg({ text: "Account deleted. Redirecting...", type: "success" });
+        setTimeout(() => { window.location.href = "/login"; }, 1500);
+      } else {
+        const err = await res.text();
+        setDeleteMsg({ text: err || "Failed to delete account", type: "error" });
+      }
+    } catch (err: any) {
+      setDeleteMsg({ text: err.message, type: "error" });
     }
     setIsUpdating(false);
   };
@@ -165,6 +189,36 @@ export function AccountSettings({ user, open, onOpenChange }: { user: any, open:
               </div>
               <Button variant="secondary" type="submit" className="w-full" disabled={isUpdating || !currentPassword || !newPassword}>Update Password</Button>
             </form>
+
+            <div className="border-t pt-6 space-y-4">
+              {deleteMsg && (
+                <div className={`p-3 rounded-md text-sm font-medium border ${deleteMsg.type === "error" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-green-500/10 text-green-600 border-green-500/20"}`}>
+                  {deleteMsg.text}
+                </div>
+              )}
+              {!deleteConfirm ? (
+                <div className="space-y-2">
+                  <Label className="text-destructive font-semibold">Danger Zone</Label>
+                  <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                  <Button variant="destructive" className="w-full" onClick={() => setDeleteConfirm(true)}>
+                    Delete Account
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label className="text-destructive font-semibold">Are you sure?</Label>
+                  <p className="text-sm text-muted-foreground">This will permanently delete your account, workout plans, and all data. This cannot be undone.</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1" onClick={() => { setDeleteConfirm(false); setDeleteMsg(null); }} disabled={isUpdating}>
+                      Cancel
+                    </Button>
+                    <Button variant="destructive" className="flex-1" onClick={handleDeleteAccount} disabled={isUpdating}>
+                      {isUpdating ? "Deleting..." : "Yes, Delete My Account"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </DialogContent>

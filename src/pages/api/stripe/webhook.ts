@@ -8,9 +8,7 @@ import { eq } from "drizzle-orm";
 export const prerender = false;
 
 export const POST: APIRoute = async (ctx) => {
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-05-27.dahlia" as any,
-  });
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
   const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   const signature = ctx.request.headers.get("stripe-signature");
