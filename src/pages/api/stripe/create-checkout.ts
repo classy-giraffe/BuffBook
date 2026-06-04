@@ -41,7 +41,7 @@ export const POST: APIRoute = async (ctx) => {
     }
 
     const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: "2024-04-10" as any,
+      apiVersion: "2026-05-27.dahlia" as any,
     });
 
     const siteUrl = ctx.url.origin;
