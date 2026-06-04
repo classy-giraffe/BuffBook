@@ -23,8 +23,11 @@ export const prerender = false;
 const { user } = Astro.locals;
 const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
-if (!user || user.email !== ADMIN_EMAIL) {
-  return Astro.redirect("/login");
+if (!user) {
+  return Astro.redirect("/admin/login");
+}
+if (user.email !== ADMIN_EMAIL) {
+  return Astro.redirect("/dashboard");
 }
 
 const db = drizzle(env.DB, { schema: dbSchema });

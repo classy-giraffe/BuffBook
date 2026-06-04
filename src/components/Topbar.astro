@@ -1,4 +1,6 @@
 ---
+import { UserNav } from "./UserNav";
+
 interface Props {
   user?: any;
 }
@@ -25,16 +27,6 @@ const { user } = Astro.props;
     <span class="font-bold tracking-tight">BuffBook</span>
   </a>
   <div class="flex items-center gap-6 text-sm text-muted-foreground">
-    <a
-      href="/custom-plans"
-      class="hidden sm:flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
-      >Custom Plans</a
-    >
-    <a
-      href="/contribute"
-      class="hidden sm:block font-medium hover:text-foreground transition-colors"
-      >Contribute</a
-    >
     <button
       id="theme-toggle"
       class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md"
@@ -81,31 +73,13 @@ const { user } = Astro.props;
     </button>
     {
       user ? (
-        <>
-          <span>{user.email}</span>
-          <button
-            id="signout-btn"
-            class="font-medium text-foreground hover:text-primary transition-colors"
-          >
-            Sign Out
-          </button>
-        </>
+        <UserNav client:load user={user} />
       ) : null
     }
   </div>
 </nav>
 
 <script>
-  import { authClient } from "../lib/auth-client";
-
-  const signoutBtn = document.getElementById("signout-btn");
-  if (signoutBtn) {
-    signoutBtn.addEventListener("click", async () => {
-      await authClient.signOut();
-      window.location.href = "/login";
-    });
-  }
-
   const toggleBtn = document.getElementById("theme-toggle");
   const darkIcon = document.getElementById("theme-icon-dark");
   const lightIcon = document.getElementById("theme-icon-light");

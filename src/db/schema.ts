@@ -7,7 +7,10 @@ export const user = sqliteTable("user", {
 	emailVerified: integer("emailVerified", { mode: "boolean" }).notNull(),
 	image: text("image"),
 	createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
-	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull()
+	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+	age: integer("age"),
+	weight: integer("weight"), // in kg/lbs
+	height: integer("height"), // in cm/inches
 });
 
 export const session = sqliteTable("session", {

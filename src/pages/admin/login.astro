@@ -5,7 +5,7 @@ import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Label } from "@components/ui/label";
 import { Separator } from "@components/ui/separator";
-import "../styles/global.css";
+import "../../styles/global.css";
 
 import { env } from "cloudflare:workers";
 
@@ -24,7 +24,7 @@ if (user) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - BuffBook</title>
+    <title>Admin Login - BuffBook</title>
     <script is:inline>
       const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
       const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
@@ -108,8 +108,8 @@ if (user) {
 
           <Card className="border-primary/20 shadow-2xl bg-card/50 backdrop-blur-xl">
             <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
-              <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
+              <CardTitle className="text-2xl font-bold tracking-tight">Admin Portal</CardTitle>
+              <CardDescription>Enter your credentials to access the admin dashboard.</CardDescription>
             </CardHeader>
             <CardContent>
               <div id="error-msg" class="text-sm font-medium text-destructive mb-4 hidden bg-destructive/10 p-3 rounded-md border border-destructive/20 text-center"></div>
@@ -124,9 +124,6 @@ if (user) {
                 </div>
                 <Button type="submit" className="w-full font-bold">Sign In</Button>
               </form>
-              <div class="mt-6 text-center text-sm text-muted-foreground">
-                Don't have an account? <a href="/custom-plans/apply" class="text-primary font-medium hover:underline">Apply for a plan</a>
-              </div>
             </CardContent>
           </Card>
 
@@ -138,13 +135,13 @@ if (user) {
     </div>
 
     <script>
-      import { authClient } from "../lib/auth-client";
+      import { authClient } from "../../lib/auth-client";
       
       const form = document.getElementById("login-form");
       const errorMsg = document.getElementById("error-msg") as HTMLDivElement;
       
       const params = new URLSearchParams(window.location.search);
-      const redirectUrl = params.get("redirect") || "/dashboard";
+      const redirectUrl = params.get("redirect") || "/admin";
       
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -162,9 +159,9 @@ if (user) {
             const res = await fetch("/api/auth/check-admin");
             const { isAdmin } = (await res.json()) as { isAdmin: boolean };
             
-            if (isAdmin) {
+            if (!isAdmin) {
                 await authClient.signOut();
-                errorMsg.textContent = "Admins must log in at /admin/login.";
+                errorMsg.textContent = "Regular users cannot log in here. Please use /login.";
                 errorMsg.classList.remove("hidden");
                 return;
             }

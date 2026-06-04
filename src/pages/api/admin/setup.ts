@@ -69,5 +69,5 @@ export const POST: APIRoute = async (ctx) => {
       updatedAt: new Date(),
   });
 
-  return ctx.redirect("/login");
+  return ctx.redirect("/admin/login");
 };

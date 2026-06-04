@@ -253,6 +253,13 @@ const getStatusBadge = (status: string) => {
                             Download PDF
                           </Button>
                         </a>
+                      ) : req.status === "pending_payment" ? (
+                        <form method="POST" action="/api/stripe/create-checkout" class="inline">
+                          <input type="hidden" name="requestId" value={req.id} />
+                          <Button variant="default" size="sm" type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-md glow-sm animate-pulse-glow">
+                            Complete Payment
+                          </Button>
+                        </form>
                       ) : (
                         <Button variant="outline" size="sm" disabled>
                           Download PDF

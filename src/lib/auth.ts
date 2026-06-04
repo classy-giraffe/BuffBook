@@ -9,6 +9,13 @@ export function createAuth(env: any) {
         database: drizzleAdapter(db, {
             provider: "sqlite",
         }),
+        user: {
+            additionalFields: {
+                age: { type: "number", required: false },
+                weight: { type: "number", required: false },
+                height: { type: "number", required: false }
+            }
+        },
         emailAndPassword: {
             enabled: true,
             password: {
