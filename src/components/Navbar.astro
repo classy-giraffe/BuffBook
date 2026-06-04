@@ -1,17 +1,42 @@
 ---
 import ThemeToggle from "./ThemeToggle.astro";
 ---
-<nav class="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-6 md:px-12 backdrop-blur-md">
-  <a href="/" class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity">
-    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-primary" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"></path>
+
+<nav
+  class="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-6 md:px-12 backdrop-blur-md"
+>
+  <a
+    href="/"
+    class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-6 w-6 fill-primary"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
+      ></path>
     </svg>
     BuffBook
   </a>
   <div class="flex items-center gap-6">
-    <a href="/custom-plans" class="hidden sm:flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">Apply for Coaching</a>
-    <a href="/contribute" class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contribute</a>
-    <a href="https://github.com/classy-giraffe/BuffBook" class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors" target="_blank" rel="noopener">GitHub</a>
+    <a
+      href="/custom-plans"
+      class="hidden sm:flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+      >Custom Plans</a
+    >
+    <a
+      href="/contribute"
+      class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >Contribute</a
+    >
+    <a
+      href="https://github.com/classy-giraffe/BuffBook"
+      class="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      target="_blank"
+      rel="noopener">GitHub</a
+    >
     <ThemeToggle />
   </div>
 </nav>

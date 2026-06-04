@@ -118,11 +118,23 @@ if (pendingRequests.length > 0) {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "pending_payment":
-      return { label: "Pending Payment", variant: "destructive", className: "" };
+      return {
+        label: "Pending Payment",
+        variant: "destructive",
+        className: "",
+      };
     case "paid":
-      return { label: "In Progress (72-96 hrs)", variant: "default", className: "bg-amber-500 hover:bg-amber-600 text-amber-50" };
+      return {
+        label: "In Progress (72-96 hrs)",
+        variant: "default",
+        className: "bg-amber-500 hover:bg-amber-600 text-amber-50",
+      };
     case "delivered":
-      return { label: "Delivered", variant: "default", className: "bg-green-600 hover:bg-green-700 text-green-50" };
+      return {
+        label: "Delivered",
+        variant: "default",
+        className: "bg-green-600 hover:bg-green-700 text-green-50",
+      };
     default:
       return { label: status, variant: "secondary", className: "" };
   }
@@ -131,10 +143,16 @@ const getStatusBadge = (status: string) => {
 
 <DashboardLayout title="Dashboard - BuffBook" user={user}>
   <div class="max-w-6xl mx-auto space-y-8">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+    >
       <div>
-        <h1 class="text-3xl font-bold tracking-tight text-foreground">Your Dashboard</h1>
-        <p class="text-muted-foreground mt-1">Manage and track your custom gym plans.</p>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">
+          Your Dashboard
+        </h1>
+        <p class="text-muted-foreground mt-1">
+          Manage and track your custom gym plans.
+        </p>
       </div>
       <a href="/custom-plans/apply">
         <Button className="font-bold">Request New Plan</Button>
@@ -161,9 +179,13 @@ const getStatusBadge = (status: string) => {
                   colSpan={4}
                   className="h-48 text-center text-muted-foreground"
                 >
-                  <p class="mb-4">You haven't requested any custom plans yet.</p>
+                  <p class="mb-4">
+                    You haven't requested any custom plans yet.
+                  </p>
                   <a href="/custom-plans/apply">
-                    <Button size="sm" className="font-bold">Apply Now</Button>
+                    <Button size="sm" className="font-bold">
+                      Buy now
+                    </Button>
                   </a>
                 </TableCell>
               </TableRow>
@@ -171,28 +193,33 @@ const getStatusBadge = (status: string) => {
               requests.map((req) => {
                 const status = getStatusBadge(req.status);
                 let subtext = "";
-                if (req.status === "pending_payment") subtext = "Checkout interrupted. Contact support.";
-                else if (req.status === "paid") subtext = "Being crafted by our coaches.";
-                else if (req.status === "delivered") subtext = "Ready for download.";
+                if (req.status === "pending_payment")
+                  subtext = "Checkout interrupted. Contact support.";
+                else if (req.status === "paid")
+                  subtext = "Being crafted by our coaches.";
+                else if (req.status === "delivered")
+                  subtext = "Ready for download.";
 
                 return (
                   <TableRow>
                     <TableCell className="font-medium text-muted-foreground whitespace-nowrap">
-                      {new Date(req.createdAt).toLocaleDateString(
-                        undefined,
-                        {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        },
-                      )}
+                      {new Date(req.createdAt).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </TableCell>
                     <TableCell>
-                      <div class="font-semibold text-foreground">Hypertrophy Plan</div>
+                      <div class="font-semibold text-foreground">
+                        Hypertrophy Plan
+                      </div>
                       <div class="text-xs text-muted-foreground">{subtext}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={status.variant as any} className={`rounded-sm whitespace-nowrap ${status.className}`}>
+                      <Badge
+                        variant={status.variant as any}
+                        className={`rounded-sm whitespace-nowrap ${status.className}`}
+                      >
                         {status.label}
                       </Badge>
                     </TableCell>

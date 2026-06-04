@@ -1,11 +1,6 @@
 ---
 import { Button } from "@components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@components/ui/card";
 import { Separator } from "@components/ui/separator";
 import { FaqAccordion } from "../../components/FaqAccordion";
 import "../../styles/global.css";
@@ -14,119 +9,178 @@ import MarketingLayout from "../../layouts/MarketingLayout.astro";
 const faqs = [
   {
     question: "How long does it take to receive my plan?",
-    answer: "Every plan is built from scratch. Once you submit your comprehensive assessment, it typically takes 72-96 hours for me to analyze your data and craft the perfect mesocycle."
+    answer:
+      "Every plan is built from scratch. Once you submit your comprehensive assessment, it typically takes 72-96 hours for me to analyze your data and craft the perfect mesocycle.",
   },
   {
     question: "Do I need a fully equipped gym?",
-    answer: "Not necessarily, but you need enough equipment to progressively overload. During the assessment, you'll list the equipment you have access to, and I will select exercises that fit your environment."
+    answer:
+      "Not necessarily, but you need enough equipment to progressively overload. During the assessment, you'll list the equipment you have access to, and I will select exercises that fit your environment.",
   },
   {
     question: "Is this a recurring subscription?",
-    answer: "No. This is a one-time fee for a custom mesocycle. You can run the mesocycle for 4-8 weeks, deload, and rerun it with slightly increased weights. You only pay again if your goals or schedule drastically change and you want a completely new program."
+    answer:
+      "No. This is a one-time fee for a custom mesocycle. You can run the mesocycle for 4-8 weeks, deload, and rerun it with slightly increased weights. You only pay again if your goals or schedule drastically change and you want a completely new program.",
   },
   {
     question: "What if I don't know my 1-rep maxes?",
-    answer: "That's perfectly fine. The program focuses on RPE (Rate of Perceived Exertion) and RIR (Reps in Reserve) rather than strict percentages of a 1RM, which is more effective for hypertrophy anyway."
-  }
+    answer:
+      "That's perfectly fine. The program focuses on RPE (Rate of Perceived Exertion) and RIR (Reps in Reserve) rather than strict percentages of a 1RM, which is more effective for hypertrophy anyway.",
+  },
 ];
 ---
 
-<MarketingLayout title="Custom Gym Plans - BuffBook" description="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level.">
-    <main class="flex-1">
-      <section
-        class="relative flex min-h-[75vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
+<MarketingLayout
+  title="Custom Gym Plans - BuffBook"
+  description="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level."
+>
+  <main class="flex-1">
+    <section
+      class="relative flex min-h-[75vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
+    >
+      <div class="pointer-events-none absolute inset-0 -z-10 bg-background">
+        <!-- Subtle top gradient -->
+        <div
+          class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary/5 blur-[100px] rounded-full"
+        >
+        </div>
+      </div>
+
+      <div
+        class="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground mb-8"
       >
-        <div
-          class="pointer-events-none absolute inset-0 -z-10 bg-background"
-        >
-          <!-- Subtle top gradient -->
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary/5 blur-[100px] rounded-full"></div>
-        </div>
+        Personalized Programming
+      </div>
 
-        <div
-          class="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground mb-8"
-        >
-          Personalized Programming
-        </div>
+      <h1
+        class="max-w-4xl text-5xl sm:text-7xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
+      >
+        Hand-crafted <span class="text-primary">Just For You.</span>
+      </h1>
 
-        <h1
-          class="max-w-4xl text-5xl sm:text-7xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
-        >
-          Hand-crafted <span class="text-primary">Just For You.</span>
-        </h1>
+      <p
+        class="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+      >
+        No AI. No cookie-cutter templates. You fill out a comprehensive
+        assessment, and I personally build your ideal hypertrophy plan from
+        scratch in 72-96 hours.
+      </p>
 
-        <p
-          class="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+      <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+        <a href="/custom-plans/apply">
+          <Button
+            size="lg"
+            className="h-12 px-8 text-sm font-semibold tracking-wide rounded-full shadow-sm"
+          >
+            Buy Now
+          </Button>
+        </a>
+        <a
+          href="#how-it-works"
+          class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2"
         >
-          No AI. No cookie-cutter templates. You fill out a comprehensive
-          assessment, and I personally build your ideal hypertrophy plan from
-          scratch in 72-96 hours.
+          See how it works &darr;
+        </a>
+      </div>
+    </section>
+
+    <section
+      id="how-it-works"
+      class="max-w-5xl mx-auto px-6 py-24 scroll-mt-16"
+    >
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-black tracking-tight text-foreground mb-4">
+          Here is exactly what you get:
+        </h2>
+        <p class="text-muted-foreground text-lg max-w-xl mx-auto">
+          A structured, science-based approach to your training, delivered in
+          four comprehensive parts.
         </p>
+      </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
-          <a href="/custom-plans/apply">
-            <Button
-              size="lg"
-              className="h-12 px-8 text-sm font-semibold tracking-wide rounded-full shadow-sm"
-            >
-              Apply Now
-            </Button>
-          </a>
-          <a href="#how-it-works" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2">
-            See how it works &darr;
-          </a>
-        </div>
-      </section>
-
-      <section id="how-it-works" class="max-w-5xl mx-auto px-6 py-24 scroll-mt-16">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl font-black tracking-tight text-foreground mb-4">Here is exactly what you get:</h2>
-          <p class="text-muted-foreground text-lg max-w-xl mx-auto">A structured, science-based approach to your training, delivered in four comprehensive parts.</p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
-            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">01</div>
-            <h3 class="text-2xl font-black text-foreground mb-3">A Fully Customized Mesocycle</h3>
-            <p class="text-muted-foreground leading-relaxed text-lg">
-              A training program built specifically around your individual biomechanics, goals, and training history. You tell me what you want to achieve, and I build the exact roadmap to get you there without any guesswork.
-            </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow"
+        >
+          <div class="text-sm font-semibold text-primary mb-4 tracking-wider">
+            01
           </div>
-          
-          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
-            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">02</div>
-            <h3 class="text-2xl font-black text-foreground mb-3">Science-Backed Progression</h3>
-            <p class="text-muted-foreground leading-relaxed text-lg">
-              Your sets, reps, and progression schemes are mathematically matched to your recovery capacity. Using the peer-reviewed principles outlined in the BuffBook, I ensure you apply the exact amount of volume needed to grow - no more, no less.
-            </p>
-          </div>
-
-          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
-            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">03</div>
-            <h3 class="text-2xl font-black text-foreground mb-3">Personalized Exercise Selection</h3>
-            <p class="text-muted-foreground leading-relaxed text-lg">
-              Not everyone is built to barbell squat or bench press. I personally review your past injuries, weak points, and available equipment to select exercises that are highly stimulating and safe for your specific leverages.
-            </p>
-          </div>
-
-          <div class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow">
-            <div class="text-sm font-semibold text-primary mb-4 tracking-wider">04</div>
-            <h3 class="text-2xl font-black text-foreground mb-3">Detailed Execution Guide</h3>
-            <p class="text-muted-foreground leading-relaxed text-lg">
-              You won't just get a confusing spreadsheet. You'll receive a detailed PDF breakdown with specific form cues for each exercise, warm-up strategies, and exact instructions on how to log your progression accurately.
-            </p>
-          </div>
+          <h3 class="text-2xl font-black text-foreground mb-3">
+            A Fully Customized Mesocycle
+          </h3>
+          <p class="text-muted-foreground leading-relaxed text-lg">
+            A training program built specifically around your individual
+            biomechanics, goals, and training history. You tell me what you want
+            to achieve, and I build the exact roadmap to get you there without
+            any guesswork.
+          </p>
         </div>
-      </section>
 
-      <Separator className="max-w-4xl mx-auto opacity-50" />
-      
-      <section class="max-w-3xl mx-auto px-6 py-24">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-black tracking-tight text-foreground">Frequently Asked Questions</h2>
-          <p class="text-muted-foreground mt-2">Everything you need to know before applying.</p>
+        <div
+          class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow"
+        >
+          <div class="text-sm font-semibold text-primary mb-4 tracking-wider">
+            02
+          </div>
+          <h3 class="text-2xl font-black text-foreground mb-3">
+            Science-Backed Progression
+          </h3>
+          <p class="text-muted-foreground leading-relaxed text-lg">
+            Your sets, reps, and progression schemes are mathematically matched
+            to your recovery capacity. Using the peer-reviewed principles
+            outlined in the BuffBook, I ensure you apply the exact amount of
+            volume needed to grow - no more, no less.
+          </p>
         </div>
-        <FaqAccordion client:visible items={faqs} />
-      </section>
-    </main>
+
+        <div
+          class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow"
+        >
+          <div class="text-sm font-semibold text-primary mb-4 tracking-wider">
+            03
+          </div>
+          <h3 class="text-2xl font-black text-foreground mb-3">
+            Personalized Exercise Selection
+          </h3>
+          <p class="text-muted-foreground leading-relaxed text-lg">
+            Not everyone is built to barbell squat or bench press. I personally
+            review your past injuries, weak points, and available equipment to
+            select exercises that are highly stimulating and safe for your
+            specific leverages.
+          </p>
+        </div>
+
+        <div
+          class="bg-card border border-border rounded-2xl p-8 hover:shadow-sm transition-shadow"
+        >
+          <div class="text-sm font-semibold text-primary mb-4 tracking-wider">
+            04
+          </div>
+          <h3 class="text-2xl font-black text-foreground mb-3">
+            Detailed Execution Guide
+          </h3>
+          <p class="text-muted-foreground leading-relaxed text-lg">
+            You won't just get a confusing spreadsheet. You'll receive a
+            detailed PDF breakdown with specific form cues for each exercise,
+            warm-up strategies, and exact instructions on how to log your
+            progression accurately.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <Separator className="max-w-4xl mx-auto opacity-50" />
+
+    <section class="max-w-3xl mx-auto px-6 py-24">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-black tracking-tight text-foreground">
+          Frequently Asked Questions
+        </h2>
+        <p class="text-muted-foreground mt-2">
+          Everything you need to know before applying.
+        </p>
+      </div>
+      <FaqAccordion client:visible items={faqs} />
+    </section>
+  </main>
 </MarketingLayout>

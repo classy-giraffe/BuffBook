@@ -6,21 +6,68 @@ interface Props {
 const { user } = Astro.props;
 ---
 
-<nav class="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-8 backdrop-blur-md">
-  <a href="/" class="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition-opacity">
-    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-primary" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"></path>
+<nav
+  class="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background/80 px-8 backdrop-blur-md"
+>
+  <a
+    href="/"
+    class="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition-opacity"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-6 w-6 fill-primary"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
+      ></path>
     </svg>
     <span class="font-bold tracking-tight">BuffBook</span>
   </a>
   <div class="flex items-center gap-6 text-sm text-muted-foreground">
-    <a href="/custom-plans" class="hidden sm:flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">Apply for Coaching</a>
-    <a href="/contribute" class="hidden sm:block font-medium hover:text-foreground transition-colors">Contribute</a>
-    <button id="theme-toggle" class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md" aria-label="Toggle theme">
-      <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+    <a
+      href="/custom-plans"
+      class="hidden sm:flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+      >Custom Plans</a
+    >
+    <a
+      href="/contribute"
+      class="hidden sm:block font-medium hover:text-foreground transition-colors"
+      >Contribute</a
+    >
+    <button
+      id="theme-toggle"
+      class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md"
+      aria-label="Toggle theme"
+    >
+      <svg
+        id="theme-icon-dark"
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="hidden"
+      >
         <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
       </svg>
-      <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+      <svg
+        id="theme-icon-light"
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="hidden"
+      >
         <circle cx="12" cy="12" r="4"></circle>
         <path d="M12 2v2"></path>
         <path d="M12 20v2"></path>
@@ -32,18 +79,25 @@ const { user } = Astro.props;
         <path d="m19.07 4.93-1.41 1.41"></path>
       </svg>
     </button>
-    {user ? (
-      <>
-        <span>{user.email}</span>
-        <button id="signout-btn" class="font-medium text-foreground hover:text-primary transition-colors">Sign Out</button>
-      </>
-    ) : null}
+    {
+      user ? (
+        <>
+          <span>{user.email}</span>
+          <button
+            id="signout-btn"
+            class="font-medium text-foreground hover:text-primary transition-colors"
+          >
+            Sign Out
+          </button>
+        </>
+      ) : null
+    }
   </div>
 </nav>
 
 <script>
   import { authClient } from "../lib/auth-client";
-  
+
   const signoutBtn = document.getElementById("signout-btn");
   if (signoutBtn) {
     signoutBtn.addEventListener("click", async () => {
@@ -52,29 +106,29 @@ const { user } = Astro.props;
     });
   }
 
-  const toggleBtn = document.getElementById('theme-toggle');
-  const darkIcon = document.getElementById('theme-icon-dark');
-  const lightIcon = document.getElementById('theme-icon-light');
+  const toggleBtn = document.getElementById("theme-toggle");
+  const darkIcon = document.getElementById("theme-icon-dark");
+  const lightIcon = document.getElementById("theme-icon-light");
 
   function updateIcon(theme: string | undefined) {
-    if (theme === 'light') {
-      darkIcon?.classList.remove('hidden');
-      lightIcon?.classList.add('hidden');
+    if (theme === "light") {
+      darkIcon?.classList.remove("hidden");
+      lightIcon?.classList.add("hidden");
     } else {
-      lightIcon?.classList.remove('hidden');
-      darkIcon?.classList.add('hidden');
+      lightIcon?.classList.remove("hidden");
+      darkIcon?.classList.add("hidden");
     }
   }
 
   if (toggleBtn && darkIcon && lightIcon) {
     updateIcon(document.documentElement.dataset.theme);
 
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.addEventListener("click", () => {
       const currentTheme = document.documentElement.dataset.theme;
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      const newTheme = currentTheme === "light" ? "dark" : "light";
       document.documentElement.dataset.theme = newTheme;
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('starlight-theme', newTheme);
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("starlight-theme", newTheme);
       }
       updateIcon(newTheme);
     });
