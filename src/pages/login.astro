@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@comp
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Label } from "@components/ui/label";
+import { Separator } from "@components/ui/separator";
 import "../styles/global.css";
 
 const { user } = Astro.locals;
@@ -23,33 +24,110 @@ if (user) {
       document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
     </script>
   </head>
-  <body class="flex min-h-screen items-center justify-center bg-background text-foreground relative antialiased">
-    <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 400px);"></div>
+  <body class="min-h-screen bg-background text-foreground relative antialiased">
     
-    <div class="w-full max-w-md p-4 relative z-10">
-      <Card className="border-primary/20 shadow-2xl bg-card/50 backdrop-blur-xl">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold tracking-tight text-primary">BuffBook</CardTitle>
-          <CardDescription>Enter your credentials to login to the dashboard.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div id="error-msg" class="text-sm font-medium text-destructive mb-4 hidden bg-destructive/10 p-3 rounded-md border border-destructive/20 text-center"></div>
-          <form id="login-form" class="space-y-4">
-            <div class="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
-            </div>
-            <div class="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
-            </div>
-            <Button type="submit" className="w-full font-bold">Sign In</Button>
-          </form>
-          <div class="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account? <a href="/custom-plans/apply" class="text-primary font-medium hover:underline">Apply for a plan</a>
+    <div class="flex min-h-screen">
+      <!-- Left panel: Branding (hidden on mobile) -->
+      <div class="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 -z-10" style="background: radial-gradient(ellipse 80% 70% at 50% 40%, hsl(var(--primary) / 0.08) 0%, transparent 70%);"></div>
+        <div
+          class="absolute inset-0 -z-10 opacity-[0.03]"
+          style="background-image: radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px); background-size: 32px 32px;"
+        ></div>
+        <!-- Decorative border on right -->
+        <div class="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent"></div>
+
+        <div class="max-w-md text-center flex flex-col items-center gap-8">
+          <!-- Logo -->
+          <div class="h-20 w-20 rounded-3xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center glow">
+            <svg
+              viewBox="0 0 24 24"
+              class="h-10 w-10 fill-primary"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
+              ></path>
+            </svg>
           </div>
-        </CardContent>
-      </Card>
+
+          <div>
+            <h1 class="text-4xl font-black tracking-tight text-foreground mb-3">BuffBook</h1>
+            <p class="text-muted-foreground leading-relaxed">
+              The science of getting bigger. A free, evidence-based guide to muscle hypertrophy — backed by peer-reviewed research.
+            </p>
+          </div>
+
+          <Separator className="w-16 opacity-30" />
+
+          <div class="flex flex-col gap-4 text-sm text-muted-foreground">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <span>Track your custom plan orders</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              </div>
+              <span>Download your delivered PDFs</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <span>Secure account with encrypted passwords</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel: Login form -->
+      <div class="flex-1 flex items-center justify-center p-6 sm:p-12 relative">
+        <div class="pointer-events-none fixed inset-0 -z-10 lg:hidden" style="background: radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 400px);"></div>
+        
+        <div class="w-full max-w-md">
+          <!-- Mobile logo (visible only on small screens) -->
+          <div class="lg:hidden text-center mb-8">
+            <a href="/" class="inline-flex items-center gap-2 text-2xl font-bold text-primary mb-2">
+              <svg viewBox="0 0 24 24" class="h-7 w-7 fill-primary" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"></path>
+              </svg>
+              BuffBook
+            </a>
+          </div>
+
+          <Card className="border-primary/20 shadow-2xl bg-card/50 backdrop-blur-xl">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+              <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div id="error-msg" class="text-sm font-medium text-destructive mb-4 hidden bg-destructive/10 p-3 rounded-md border border-destructive/20 text-center"></div>
+              <form id="login-form" class="space-y-4">
+                <div class="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input id="email" type="email" placeholder="m@example.com" required />
+                </div>
+                <div class="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" type="password" required />
+                </div>
+                <Button type="submit" className="w-full font-bold">Sign In</Button>
+              </form>
+              <div class="mt-6 text-center text-sm text-muted-foreground">
+                Don't have an account? <a href="/custom-plans/apply" class="text-primary font-medium hover:underline">Apply for a plan</a>
+              </div>
+            </CardContent>
+          </Card>
+
+          <p class="mt-6 text-center text-xs text-muted-foreground/60">
+            <a href="/" class="hover:text-foreground transition-colors">← Back to BuffBook</a>
+          </p>
+        </div>
+      </div>
     </div>
 
     <script>

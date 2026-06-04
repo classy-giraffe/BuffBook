@@ -2,28 +2,51 @@
 // Custom homepage - bypasses Starlight entirely
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
+import { Badge } from "@components/ui/badge";
+import { Card, CardContent } from "@components/ui/card";
+import { Alert, AlertDescription } from "@components/ui/alert";
 import { PlanTabs } from "../components/PlanTabs";
 import { DefinitionsHover } from "../components/DefinitionsHover";
 import "../styles/global.css";
 
 import { chapters } from "../data/chapters";
 import MarketingLayout from "../layouts/MarketingLayout.astro";
+
+// Lucide-style icons for each chapter (as inline SVGs for zero-JS)
+const chapterIcons = [
+  `<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>`, // State of Industry - pen
+  `<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>`, // Science of Size - info
+  `<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>`, // Myths - alert triangle
+  `<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/>`, // Specificity - file
+  `<path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/>`, // Exercise Selection - check circle
+  `<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>`, // Programming - layout
+  `<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>`, // Plan to Practice - flag
+  `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`, // Nutrition - users
+];
 ---
 
 <MarketingLayout title="BuffBook - The Science of Getting Bigger" description="A comprehensive, evidence-based guide to muscle hypertrophy and resistance training. No fluff. Just the science.">
 
     <!-- HERO -->
     <section
-      class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16"
+      class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16 grain-overlay"
     >
+      <!-- Layered background: gradient + subtle grid -->
       <div
         class="pointer-events-none absolute inset-0 -z-10"
         style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 20% 80%, hsl(var(--primary) / 0.05) 0%, transparent 60%);"
       >
       </div>
+      <!-- Dot grid pattern -->
+      <div
+        class="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]"
+        style="background-image: radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px); background-size: 32px 32px;"
+      >
+      </div>
 
       <div
         class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-6"
+        data-animate
       >
         <div class="h-px w-8 bg-primary/50"></div>
         Evidence-Based Training
@@ -32,24 +55,26 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
 
       <h1
         class="max-w-4xl text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
+        data-animate data-animate-delay="1"
       >
         The science of
-        <span class="block text-primary">getting bigger.</span>
+        <span class="block text-gradient pb-2">getting bigger.</span>
       </h1>
 
       <p
         class="max-w-xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+        data-animate data-animate-delay="2"
       >
         A free, peer-reviewed and opinionated guide to <DefinitionsHover client:load term="Hypertrophy" definition="The enlargement of an organ or tissue from the increase in size of its cells. In fitness, this means muscle growth.">muscle hypertrophy</DefinitionsHover>. No
         supplements to sell, no program to shill. You'll learn the science and
         how to use it.
       </p>
 
-      <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="/introduction/state-of-industry/">
+      <div class="flex flex-wrap items-center justify-center gap-4" data-animate data-animate-delay="3">
+        <a href="/chapter0/state-of-industry/">
           <Button
             size="lg"
-            className="h-14 px-8 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
+            className="h-14 px-8 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow animate-pulse-glow"
           >
             Start Reading
             <svg
@@ -88,11 +113,13 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
         </a>
       </div>
 
+      <!-- Animated stat counters -->
       <div
         class="mt-20 flex flex-wrap items-center justify-center gap-x-12 gap-y-8 px-4"
+        data-animate data-animate-delay="4"
       >
         <div class="text-center">
-          <div class="text-4xl font-black text-primary tracking-tight">8</div>
+          <div class="text-4xl font-black text-primary tracking-tight" data-count-to="8">0</div>
           <div
             class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1"
           >
@@ -101,9 +128,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
         </div>
         <Separator orientation="vertical" className="hidden sm:block h-10" />
         <div class="text-center">
-          <div class="text-4xl font-black text-primary tracking-tight">
-            100+
-          </div>
+          <div class="text-4xl font-black text-primary tracking-tight" data-count-to="100" data-count-suffix="+">0</div>
           <div
             class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1"
           >
@@ -122,111 +147,183 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
           </div>
         </div>
       </div>
+
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground/50">
+        <span class="text-[0.6rem] uppercase tracking-[0.3em] font-medium">Scroll</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-chevron"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
     </section>
 
     <Separator className="max-w-7xl mx-auto opacity-50" />
-    <!-- CHAPTERS -->
+
+    <!-- CHAPTERS — Bento grid layout -->
     <section class="max-w-7xl mx-auto px-6 py-24">
       <div
         class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
+        data-animate
       >
-        <div>
-          <div
-            class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+        <div class="max-w-2xl">
+          <h2
+            class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-4"
           >
             What's inside
-          </div>
-          <h2
-            class="text-4xl sm:text-5xl font-black tracking-tight text-foreground"
-          >
-            8 Chapters. No Fluff.
           </h2>
+          <p class="text-lg text-muted-foreground leading-relaxed">
+            The curriculum is structured into 8 comprehensive chapters. We begin with the fundamental biology and basic physiology of muscle growth, ensuring you understand the mechanisms behind hypertrophy. From there, we transition into highly practical applications, detailing specific programming strategies, exercise selection, and evidence-based nutrition protocols to maximize your results.
+          </p>
         </div>
-
       </div>
 
+      <!-- Bento grid: first 2 chapters are featured (2-col span), rest are 1-col -->
       <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border rounded-xl overflow-hidden"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {
-          chapters.map((ch) => (
-            <a
-              href={ch.href}
-              class="group bg-card p-6 flex flex-col gap-3 transition-colors hover:bg-muted relative overflow-hidden"
-            >
-              <div class="absolute bottom-0 left-0 right-0 h-1 bg-primary scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
-              <span class="text-xs font-bold uppercase tracking-[0.2em] text-primary/70">
-                CH. {ch.num}
-              </span>
-              <span class="text-lg font-bold text-foreground leading-snug">
-                {ch.title}
-              </span>
-              <span class="text-sm text-muted-foreground leading-relaxed flex-1">
-                {ch.desc}
-              </span>
-              <span class="text-sm font-semibold text-primary opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 mt-2">
-                Read →
-              </span>
-            </a>
-          ))
+          chapters.map((ch, i) => {
+            const isFeatured = i >= 4;
+            return (
+              <a
+                href={ch.href}
+                class:list={[
+                  "group relative border rounded-xl p-6 flex flex-col gap-3 transition-all duration-300 overflow-hidden",
+                  isFeatured 
+                    ? "sm:col-span-2 bg-gradient-to-br from-card to-primary/[0.04] border-primary/20 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5" 
+                    : "bg-card border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
+                ]}
+                data-animate
+                data-animate-delay={String((i % 4) + 1)}
+              >
+                {/* Bottom accent line on hover */}
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
+                
+                <div class="flex items-center gap-3 mb-1">
+                  {/* Chapter icon */}
+                  <div class:list={[
+                    "h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0",
+                    isFeatured ? "bg-primary/20 border border-primary/30" : "bg-primary/10 border border-primary/20"
+                  ]}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={chapterIcons[i]} />
+                  </div>
+                  <Badge variant="secondary" className="text-[0.6rem] font-bold tracking-[0.15em] uppercase">
+                    CH. {ch.num}
+                  </Badge>
+                </div>
+
+                <span class:list={[
+                  "leading-snug",
+                  isFeatured ? "text-xl font-black text-foreground" : "text-lg font-bold text-foreground/90",
+                ]}>
+                  {ch.title}
+                </span>
+                <span class:list={[
+                  "text-muted-foreground leading-relaxed flex-1",
+                  isFeatured ? "text-base" : "text-sm",
+                ]}>
+                  {ch.desc}
+                </span>
+                <span class="text-sm font-semibold text-primary opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 mt-2">
+                  Read →
+                </span>
+              </a>
+            );
+          })
         }
       </div>
     </section>
 
     <Separator className="max-w-7xl mx-auto opacity-50" />
-    <!-- PILLARS -->
-    <section class="max-w-7xl mx-auto px-6 py-24">
-      <div
-        class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
-      >
-        Why BuffBook
-      </div>
-      <h2
-        class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-16"
-      >
-        Built differently.
-      </h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-        <div class="flex flex-col gap-4">
-          <div
-            class="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl"
-          >
-            🔬
-          </div>
-          <h3 class="text-2xl font-bold tracking-tight text-foreground">
-            Evidence
-          </h3>
-          <p class="text-sm text-muted-foreground leading-relaxed">
-            Every claim is grounded in peer-reviewed research. We cite primary
-            sources, not YouTube channels or bro-science forums.
-          </p>
+    <!-- PILLARS — Alternating left/right layout -->
+    <section class="max-w-7xl mx-auto px-6 py-24">
+      <div data-animate>
+        <div
+          class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+        >
+          Why BuffBook
         </div>
-        <div class="flex flex-col gap-4">
-          <div
-            class="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl"
-          >
-            🛠️
+        <h2
+          class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-16"
+        >
+          Built differently.
+        </h2>
+      </div>
+
+      <div class="flex flex-col gap-0 relative">
+        <!-- Connecting vertical line -->
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-border via-primary/20 to-border -translate-x-1/2"></div>
+
+        <!-- Pillar 1 — Evidence (left-aligned) -->
+        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 relative" data-animate>
+          <div class="flex-1 md:text-right order-2 md:order-1">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="p-0 md:p-6">
+                <h3 class="text-2xl font-bold tracking-tight text-foreground mb-3">
+                  Evidence
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Every claim is grounded in peer-reviewed research. We cite primary
+                  sources, not YouTube channels or bro-science forums.
+                </p>
+              </CardContent>
+            </Card>
           </div>
-          <h3 class="text-2xl font-bold tracking-tight text-foreground">
-            Experience
-          </h3>
-          <p class="text-sm text-muted-foreground leading-relaxed">
-            Built upon years of in-the-trenches training. We balance scientific literature with practical knowledge of what actually produces results.
-          </p>
+          <div class="relative z-10 order-1 md:order-2 flex-shrink-0">
+            <div class="h-16 w-16 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-2xl glow-sm">
+              🔬
+            </div>
+          </div>
+          <div class="flex-1 order-3 hidden md:block"></div>
         </div>
-        <div class="flex flex-col gap-4">
-          <div
-            class="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xl"
-          >
-            🧠
+
+        <!-- Spacer -->
+        <div class="h-12 md:h-16"></div>
+
+        <!-- Pillar 2 — Experience (right-aligned) -->
+        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 relative" data-animate data-animate-delay="2">
+          <div class="flex-1 hidden md:block"></div>
+          <div class="relative z-10 flex-shrink-0">
+            <div class="h-16 w-16 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-2xl glow-sm">
+              🛠️
+            </div>
           </div>
-          <h3 class="text-2xl font-bold tracking-tight text-foreground">
-            Coaching
-          </h3>
-          <p class="text-sm text-muted-foreground leading-relaxed">
-            Translating theory into practice. We provide actionable advice refined through coaching countless clients through plateaus and progression.
-          </p>
+          <div class="flex-1">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="p-0 md:p-6">
+                <h3 class="text-2xl font-bold tracking-tight text-foreground mb-3">
+                  Experience
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Built upon years of in-the-trenches training. We balance scientific literature with practical knowledge of what actually produces results.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <!-- Spacer -->
+        <div class="h-12 md:h-16"></div>
+
+        <!-- Pillar 3 — Coaching (left-aligned) -->
+        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 relative" data-animate data-animate-delay="4">
+          <div class="flex-1 md:text-right order-2 md:order-1">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="p-0 md:p-6">
+                <h3 class="text-2xl font-bold tracking-tight text-foreground mb-3">
+                  Coaching
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Translating theory into practice. We provide actionable advice refined through coaching countless clients through plateaus and progression.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <div class="relative z-10 order-1 md:order-2 flex-shrink-0">
+            <div class="h-16 w-16 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-2xl glow-sm">
+              🧠
+            </div>
+          </div>
+          <div class="flex-1 order-3 hidden md:block"></div>
         </div>
       </div>
     </section>
@@ -234,52 +331,83 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
     <Separator className="max-w-7xl mx-auto opacity-50" />
     <!-- CUSTOM PLANS -->
     <section class="max-w-7xl mx-auto px-6 py-24">
-      <div
-        class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
-      >
-        Custom Plans
+      <div data-animate>
+        <div
+          class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+        >
+          Custom Plans
+        </div>
+        <h2
+          class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-4"
+        >
+          Want someone to do the thinking?
+        </h2>
+        <p class="max-w-2xl text-lg text-muted-foreground mb-12">
+          BuffBook will always be free. But if you'd rather skip the learning
+          curve and just follow a plan built for you - that option exists.
+        </p>
       </div>
-      <h2
-        class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-4"
-      >
-        Want someone to do the thinking?
-      </h2>
-      <p class="max-w-2xl text-lg text-muted-foreground mb-12">
-        BuffBook will always be free. But if you'd rather skip the learning
-        curve and just follow a plan built for you - that option exists.
-      </p>
 
-      <div class="mt-8">
+      <div class="mt-8" data-animate data-animate-delay="2">
         <PlanTabs client:visible />
       </div>
 
-      <div
-        class="mt-16 p-6 bg-primary/5 border border-primary/10 rounded-xl text-sm text-muted-foreground leading-relaxed max-w-4xl mx-auto"
-      >
-        <strong class="text-primary"
-          >The content on this site will never be paywalled.</strong
-        > Custom plans are an option for people who want a shortcut - not a requirement.
-        Every concept, framework, and piece of evidence in BuffBook is free and always
-        will be.
+      <div class="mt-16 max-w-4xl mx-auto" data-animate data-animate-delay="3">
+        <Alert className="border-primary/20 bg-primary/5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <AlertDescription className="text-sm text-muted-foreground leading-relaxed">
+            <strong class="text-primary">The content on this site will never be paywalled.</strong> Custom plans are an option for people who want a shortcut — not a requirement. Every concept, framework, and piece of evidence in BuffBook is free and always will be.
+          </AlertDescription>
+        </Alert>
       </div>
     </section>
 
     <Separator className="max-w-7xl mx-auto opacity-50" />
-    <!-- QUOTE / CTA -->
-    <section class="max-w-4xl mx-auto px-6 py-24 text-center">
-      <blockquote
-        class="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-foreground mb-6"
-      >
-        "The goal of programming is straightforward: get stronger on the <span
-          class="text-primary">right exercises</span
-        >, consistently, over a long period of time."
-      </blockquote>
-      <p
-        class="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground mb-12"
-      >
-        - BuffBook, Chapter 6
-      </p>
 
+    <!-- QUOTE / CTA -->
+    <section class="max-w-4xl mx-auto px-6 py-24 text-center relative">
+      <!-- Decorative large quotation mark -->
+      <div class="absolute top-12 left-1/2 -translate-x-1/2 text-[12rem] leading-none font-serif text-primary/[0.04] pointer-events-none select-none" aria-hidden="true">
+        "
+      </div>
+
+      <div data-animate>
+        <blockquote
+          class="relative z-10 text-3xl sm:text-5xl font-black tracking-tight leading-tight text-foreground mb-6"
+        >
+          "The goal of programming is straightforward: get stronger on the <span
+            class="text-gradient pb-1">right exercises</span
+          >, consistently, over a long period of time."
+        </blockquote>
+        <p
+          class="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground mb-12"
+        >
+          — BuffBook, Chapter 6
+        </p>
+      </div>
+
+      <a href="/chapter0/state-of-industry/" data-animate data-animate-delay="2">
+        <Button
+          size="lg"
+          variant="outline"
+          className="h-14 px-8 text-base font-bold"
+        >
+          Start Your Journey
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            class="ml-2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+          >
+        </Button>
+      </a>
     </section>
+
+    <script>
+      import "../lib/scroll-animations";
+    </script>
 
 </MarketingLayout>

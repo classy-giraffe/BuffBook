@@ -143,12 +143,13 @@ const getStatusBadge = (status: string) => {
 
 <DashboardLayout title="Dashboard - BuffBook" user={user}>
   <div class="max-w-6xl mx-auto space-y-8">
+    <!-- Greeting -->
     <div
       class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
     >
       <div>
         <h1 class="text-3xl font-bold tracking-tight text-foreground">
-          Your Dashboard
+          Welcome back{user.name ? `, ${user.name.split(" ")[0]}` : ""}.
         </h1>
         <p class="text-muted-foreground mt-1">
           Manage and track your custom gym plans.
@@ -159,9 +160,25 @@ const getStatusBadge = (status: string) => {
       </a>
     </div>
 
+    <!-- Stat cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Plans</span>
+        <span class="text-3xl font-black text-foreground tracking-tight">{requests.length}</span>
+      </div>
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">In Progress</span>
+        <span class="text-3xl font-black text-primary tracking-tight">{requests.filter(r => r.status === "paid").length}</span>
+      </div>
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
+        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{requests.filter(r => r.status === "delivered").length}</span>
+      </div>
+    </div>
+
     <Separator className="opacity-50" />
 
-    <div class="border rounded-md bg-card/50 backdrop-blur-sm shadow-sm">
+    <div class="border rounded-xl bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -177,16 +194,22 @@ const getStatusBadge = (status: string) => {
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="h-48 text-center text-muted-foreground"
+                  className="h-56 text-center text-muted-foreground"
                 >
-                  <p class="mb-4">
-                    You haven't requested any custom plans yet.
-                  </p>
-                  <a href="/custom-plans/apply">
-                    <Button size="sm" className="font-bold">
-                      Buy now
-                    </Button>
-                  </a>
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground/60"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-foreground mb-1">No plans yet</p>
+                      <p class="text-sm mb-4">Get a hand-crafted hypertrophy plan built just for you.</p>
+                    </div>
+                    <a href="/custom-plans/apply">
+                      <Button size="sm" className="font-bold">
+                        Get Your First Plan
+                      </Button>
+                    </a>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

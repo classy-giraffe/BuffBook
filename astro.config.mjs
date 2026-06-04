@@ -42,11 +42,11 @@ export default defineConfig({
     sidebar: [
       // ── Introduction ──────────────────────────────────────────────────────
       {
-        label: 'Introduction',
+        label: 'Chapter 0: Introduction',
         items: [
-          { label: 'State of the Industry', slug: 'introduction/state-of-industry' },
-          { label: 'What is Hypertrophy?', slug: 'introduction/what-is-hypertrophy' },
-          { label: 'Hierarchy of Evidence', slug: 'introduction/hierarchy-of-evidence' },
+          { label: 'State of the Industry', slug: 'chapter0/state-of-industry' },
+          { label: 'What is Hypertrophy?', slug: 'chapter0/what-is-hypertrophy' },
+          { label: 'Hierarchy of Evidence', slug: 'chapter0/hierarchy-of-evidence' },
         ],
       },
 

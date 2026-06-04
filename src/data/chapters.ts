@@ -3,7 +3,7 @@ export const chapters = [
     num: "00",
     title: "State of the Industry",
     desc: "Why the fitness industry keeps failing you — and how peer-reviewed science changes everything.",
-    href: "/introduction/state-of-industry/",
+    href: "/chapter0/state-of-industry/",
   },
   {
     num: "01",

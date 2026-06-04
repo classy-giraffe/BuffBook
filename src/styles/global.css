@@ -134,3 +134,121 @@
     @apply bg-background/60 backdrop-blur-xl border border-border/50 shadow-sm;
   }
 }
+
+/* ── Animation keyframes ──────────────────────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 15%, transparent); }
+  50% { box-shadow: 0 0 40px color-mix(in srgb, var(--primary) 30%, transparent); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(12px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes chevron-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+@keyframes draw-line {
+  from { height: 0; }
+  to { height: 100%; }
+}
+
+/* ── Scroll-triggered animation (applied by IntersectionObserver) ─────────── */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-animate].animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays for children */
+[data-animate-delay="1"] { transition-delay: 0.1s; }
+[data-animate-delay="2"] { transition-delay: 0.2s; }
+[data-animate-delay="3"] { transition-delay: 0.3s; }
+[data-animate-delay="4"] { transition-delay: 0.4s; }
+[data-animate-delay="5"] { transition-delay: 0.5s; }
+[data-animate-delay="6"] { transition-delay: 0.6s; }
+[data-animate-delay="7"] { transition-delay: 0.7s; }
+
+/* ── Visual effect utilities ──────────────────────────────────────────────── */
+.text-gradient {
+  @apply bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent;
+}
+
+.grain-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+.glow {
+  box-shadow: 0 0 30px color-mix(in srgb, var(--primary) 12%, transparent), 0 0 60px color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+.glow-sm {
+  box-shadow: 0 0 15px color-mix(in srgb, var(--primary) 10%, transparent), 0 0 30px color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.shimmer-badge {
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--primary) 10%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 25%, transparent) 40%,
+    color-mix(in srgb, var(--primary) 10%, transparent) 50%,
+    color-mix(in srgb, var(--primary) 10%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-chevron {
+  animation: chevron-bounce 2s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}

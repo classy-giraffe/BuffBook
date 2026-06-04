@@ -42,7 +42,7 @@ export function PlanTabs() {
             </ul>
           </CardContent>
           <CardFooter className="bg-muted/20 border-t p-6">
-            <a href="/introduction/state-of-industry/" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
+            <a href="/chapter0/state-of-industry/" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
               Start reading — it's free <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
             </a>
           </CardFooter>

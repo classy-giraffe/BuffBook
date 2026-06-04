@@ -86,6 +86,22 @@ const getStatusDetails = (status: string) => {
       </p>
     </div>
 
+    <!-- Admin stat cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Orders</span>
+        <span class="text-3xl font-black text-foreground tracking-tight">{allRequests.length}</span>
+      </div>
+      <div class="rounded-xl border border-destructive/20 bg-destructive/5 p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Needs Fulfillment</span>
+        <span class="text-3xl font-black text-destructive tracking-tight">{allRequests.filter(r => r.request.status === "paid").length}</span>
+      </div>
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
+        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{allRequests.filter(r => r.request.status === "delivered").length}</span>
+      </div>
+    </div>
+
     <Separator className="opacity-50" />
 
     <AdminFilters
@@ -95,7 +111,7 @@ const getStatusDetails = (status: string) => {
       initialSort={sortOrder}
     />
 
-    <div class="border rounded-md bg-card">
+    <div class="border rounded-xl bg-card overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
