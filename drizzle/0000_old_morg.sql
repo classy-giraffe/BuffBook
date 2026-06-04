@@ -31,6 +31,7 @@ CREATE TABLE `plan_requests` (
 	`weakPoints` text,
 	`likedExercises` text,
 	`dislikedExercises` text,
+	`equipmentDetails` text,
 	`status` text DEFAULT 'pending_payment' NOT NULL,
 	`stripeSessionId` text,
 	`pdfKey` text,
