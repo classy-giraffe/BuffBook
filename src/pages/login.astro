@@ -14,7 +14,7 @@ const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
 if (user) {
   if (user.email === ADMIN_EMAIL) {
-    return Astro.redirect("/admin");
+    return Astro.redirect("/admin/dashboard");
   }
   return Astro.redirect("/dashboard");
 }

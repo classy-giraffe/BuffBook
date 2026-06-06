@@ -14,7 +14,7 @@ const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
 if (user) {
   if (user.email === ADMIN_EMAIL) {
-    return Astro.redirect("/admin");
+    return Astro.redirect("/admin/dashboard");
   }
   return Astro.redirect("/dashboard");
 }
@@ -141,7 +141,7 @@ if (user) {
       const errorMsg = document.getElementById("error-msg") as HTMLDivElement;
       
       const params = new URLSearchParams(window.location.search);
-      const redirectUrl = params.get("redirect") || "/admin";
+      const redirectUrl = params.get("redirect") || "/admin/dashboard";
       
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();

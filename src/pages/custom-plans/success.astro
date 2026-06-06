@@ -1,0 +1,114 @@
+---
+import { env } from "cloudflare:workers";
+import { Button } from "@components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
+import "../../styles/global.css";
+
+export const prerender = false;
+
+let paymentStatus: "paid" | "processing" | "failed" | "verifying" = "verifying";
+let requestId: string | null = null;
+
+const sessionId = Astro.url.searchParams.get("session_id");
+
+if (sessionId) {
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
+
+    paymentStatus = checkoutSession.payment_status === "paid" ? "paid" : "processing";
+    requestId = checkoutSession.metadata?.requestId ?? null;
+  } catch (err) {
+    console.error("Stripe session verification error:", err);
+    paymentStatus = "failed";
+  }
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment - BuffBook</title>
+    <script is:inline>
+      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased flex items-center justify-center p-6">
+    <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(ellipse 600px 400px at 50% 40%, hsl(var(--primary) / 0.07), transparent);"></div>
+
+    <Card className="w-full max-w-lg border-primary/20 shadow-2xl bg-card/50 backdrop-blur-xl">
+      <CardHeader className="text-center pb-2">
+        {paymentStatus === "paid" && (
+          <>
+            <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <CardTitle className="text-2xl font-black tracking-tight">Payment Received!</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Your custom plan is being prepared. You'll receive it within 72-96 hours.
+            </CardDescription>
+          </>
+        )}
+        {paymentStatus === "processing" && (
+          <>
+            <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-amber-500/10 border-2 border-amber-500/30 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <CardTitle className="text-2xl font-black tracking-tight">Payment Processing</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Your payment is being processed. This page will update automatically.
+            </CardDescription>
+          </>
+        )}
+        {paymentStatus === "verifying" && (
+          <>
+            <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-muted border-2 border-border flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <CardTitle className="text-2xl font-black tracking-tight">Verifying Payment</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Please wait while we confirm your payment.
+            </CardDescription>
+          </>
+        )}
+        {paymentStatus === "failed" && (
+          <>
+            <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-destructive/10 border-2 border-destructive/30 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-destructive"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <CardTitle className="text-2xl font-black tracking-tight">Verification Failed</CardTitle>
+            <CardDescription className="text-base mt-2">
+              We couldn't verify your payment. Please check your dashboard or contact support.
+            </CardDescription>
+          </>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-4 pt-4">
+        <div class="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground space-y-2">
+          {paymentStatus === "paid" && (
+            <>
+              <p>Your plan request <strong class="text-foreground">#{requestId?.slice(0, 8)}</strong> has been received and paid.</p>
+              <p>We'll prepare your custom hypertrophy plan within 72-96 hours. You'll be able to download it from your dashboard once it's ready.</p>
+            </>
+          )}
+          {paymentStatus === "verifying" && (
+            <p>No session ID was provided. If you've just paid, check your dashboard for your plan status.</p>
+          )}
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <a href="/dashboard" class="w-full">
+            <Button className="w-full h-11 text-base font-bold">Go to Dashboard</Button>
+          </a>
+          <a href="/" class="w-full">
+            <Button variant="outline" className="w-full h-11 text-base font-semibold">Back to BuffBook</Button>
+          </a>
+        </div>
+      </CardContent>
+    </Card>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+---
+interface Props {
+  active: "orders" | "users";
+}
+
+const { active } = Astro.props;
+---
+
+<nav class="flex gap-1 rounded-xl bg-muted p-1 w-fit">
+  <a
+    href="/admin/dashboard"
+    class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+    class:list={{
+      "bg-background text-foreground shadow-sm": active === "orders",
+      "text-muted-foreground hover:text-foreground": active !== "orders",
+    }}
+  >
+    Orders
+  </a>
+  <a
+    href="/admin/users"
+    class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+    class:list={{
+      "bg-background text-foreground shadow-sm": active === "users",
+      "text-muted-foreground hover:text-foreground": active !== "users",
+    }}
+  >
+    Users
+  </a>
+</nav>

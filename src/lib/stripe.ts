@@ -38,7 +38,7 @@ export async function createCheckoutSession({
       },
     ],
     mode: "payment",
-    success_url: `${siteUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${siteUrl}/custom-plans/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl,
     customer_email: customerEmail,
     metadata: {

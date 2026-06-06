@@ -1,0 +1,186 @@
+---
+import { env } from "cloudflare:workers";
+import DashboardLayout from "../../components/DashboardLayout.astro";
+import AdminNav from "../../components/AdminNav.astro";
+import { AdminFilters } from "../../components/AdminFilters";
+import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { Separator } from "@components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@components/ui/table";
+import { drizzle } from "drizzle-orm/d1";
+import * as dbSchema from "../../db/schema";
+import { eq, desc, asc, ne, and, like, or } from "drizzle-orm";
+import "../../styles/global.css";
+
+export const prerender = false;
+
+const { user } = Astro.locals;
+const ADMIN_EMAIL = env.ADMIN_EMAIL;
+
+if (!user) {
+  return Astro.redirect("/admin/login");
+}
+if (user.email !== ADMIN_EMAIL) {
+  return Astro.redirect("/dashboard");
+}
+
+const db = drizzle(env.DB, { schema: dbSchema });
+
+const filterStatus = Astro.url.searchParams.get("status") || "all";
+const sortOrder = Astro.url.searchParams.get("sort") || "desc";
+const searchQuery = Astro.url.searchParams.get("search") || "";
+
+let conditions: any[] = [ne(dbSchema.planRequests.status, "pending_payment")];
+
+if (filterStatus === "paid" || filterStatus === "delivered") {
+  conditions.push(eq(dbSchema.planRequests.status, filterStatus));
+}
+
+if (searchQuery) {
+  conditions.push(
+    or(
+      like(dbSchema.planRequests.name, `%${searchQuery}%`),
+      like(dbSchema.user.email, `%${searchQuery}%`),
+    ),
+  );
+}
+
+const allRequests = await db
+  .select({
+    request: dbSchema.planRequests,
+    user: {
+      email: dbSchema.user.email,
+      name: dbSchema.user.name,
+    },
+  })
+  .from(dbSchema.planRequests)
+  .leftJoin(dbSchema.user, eq(dbSchema.planRequests.userId, dbSchema.user.id))
+  .where(and(...conditions))
+  .orderBy(
+    sortOrder === "asc"
+      ? asc(dbSchema.planRequests.createdAt)
+      : desc(dbSchema.planRequests.createdAt),
+  );
+
+const getStatusDetails = (status: string) => {
+  switch (status) {
+    case "paid":
+      return { label: "Needs Fulfillment", variant: "destructive" as const };
+    case "delivered":
+      return { label: "Delivered", variant: "default" as const };
+    default:
+      return { label: status, variant: "secondary" as const };
+  }
+};
+---
+
+<DashboardLayout title="Admin Dashboard" user={user}>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <div class="flex flex-col gap-4">
+      <AdminNav active="orders" />
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">Orders</h1>
+        <p class="text-muted-foreground mt-1">
+          Manage and track custom plan requests.
+        </p>
+      </div>
+    </div>
+
+    <!-- Admin stat cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Orders</span>
+        <span class="text-3xl font-black text-foreground tracking-tight">{allRequests.length}</span>
+      </div>
+      <div class="rounded-xl border border-destructive/20 bg-destructive/5 p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Needs Fulfillment</span>
+        <span class="text-3xl font-black text-destructive tracking-tight">{allRequests.filter(r => r.request.status === "paid").length}</span>
+      </div>
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
+        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{allRequests.filter(r => r.request.status === "delivered").length}</span>
+      </div>
+    </div>
+
+    <Separator className="opacity-50" />
+
+    <AdminFilters
+      client:load
+      initialSearch={searchQuery}
+      initialStatus={filterStatus}
+      initialSort={sortOrder}
+    />
+
+    <div class="border rounded-xl bg-card overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date</TableHead>
+            <TableHead>Customer</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {
+            allRequests.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="h-32 text-center text-muted-foreground"
+                >
+                  No orders found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              allRequests.map(({ request, user: requestUser }) => {
+                const status = getStatusDetails(request.status);
+                return (
+                  <TableRow>
+                    <TableCell className="font-medium text-muted-foreground">
+                      {new Date(request.createdAt).toLocaleDateString(
+                        undefined,
+                        {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        },
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div class="font-semibold text-foreground">
+                        {request.name}
+                      </div>
+                      <div class="text-xs text-muted-foreground">
+                        {requestUser?.email}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={status.variant} className="rounded-sm">
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <a href={`/admin/orders/${request.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Order
+                        </Button>
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )
+          }
+        </TableBody>
+      </Table>
+    </div>
+  </div>
+</DashboardLayout>

@@ -1,0 +1,122 @@
+---
+import { env } from "cloudflare:workers";
+import DashboardLayout from "../../components/DashboardLayout.astro";
+import AdminNav from "../../components/AdminNav.astro";
+import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@components/ui/table";
+import { drizzle } from "drizzle-orm/d1";
+import * as dbSchema from "../../db/schema";
+import { eq, desc, sql } from "drizzle-orm";
+import "../../styles/global.css";
+
+export const prerender = false;
+
+const { user } = Astro.locals;
+const ADMIN_EMAIL = env.ADMIN_EMAIL;
+
+if (!user) {
+  return Astro.redirect("/admin/login");
+}
+if (user.email !== ADMIN_EMAIL) {
+  return Astro.redirect("/dashboard");
+}
+
+const db = drizzle(env.DB, { schema: dbSchema });
+
+const users = await db
+  .select({
+    id: dbSchema.user.id,
+    name: dbSchema.user.name,
+    email: dbSchema.user.email,
+    emailVerified: dbSchema.user.emailVerified,
+    createdAt: dbSchema.user.createdAt,
+    orderCount: sql<number>`count(${dbSchema.planRequests.id})`,
+  })
+  .from(dbSchema.user)
+  .leftJoin(dbSchema.planRequests, eq(dbSchema.user.id, dbSchema.planRequests.userId))
+  .groupBy(dbSchema.user.id)
+  .orderBy(desc(dbSchema.user.createdAt));
+---
+
+<DashboardLayout title="Admin Users" user={user}>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <div class="flex flex-col gap-4">
+      <AdminNav active="users" />
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">Users</h1>
+        <p class="text-muted-foreground mt-1">
+          Manage registered users and their accounts.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Users</span>
+        <span class="text-3xl font-black text-foreground tracking-tight">{users.length}</span>
+      </div>
+      <div class="rounded-xl border border-destructive/20 bg-destructive/5 p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Unverified</span>
+        <span class="text-3xl font-black text-destructive tracking-tight">{users.filter(u => !u.emailVerified).length}</span>
+      </div>
+      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
+        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">With Orders</span>
+        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{users.filter(u => u.orderCount > 0).length}</span>
+      </div>
+    </div>
+
+    <div class="border rounded-xl bg-card overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Verified</TableHead>
+            <TableHead>Joined</TableHead>
+            <TableHead className="text-center">Orders</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {
+            users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                  No users found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((u) => (
+                <TableRow>
+                  <TableCell class="font-semibold text-foreground">{u.name}</TableCell>
+                  <TableCell class="text-muted-foreground">{u.email}</TableCell>
+                  <TableCell>
+                    {u.emailVerified ? (
+                      <Badge variant="default" className="rounded-sm">Verified</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="rounded-sm">Unverified</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell class="text-muted-foreground">
+                    {new Date(u.createdAt).toLocaleDateString(undefined, {
+                      year: "numeric", month: "short", day: "numeric",
+                    })}
+                  </TableCell>
+                  <TableCell class="text-center font-medium">{u.orderCount}</TableCell>
+                </TableRow>
+              ))
+            )
+          }
+        </TableBody>
+      </Table>
+    </div>
+  </div>
+</DashboardLayout>

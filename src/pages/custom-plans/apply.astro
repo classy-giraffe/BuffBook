@@ -88,6 +88,7 @@ if (Astro.request.method === "POST") {
 
       // ── Resolve user ─────────────────────────────────────────────────────
       let userId: string;
+      let sessionToken: string | null = null;
 
       if (isLoggedIn) {
         userId = currentUser!.id;
@@ -115,6 +116,10 @@ if (Astro.request.method === "POST") {
         });
         if (!result.user) throw new Error("Failed to create account");
         userId = result.user.id;
+
+        // Auto-login: save session token so the redirect response can set
+        // the session cookie before sending the user to Stripe
+        sessionToken = result.token;
       }
 
       // ── Unit conversion (always store as metric) ─────────────────────────
@@ -163,7 +168,16 @@ if (Astro.request.method === "POST") {
         db: env.DB,
       });
 
-      return Astro.redirect(checkoutUrl);
+      const redirectHeaders = new Headers();
+      redirectHeaders.set("Location", checkoutUrl);
+      if (sessionToken) {
+        const isSecure = env.BETTER_AUTH_URL?.startsWith("https://") ?? false;
+        redirectHeaders.append(
+          "Set-Cookie",
+          `buffbook-session-token=${sessionToken}; Path=/; HttpOnly; SameSite=Lax${isSecure ? "; Secure" : ""}; Max-Age=${7 * 24 * 60 * 60}`,
+        );
+      }
+      return new Response(null, { status: 302, headers: redirectHeaders });
     }
   } catch (err: any) {
     console.error("APPLY FORM ERROR:", err?.message || err, err?.stack || "");
@@ -175,13 +189,15 @@ if (Astro.request.method === "POST") {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apply for Custom Plan - BuffBook</title>
     <script is:inline>
-      document.documentElement.dataset.theme = 'dark';
+      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
     </script>
   </head>
   <body
