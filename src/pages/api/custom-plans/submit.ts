@@ -101,7 +101,7 @@ export const POST: APIRoute = async (ctx) => {
         return ctx.redirect("/custom-plans/apply?error=signup_failed");
       }
       userId = result.user.id;
-      sessionToken = result.token;
+      sessionToken = result.token ?? result.session?.token ?? null;
     }
 
     let weight = validated.data.weight;

@@ -158,7 +158,7 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
             )}
 
             <!-- Step: Body & Basics -->
-            <div class="form-step hidden" data-step={isLoggedIn ? "1" : "2"}>
+            <div class={`form-step ${isLoggedIn ? "step-active" : "hidden"}`} data-step={isLoggedIn ? "1" : "2"}>
               <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
                 <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={isLoggedIn ? stepDefs[0]?.icon || "" : stepDefs[1]?.icon || ""} />
@@ -186,15 +186,27 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                   <div class="flex flex-col gap-1.5">
                     <Label htmlFor="age" className="text-sm font-semibold">Age</Label>
-                    <Input type="number" id="age" name="age" required min="14" max="100" placeholder="25" className="h-11" />
+{isLoggedIn && currentUser?.age != null ? (
+                      <Input type="number" id="age" name="age" required min="14" max="100" placeholder="25" className="h-11" value={String(currentUser.age)} />
+                    ) : (
+                      <Input type="number" id="age" name="age" required min="14" max="100" placeholder="25" className="h-11" />
+                    )}
                   </div>
                   <div class="flex flex-col gap-1.5">
                     <Label htmlFor="weight" id="weight-label" className="text-sm font-semibold">Weight (kg)</Label>
-                    <Input type="number" id="weight" name="weight" required placeholder="80" step="any" className="h-11" />
+{isLoggedIn && currentUser?.weight != null ? (
+                      <Input type="number" id="weight" name="weight" required placeholder="80" step="any" className="h-11" value={String(currentUser.weight)} />
+                    ) : (
+                      <Input type="number" id="weight" name="weight" required placeholder="80" step="any" className="h-11" />
+                    )}
                   </div>
                   <div class="flex flex-col gap-1.5">
                     <Label htmlFor="height" id="height-label" className="text-sm font-semibold">Height (cm)</Label>
-                    <Input type="number" id="height" name="height" required placeholder="180" step="any" className="h-11" />
+{isLoggedIn && currentUser?.height != null ? (
+                      <Input type="number" id="height" name="height" required placeholder="180" step="any" className="h-11" value={String(currentUser.height)} />
+                    ) : (
+                      <Input type="number" id="height" name="height" required placeholder="180" step="any" className="h-11" />
+                    )}
                   </div>
                 </div>
 
@@ -202,8 +214,8 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
                   <Label className="text-sm font-semibold">Sex</Label>
                   <div class="flex flex-wrap gap-3">
                     {["Male", "Female"].map((label) => {
-                      const value = label.toLowerCase();
-                      const id = `sex-${value}`;
+                      const value = label;
+                      const id = `sex-${label.toLowerCase()}`;
                       const checked = label === "Male";
                       return (
                         <div class="relative group">
@@ -259,8 +271,8 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
                   <Label className="text-sm font-semibold">Do you do sport or cardio outside of the gym?</Label>
                   <div class="flex flex-wrap gap-3">
                     {["Yes", "No"].map((label) => {
-                      const value = label.toLowerCase();
-                      const id = `cardio-${value}`;
+                      const value = label;
+                      const id = `cardio-${value.toLowerCase()}`;
                       const checked = label === "No";
                       return (
                         <div class="relative group">
@@ -410,20 +422,18 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
             </div>
 
             <!-- Navigation -->
-            <div class="grid grid-cols-[1fr_auto_1fr] items-center mt-8 pt-6 border-t border-border/60" id="step-nav">
-              <div>
-                <Button type="button" id="prev-btn" variant="outline" size="lg" className="h-11 px-5 font-semibold">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"/></svg>
-                  Back
-                </Button>
-              </div>
-              <span id="step-counter" class="text-sm text-muted-foreground tabular-nums font-medium"></span>
-              <div class="flex justify-end">
+            <div class="flex items-center mt-8 pt-6 border-t border-border/60" id="step-nav">
+              <Button type="button" id="prev-btn" variant="outline" size="lg" className="h-11 px-5 font-semibold shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"/></svg>
+                Back
+              </Button>
+              <span id="step-counter" class="flex-1 text-center text-sm text-muted-foreground tabular-nums font-medium"></span>
+              <div class="flex justify-end shrink-0">
                 <Button type="button" id="next-btn" size="lg" className="h-11 px-5 font-semibold">
                   Next
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="m9 18 6-6-6-6"/></svg>
                 </Button>
-                <div id="submit-btns" class="hidden flex items-center gap-3">
+                <div id="submit-btns" class="hidden items-center gap-3 flex-1 justify-center">
                   <Button type="button" id="save-btn" variant="outline" size="lg" className="h-11 px-5 font-semibold">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     Save for Later
@@ -593,8 +603,10 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
           stepCounter.textContent = `Step ${currentStep} of ${totalSteps}`;
 
           prevBtn.classList.toggle("hidden", currentStep === 1);
+          stepCounter.classList.toggle("hidden", currentStep === totalSteps);
           nextBtn.classList.toggle("hidden", currentStep === totalSteps);
           submitBtns.classList.toggle("hidden", currentStep !== totalSteps);
+          submitBtns.classList.toggle("flex", currentStep === totalSteps);
 
           if (currentStep === totalSteps) {
             generateSummary();
@@ -606,8 +618,16 @@ const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.serv
         }, 180);
       }
 
-      prevBtn.addEventListener("click", () => goToStep(currentStep - 1));
-      nextBtn.addEventListener("click", () => goToStep(currentStep + 1));
+      prevBtn.addEventListener("click", (e) => { e.preventDefault(); goToStep(currentStep - 1); });
+      nextBtn.addEventListener("click", (e) => { e.preventDefault(); goToStep(currentStep + 1); });
+
+      // ── Prevent implicit form submission (e.g. Enter key) ──
+      form.addEventListener("submit", (e) => {
+        if (currentStep !== totalSteps) {
+          e.preventDefault();
+          goToStep(currentStep + 1);
+        }
+      });
 
       // ── Submit buttons ──
       saveBtn.addEventListener("click", () => {

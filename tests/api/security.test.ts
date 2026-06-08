@@ -85,7 +85,7 @@ describe("auth guards on API routes", () => {
 describe("admin guards", () => {
   beforeEach(() => {
     vi.resetModules();
-    (mockEnv as Record<string, unknown>).ADMIN_EMAIL = "admin@buffbook.com";
+    (mockEnv as Record<string, unknown>).ADMIN_EMAIL = "admin@buffbook.org";
     (mockEnv as Record<string, unknown>).STRIPE_SECRET_KEY = "sk_test";
     (mockEnv as Record<string, unknown>).PLANS_BUCKET = { put: vi.fn() };
     (mockEnv as Record<string, unknown>).BETTER_AUTH_URL = "http://localhost";
@@ -94,22 +94,22 @@ describe("admin guards", () => {
 
   it("isAdmin returns false for null user", async () => {
     const { isAdmin } = await import("../../src/lib/admin");
-    expect(isAdmin(null as any, "admin@buffbook.com")).toBe(false);
+    expect(isAdmin(null as any, "admin@buffbook.org")).toBe(false);
   });
 
   it("isAdmin returns false for user with wrong email", async () => {
     const { isAdmin } = await import("../../src/lib/admin");
-    expect(isAdmin({ email: "user@example.com" } as any, "admin@buffbook.com")).toBe(false);
+    expect(isAdmin({ email: "user@example.com" } as any, "admin@buffbook.org")).toBe(false);
   });
 
   it("isAdmin returns true for user with matching email", async () => {
     const { isAdmin } = await import("../../src/lib/admin");
-    expect(isAdmin({ email: "admin@buffbook.com" } as any, "admin@buffbook.com")).toBe(true);
+    expect(isAdmin({ email: "admin@buffbook.org" } as any, "admin@buffbook.org")).toBe(true);
   });
 
   it("isAdmin returns false when ADMIN_EMAIL is not configured", async () => {
     const { isAdmin } = await import("../../src/lib/admin");
-    expect(isAdmin({ email: "admin@buffbook.com" } as any, undefined)).toBe(false);
+    expect(isAdmin({ email: "admin@buffbook.org" } as any, undefined)).toBe(false);
   });
 
   it("POST /api/admin/upload-plan rejects non-admin user", async () => {
@@ -143,8 +143,8 @@ describe("admin account protection", () => {
   it("auth hook blocks registration with admin email", async () => {
     // The auth.ts database hook throws when someone tries to
     // register with the admin email. Test the pattern:
-    const ADMIN_EMAIL = "admin@buffbook.com";
-    const userEmail = "admin@buffbook.com";
+    const ADMIN_EMAIL = "admin@buffbook.org";
+    const userEmail = "admin@buffbook.org";
 
     let threw = false;
     try {
@@ -158,7 +158,7 @@ describe("admin account protection", () => {
   });
 
   it("auth hook allows registration with non-admin email", async () => {
-    const ADMIN_EMAIL = "admin@buffbook.com";
+    const ADMIN_EMAIL = "admin@buffbook.org";
     const userEmail = "regular@example.com";
 
     let blocked = false;

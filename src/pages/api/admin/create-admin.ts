@@ -42,10 +42,9 @@ export const POST: APIRoute = async (ctx) => {
     updatedAt: new Date(),
   });
 
-  const accountId = crypto.randomUUID();
   await db.insert(account).values({
-    id: accountId,
-    accountId: accountId,
+    id: userId,
+    accountId: userId,
     providerId: "credential",
     userId: userId,
     password: passwordHash,
