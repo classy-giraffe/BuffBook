@@ -278,9 +278,8 @@ export default defineConfig({
 
   }), sitemap({
     filter: (page) =>
-      page !== "https://buffbook.org/admin" &&
-      page !== "https://buffbook.org/api/admin/create-admin" &&
-      page !== "https://buffbook.org/api/admin/upload-plan"
+      !page.includes("/admin") &&
+      !page.includes("/api/admin")
   }), react()],
 
   adapter: cloudflare({}),
