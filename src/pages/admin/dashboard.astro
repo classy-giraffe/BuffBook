@@ -1,82 +1,76 @@
 ---
 import { env } from "cloudflare:workers";
-import DashboardLayout from "../../components/DashboardLayout.astro";
-import AdminNav from "../../components/AdminNav.astro";
-import { AdminFilters } from "../../components/AdminFilters";
+import DashboardLayout from "@components/DashboardLayout.astro";
+import AdminNav from "@components/AdminNav.astro";
+import { AdminFilters } from "@components/AdminFilters";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
-import { Separator } from "@components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@components/ui/table";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../db/schema";
+import { getDb } from "@lib/db";
+import { planRequests, user as userTable } from "@db/schema";
 import { eq, desc, asc, ne, and, like, or } from "drizzle-orm";
-import "../../styles/global.css";
+import { isAdmin } from "@lib/admin";
 
 export const prerender = false;
 
 const { user } = Astro.locals;
-const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
 if (!user) {
   return Astro.redirect("/admin/login");
 }
-if (user.email !== ADMIN_EMAIL) {
+if (!isAdmin(user, env.ADMIN_EMAIL)) {
   return Astro.redirect("/dashboard");
 }
 
-const db = drizzle(env.DB, { schema: dbSchema });
+const db = getDb(env);
 
 const filterStatus = Astro.url.searchParams.get("status") || "all";
 const sortOrder = Astro.url.searchParams.get("sort") || "desc";
 const searchQuery = Astro.url.searchParams.get("search") || "";
 
-let conditions: any[] = [ne(dbSchema.planRequests.status, "pending_payment")];
+let conditions: any[] = [ne(planRequests.status, "pending_payment")];
 
 if (filterStatus === "paid" || filterStatus === "delivered") {
-  conditions.push(eq(dbSchema.planRequests.status, filterStatus));
+  conditions.push(eq(planRequests.status, filterStatus));
 }
 
 if (searchQuery) {
   conditions.push(
     or(
-      like(dbSchema.planRequests.name, `%${searchQuery}%`),
-      like(dbSchema.user.email, `%${searchQuery}%`),
+      like(planRequests.name, `%${searchQuery}%`),
+      like(userTable.email, `%${searchQuery}%`),
     ),
   );
 }
 
 const allRequests = await db
   .select({
-    request: dbSchema.planRequests,
-    user: {
-      email: dbSchema.user.email,
-      name: dbSchema.user.name,
-    },
+    request: planRequests,
+    user: { email: userTable.email, name: userTable.name },
   })
-  .from(dbSchema.planRequests)
-  .leftJoin(dbSchema.user, eq(dbSchema.planRequests.userId, dbSchema.user.id))
+  .from(planRequests)
+  .leftJoin(userTable, eq(planRequests.userId, userTable.id))
   .where(and(...conditions))
   .orderBy(
     sortOrder === "asc"
-      ? asc(dbSchema.planRequests.createdAt)
-      : desc(dbSchema.planRequests.createdAt),
+      ? asc(planRequests.createdAt)
+      : desc(planRequests.createdAt),
   );
+
+const needsFulfillment = allRequests.filter(r => r.request.status === "paid").length;
+const totalDelivered = allRequests.filter(r => r.request.status === "delivered").length;
 
 const getStatusDetails = (status: string) => {
   switch (status) {
     case "paid":
-      return { label: "Needs Fulfillment", variant: "destructive" as const };
+      return { label: "Needs Fulfillment", className: "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/15" };
     case "delivered":
-      return { label: "Delivered", variant: "default" as const };
+      return { label: "Delivered", className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/15" };
     default:
-      return { label: status, variant: "secondary" as const };
+      return { label: status, className: "" };
   }
 };
 ---
@@ -85,102 +79,122 @@ const getStatusDetails = (status: string) => {
   <div class="max-w-6xl mx-auto space-y-8">
     <div class="flex flex-col gap-4">
       <AdminNav active="orders" />
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight text-foreground">Orders</h1>
-        <p class="text-muted-foreground mt-1">
-          Manage and track custom plan requests.
-        </p>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-foreground">Orders</h1>
+          <p class="text-muted-foreground mt-1">Manage and track custom plan requests.</p>
+        </div>
       </div>
     </div>
 
-    <!-- Admin stat cards -->
+    <!-- Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Orders</span>
-        <span class="text-3xl font-black text-foreground tracking-tight">{allRequests.length}</span>
-      </div>
-      <div class="rounded-xl border border-destructive/20 bg-destructive/5 p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Needs Fulfillment</span>
-        <span class="text-3xl font-black text-destructive tracking-tight">{allRequests.filter(r => r.request.status === "paid").length}</span>
-      </div>
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
-        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{allRequests.filter(r => r.request.status === "delivered").length}</span>
-      </div>
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{allRequests.length}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Orders</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-destructive/20 bg-destructive/[0.02] backdrop-blur-sm">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-destructive" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg>
+          </div>
+          <div>
+            <span class="text-2xl font-black text-destructive tracking-tight">{needsFulfillment}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Needs Fulfillment</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-emerald-500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{totalDelivered}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
-    <Separator className="opacity-50" />
-
-    <AdminFilters
-      client:load
-      initialSearch={searchQuery}
-      initialStatus={filterStatus}
-      initialSort={sortOrder}
-    />
-
-    <div class="border rounded-xl bg-card overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {
-            allRequests.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="h-32 text-center text-muted-foreground"
-                >
-                  No orders found.
-                </TableCell>
+    <!-- Filters + Table -->
+    <Card class="border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <CardHeader class="pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <CardTitle class="text-lg font-bold">All Orders</CardTitle>
+          <AdminFilters
+            client:load
+            initialSearch={searchQuery}
+            initialStatus={filterStatus}
+            initialSort={sortOrder}
+          />
+        </div>
+      </CardHeader>
+      <CardContent class="p-0">
+        {allRequests.length === 0 ? (
+          <div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div class="h-16 w-16 rounded-2xl bg-muted/60 border border-border/50 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground/40"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-foreground mb-1">No orders found</h3>
+            <p class="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow class="hover:bg-transparent">
+                <TableHead class="w-[140px]">Date</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead class="text-right">Action</TableHead>
               </TableRow>
-            ) : (
-              allRequests.map(({ request, user: requestUser }) => {
-                const status = getStatusDetails(request.status);
+            </TableHeader>
+            <TableBody>
+              {allRequests.map(({ request: req, user: requestUser }) => {
+                const status = getStatusDetails(req.status);
+                const initials = requestUser?.name
+                  ? requestUser.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+                  : "?";
                 return (
-                  <TableRow>
-                    <TableCell className="font-medium text-muted-foreground">
-                      {new Date(request.createdAt).toLocaleDateString(
-                        undefined,
-                        {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        },
-                      )}
+                  <TableRow class="group">
+                    <TableCell class="text-muted-foreground text-sm tabular-nums">
+                      {new Date(req.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
                     </TableCell>
                     <TableCell>
-                      <div class="font-semibold text-foreground">
-                        {request.name}
-                      </div>
-                      <div class="text-xs text-muted-foreground">
-                        {requestUser?.email}
+                      <div class="flex items-center gap-3">
+                        <div class="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                          <span class="text-[0.6rem] font-bold text-muted-foreground">{initials}</span>
+                        </div>
+                        <div>
+                          <div class="font-semibold text-foreground text-sm">{req.name || "Unknown"}</div>
+                          <div class="text-xs text-muted-foreground">{requestUser?.email || "—"}</div>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={status.variant} className="rounded-sm">
-                        {status.label}
-                      </Badge>
+                      <Badge variant="outline" class={`font-medium text-xs ${status.className}`}>{status.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <a href={`/admin/orders/${request.id}`}>
-                        <Button variant="outline" size="sm">
-                          View Order
-                        </Button>
+                    <TableCell class="text-right">
+                      <a href={`/admin/orders/${req.id}`}>
+                        <Button variant="outline" size="sm" class="group-hover:border-primary/30 transition-colors">View Order</Button>
                       </a>
                     </TableCell>
                   </TableRow>
                 );
-              })
-            )
-          }
-        </TableBody>
-      </Table>
-    </div>
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
   </div>
 </DashboardLayout>

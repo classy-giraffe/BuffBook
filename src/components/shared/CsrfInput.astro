@@ -1,0 +1,22 @@
+---
+/**
+ * Injects a CSRF token hidden field into forms.
+ * Reads the token from the buffbook-csrf cookie (set by middleware).
+ */
+
+function parseCookies(header: string | null): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (!header) return result;
+  header.split(";").forEach((pair) => {
+    const [key, ...rest] = pair.trim().split("=");
+    if (key) result[key] = rest.join("=");
+  });
+  return result;
+}
+
+const cookieHeader = Astro.request.headers.get("cookie");
+const cookies = parseCookies(cookieHeader);
+const token = cookies["buffbook-csrf"] || "";
+---
+
+{token && <input type="hidden" name="csrf_token" value={token} />}

@@ -1,16 +1,16 @@
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../../db/schema";
 import { eq } from "drizzle-orm";
+import { getDb } from "@lib/db";
+import { planRequests } from "@db/schema";
+import { env } from "cloudflare:workers";
+import { isAdmin } from "@lib/admin";
 
 export const prerender = false;
 
 export const POST: APIRoute = async (ctx) => {
   const { user } = ctx.locals;
-  
-  const ADMIN_EMAIL = env.ADMIN_EMAIL;
-  if (!user || !ADMIN_EMAIL || user.email !== ADMIN_EMAIL) {
+
+  if (!isAdmin(user, env.ADMIN_EMAIL)) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -32,24 +32,17 @@ export const POST: APIRoute = async (ctx) => {
     }
 
     const pdfKey = `plans/${requestId}.pdf`;
-    
+
     await env.PLANS_BUCKET.put(pdfKey, await file.arrayBuffer(), {
-      httpMetadata: {
-        contentType: "application/pdf"
-      }
+      httpMetadata: { contentType: "application/pdf" },
     });
 
-    // Update DB status to delivered
-    const db = drizzle(env.DB, { schema: dbSchema });
-    await db.update(dbSchema.planRequests)
-      .set({ 
-        status: "delivered", 
-        pdfKey: pdfKey, 
-        updatedAt: new Date() 
-      })
-      .where(eq(dbSchema.planRequests.id, requestId));
+    const db = getDb(env);
+    await db
+      .update(planRequests)
+      .set({ status: "delivered", pdfKey: pdfKey, updatedAt: new Date() })
+      .where(eq(planRequests.id, requestId));
 
-    // Redirect back to admin dashboard
     return ctx.redirect("/admin");
   } catch (err) {
     console.error("Upload error:", err);

@@ -1,728 +1,453 @@
 ---
-import { z } from "astro/zod";
-import { treeifyError } from "zod";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../db/schema";
-import { createAuth } from "../../lib/auth";
-import { createCheckoutSession } from "../../lib/stripe";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { Card, CardContent } from "@components/ui/card";
-import { Separator } from "@components/ui/separator";
-import "../../styles/global.css";
-import { env } from "cloudflare:workers";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import CsrfInput from "@components/shared/CsrfInput.astro";
 
 export const prerender = false;
 
-// ── Auth check ───────────────────────────────────────────────────────────────
-const auth = createAuth(env);
-const { user: currentUser } = Astro.locals;
+const currentUser = Astro.locals.user;
 const isLoggedIn = !!currentUser;
 
-let errors: Record<string, string[]> = {};
-let submissionError = "";
+const stepDefs: { label: string; desc: string; icon: string }[] = isLoggedIn
+  ? [
+      { label: "Body", desc: "Your stats and measurements", icon: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>` },
+      { label: "Activity", desc: "Daily movement and cardio", icon: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>` },
+      { label: "Training", desc: "Equipment, frequency, and days", icon: `<rect width="20" height="6" x="2" y="4" rx="2"/><rect width="8" height="6" x="8" y="14" rx="1"/>` },
+      { label: "Goals", desc: "Experience and what you want", icon: `<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>` },
+      { label: "Review", desc: "Final details and confirmation", icon: `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>` },
+    ]
+  : [
+      { label: "Account", desc: "Create your login credentials", icon: `<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>` },
+      { label: "Body", desc: "Your stats and measurements", icon: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>` },
+      { label: "Activity", desc: "Daily movement and cardio", icon: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>` },
+      { label: "Training", desc: "Equipment, frequency, and days", icon: `<rect width="20" height="6" x="2" y="4" rx="2"/><rect width="8" height="6" x="8" y="14" rx="1"/>` },
+      { label: "Goals", desc: "Experience and what you want", icon: `<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>` },
+      { label: "Review", desc: "Final details and confirmation", icon: `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>` },
+    ];
 
-// ── Zod schema ───────────────────────────────────────────────────────────────
-const formSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.email("Invalid email address").optional(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .optional(),
-  age: z.coerce
-    .number()
-    .min(14, "Must be at least 14")
-    .max(100, "Must be 100 or under"),
-  unitSystem: z.enum(["metric", "imperial"]),
-  weight: z.coerce.number().min(1, "Weight is required"),
-  height: z.coerce.number().min(1, "Height is required"),
-  frequency: z.coerce
-    .number()
-    .min(2, "Minimum 2 days")
-    .max(6, "Maximum 6 days"),
-  trainingDays: z.string().min(1, "Please select your training days"),
-  equipment: z.enum(["Gym", "Home", "Other"]),
-  equipmentDetails: z.string().optional(),
-  failureExp: z.string().min(1, "Please describe your experience"),
-  goals: z.string().min(10, "Please provide more detail about your goals"),
-  weakPoints: z.string().optional(),
-  injuries: z.string().optional(),
-  likedExercises: z.string().optional(),
-  dislikedExercises: z.string().optional(),
-});
+const totalSteps = stepDefs.length;
 
-// ── Form handler ─────────────────────────────────────────────────────────────
-if (Astro.request.method === "POST") {
-  try {
-    const formData = await Astro.request.formData();
-    const data = Object.fromEntries(formData.entries());
-    const validated = formSchema.safeParse(data);
+const errorCode = Astro.url.searchParams.get("error");
+const errorMessages: Record<string, string> = {
+  validation: "Please fix the highlighted errors and try again.",
+  email_required: "Email is required to create your account.",
+  password_required: "Password is required to create your account.",
+  cardio_details: "Please describe your cardio/sport activities.",
+  account_exists: "An account with this email already exists. Please log in first.",
+  signup_failed: "Failed to create account. Please try again.",
+  server: Astro.url.searchParams.get("msg") || "An unexpected error occurred.",
+};
 
-    if (!validated.success) {
-      const errTree = treeifyError(validated.error);
-      errors = {};
-      for (const [key, val] of Object.entries(errTree.properties ?? {})) {
-        if (val) errors[key] = val.errors;
-      }
-    } else {
-      // Extra validations
-      if (!isLoggedIn && !validated.data.email) {
-        errors.email = ["Email is required to create your account."];
-        throw new Error("Email required");
-      }
-      if (!isLoggedIn && !validated.data.password) {
-        errors.password = ["Password is required to create your account."];
-        throw new Error("Password required");
-      }
-      if (
-        validated.data.equipment === "Other" &&
-        !validated.data.equipmentDetails?.trim()
-      ) {
-        errors.equipmentDetails = ["Please describe your equipment."];
-        throw new Error("Equipment details required");
-      }
-
-      const db = drizzle(env.DB, { schema: dbSchema });
-
-      // ── Resolve user ─────────────────────────────────────────────────────
-      let userId: string;
-      let sessionToken: string | null = null;
-
-      if (isLoggedIn) {
-        userId = currentUser!.id;
-      } else {
-        // Check if user already exists
-        let dbUser = await db.query.user.findFirst({
-          where: (users, { eq }) => eq(users.email, validated.data.email!),
-        });
-
-        if (dbUser) {
-          errors.email = [
-            "Unable to create account. Please log in first or use a different email.",
-          ];
-          throw new Error("Account exists");
-        }
-
-        // Create new account
-        const result = await auth.api.signUpEmail({
-          body: {
-            email: validated.data.email!,
-            password: validated.data.password!,
-            name: validated.data.name,
-          },
-          asResponse: false,
-        });
-        if (!result.user) throw new Error("Failed to create account");
-        userId = result.user.id;
-
-        // Auto-login: save session token so the redirect response can set
-        // the session cookie before sending the user to Stripe
-        sessionToken = result.token;
-      }
-
-      // ── Unit conversion (always store as metric) ─────────────────────────
-      let weight = validated.data.weight;
-      let height = validated.data.height;
-      if (validated.data.unitSystem === "imperial") {
-        weight = Math.round(weight * 0.453592); // lbs → kg
-        height = Math.round(height * 2.54); // in → cm
-      }
-
-      const requestId = crypto.randomUUID();
-
-      // ── Insert plan request ──────────────────────────────────────────────
-      await db.insert(dbSchema.planRequests).values({
-        id: requestId,
-        userId: userId,
-        name: validated.data.name,
-        age: validated.data.age,
-        weight: weight,
-        height: height,
-        trainingFrequency: validated.data.frequency,
-        trainingDays: validated.data.trainingDays,
-        equipment: validated.data.equipment,
-        equipmentDetails:
-          validated.data.equipment === "Other"
-            ? validated.data.equipmentDetails || ""
-            : null,
-        failureExp: validated.data.failureExp,
-        goals: validated.data.goals,
-        injuries: validated.data.injuries || "",
-        weakPoints: validated.data.weakPoints || "",
-        likedExercises: validated.data.likedExercises || "",
-        dislikedExercises: validated.data.dislikedExercises || "",
-        status: "pending_payment",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      // ── Stripe checkout ──────────────────────────────────────────────────
-      const checkoutUrl = await createCheckoutSession({
-        stripeSecretKey: env.STRIPE_SECRET_KEY,
-        requestId,
-        customerEmail: isLoggedIn ? currentUser!.email : validated.data.email!,
-        siteUrl: Astro.url.origin,
-        cancelUrl: `${Astro.url.origin}/custom-plans/apply`,
-        db: env.DB,
-      });
-
-      const redirectHeaders = new Headers();
-      redirectHeaders.set("Location", checkoutUrl);
-      if (sessionToken) {
-        const isSecure = env.BETTER_AUTH_URL?.startsWith("https://") ?? false;
-        redirectHeaders.append(
-          "Set-Cookie",
-          `buffbook-session-token=${sessionToken}; Path=/; HttpOnly; SameSite=Lax${isSecure ? "; Secure" : ""}; Max-Age=${7 * 24 * 60 * 60}`,
-        );
-      }
-      return new Response(null, { status: 302, headers: redirectHeaders });
-    }
-  } catch (err: any) {
-    console.error("APPLY FORM ERROR:", err?.message || err, err?.stack || "");
-    if (Object.keys(errors).length === 0) {
-      submissionError = `An unexpected error occurred: ${err?.message || "Unknown error"}`;
-    }
-  }
-}
+const displayError = errorCode ? (errorMessages[errorCode] || errorMessages.server) : "";
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apply for Custom Plan - BuffBook</title>
-    <script is:inline>
-      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
-      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
-    </script>
-  </head>
-  <body
-    class="bg-background text-foreground font-sans antialiased min-h-screen relative flex items-center justify-center p-6 sm:p-12"
-  >
-    <div
-      class="pointer-events-none fixed inset-0 -z-10"
-      style="background: radial-gradient(ellipse 600px 400px at 80% 0%, hsl(var(--primary) / 0.07), transparent), radial-gradient(ellipse 400px 300px at 10% 100%, hsl(var(--primary) / 0.04), transparent);"
-    >
+<BaseLayout title="Apply for Custom Plan - BuffBook" description="Fill out a comprehensive assessment to get a handcrafted hypertrophy plan built specifically for your body, goals, and experience level." bodyClass="flex items-center justify-center p-6 sm:p-12">
+    <!-- Background: layered gradient orbs -->
+    <div class="pointer-events-none fixed inset-0 -z-10">
+      <div class="absolute top-0 right-0 w-[600px] h-[400px] bg-primary/6 blur-[120px] rounded-full"></div>
+      <div class="absolute bottom-0 left-0 w-[400px] h-[500px] bg-chart-1/4 blur-[100px] rounded-full"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-chart-5/4 blur-[100px] rounded-full"></div>
     </div>
 
     <div class="w-full max-w-3xl pb-16">
-      <div class="text-center mb-10">
-        <h1
-          class="text-4xl sm:text-5xl font-black tracking-tight text-primary mb-2"
-        >
-          Custom Plan Assessment
+      <!-- Header -->
+      <div class="text-center mb-6">
+        <div class="shimmer-badge inline-flex items-center rounded-full border border-primary/20 px-4 py-1.5 text-xs font-semibold text-primary mb-4">
+          ✦ {totalSteps}-Step Assessment
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-3">
+          Custom Plan <span class="text-gradient">Assessment</span>
         </h1>
-        <p class="text-muted-foreground text-lg">
-          Fill out the form, pay, and receive your hand-crafted hypertrophy plan
-          within 72-96 hours.
+        <p class="text-muted-foreground text-lg max-w-xl mx-auto">
+          Fill out the form, pay, and receive your hand-crafted hypertrophy plan within 72-96 hours.
         </p>
       </div>
 
-      {
-        submissionError && (
-          <div class="bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 text-center mb-8 font-medium">
-            {submissionError}
-          </div>
-        )
-      }
+      {displayError && (
+        <div class="bg-destructive/10 border border-destructive/30 text-destructive rounded-xl p-4 text-center mb-8 font-medium">
+          {displayError}
+        </div>
+      )}
 
-      {
-        isLoggedIn && currentUser && (
-          <div class="flex flex-col sm:flex-row items-center justify-between bg-primary/10 border border-primary/20 rounded-lg p-3 px-5 mb-8 text-sm">
-            <div class="flex items-center gap-3 mb-2 sm:mb-0">
-              <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
+      {isLoggedIn && currentUser && (
+        <div class="flex flex-col sm:flex-row items-center justify-between bg-primary/5 border border-primary/15 rounded-xl p-3 px-5 mb-6 text-sm">
+          <div class="flex items-center gap-3 mb-2 sm:mb-0">
+            <div class="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+              {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
+            </div>
+            <div>
+              <span class="font-semibold text-foreground">{currentUser.name}</span>
+              <span class="text-muted-foreground ml-1">({currentUser.email})</span>
+            </div>
+          </div>
+          <button id="apply-signout-btn" type="button" class="text-muted-foreground hover:text-primary transition-colors text-xs underline underline-offset-2">
+            Not you? Sign out
+          </button>
+        </div>
+      )}
+
+      <!-- Progress Bar -->
+      <div id="progress-bar" class="mb-6 px-2">
+        <div class="flex items-center">
+          {stepDefs.map((step, i) => (
+            <>
+              <div class="flex flex-col items-center flex-shrink-0" data-step-idx={i}>
+                <div class="step-circle w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold border-2 transition-all duration-500 border-muted-foreground/20 text-muted-foreground bg-card shadow-sm" data-step-idx={i}>
+                  <span class="step-num">{i + 1}</span>
+                  <svg class="step-check hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="step-label text-[10px] sm:text-xs text-center mt-2 font-medium text-muted-foreground hidden sm:block tracking-wide" data-step-idx={i}>{step.label}</span>
               </div>
-              <div>
-                <span class="font-bold text-foreground">
-                  {currentUser.name}
-                </span>
-                <span class="text-muted-foreground ml-1">
-                  ({currentUser.email})
-                </span>
+              {i < stepDefs.length - 1 && (
+                <div class="step-line flex-1 h-0.5 mx-2 bg-muted-foreground/15 rounded-full transition-all duration-500" data-step-idx={i}></div>
+              )}
+            </>
+          ))}
+        </div>
+      </div>
+
+      <!-- Main form card -->
+      <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-xl shadow-primary/[0.02] overflow-hidden">
+        <CardContent className="p-6 sm:p-10">
+          <form method="POST" action="/api/custom-plans/submit" id="apply-form">
+            <CsrfInput />
+            <input type="hidden" name="submitAction" id="submitAction" value="pay" />
+
+            {isLoggedIn && currentUser && <input type="hidden" name="name" value={currentUser.name || ""} />}
+
+            <!-- Step 1: Account (only when not logged in) -->
+            {!isLoggedIn && (
+              <div class="form-step step-active" data-step="1">
+                <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
+                  <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={stepDefs[0]?.icon || ""} />
+                  </div>
+                  <div>
+                    <h2 class="text-2xl font-black tracking-tight text-foreground">{stepDefs[0]?.label || "Account"}</h2>
+                    <p class="text-sm text-muted-foreground">{stepDefs[0]?.desc || ""}</p>
+                  </div>
+                </div>
+
+                <p class="text-sm text-muted-foreground mb-6 bg-muted/50 rounded-lg p-3 border border-border/30">
+                  You'll use these credentials to access your plan after purchase.
+                </p>
+                <div class="flex flex-col gap-5">
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="name" className="text-sm font-semibold">Full Name</Label>
+                    <Input type="text" id="name" name="name" required autoComplete="name" placeholder="John Doe" className="h-11" />
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="flex flex-col gap-1.5">
+                      <Label htmlFor="email" className="text-sm font-semibold">Email Address</Label>
+                      <Input type="email" id="email" name="email" required autoComplete="email" placeholder="john@example.com" className="h-11" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                      <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
+                      <Input type="password" id="password" name="password" required autoComplete="new-password" placeholder="Min. 12 characters" minLength="12" className="h-11" />
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="confirmPassword" className="text-sm font-semibold">Confirm Password</Label>
+                    <Input type="password" id="confirmPassword" name="confirmPassword" required autoComplete="new-password" placeholder="Re-enter your password" minLength="12" className="h-11" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <!-- Step: Body & Basics -->
+            <div class="form-step hidden" data-step={isLoggedIn ? "1" : "2"}>
+              <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
+                <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={isLoggedIn ? stepDefs[0]?.icon || "" : stepDefs[1]?.icon || ""} />
+                </div>
+                <div>
+                  <h2 class="text-2xl font-black tracking-tight text-foreground">Body & Basics</h2>
+                  <p class="text-sm text-muted-foreground">Let's start with the fundamentals.</p>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                  <Label className="text-sm font-semibold">Unit System</Label>
+                  <div class="inline-flex bg-muted rounded-lg p-1 unit-toggle shadow-inner">
+                    <button type="button" data-unit="metric" data-active="true" class="px-5 py-2.5 rounded-md text-sm font-medium transition-all data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm text-muted-foreground hover:text-foreground">
+                      Metric (kg / cm)
+                    </button>
+                    <button type="button" data-unit="imperial" data-active="false" class="px-5 py-2.5 rounded-md text-sm font-medium transition-all data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm text-muted-foreground hover:text-foreground">
+                      Imperial (lbs / in)
+                    </button>
+                  </div>
+                  <input type="hidden" name="unitSystem" id="unitSystem" value="metric" />
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="age" className="text-sm font-semibold">Age</Label>
+                    <Input type="number" id="age" name="age" required min="14" max="100" placeholder="25" className="h-11" />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="weight" id="weight-label" className="text-sm font-semibold">Weight (kg)</Label>
+                    <Input type="number" id="weight" name="weight" required placeholder="80" step="any" className="h-11" />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="height" id="height-label" className="text-sm font-semibold">Height (cm)</Label>
+                    <Input type="number" id="height" name="height" required placeholder="180" step="any" className="h-11" />
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <Label className="text-sm font-semibold">Sex</Label>
+                  <div class="flex flex-wrap gap-3">
+                    {["Male", "Female"].map((label) => {
+                      const value = label.toLowerCase();
+                      const id = `sex-${value}`;
+                      const checked = label === "Male";
+                      return (
+                        <div class="relative group">
+                          <input type="radio" name="sex" id={id} value={value} checked={checked} class="peer sr-only" />
+                          <Label htmlFor={id} className="inline-flex items-center justify-center px-6 py-3 rounded-xl border-2 border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-all hover:border-primary/40 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-bold">
+                            {label}
+                          </Label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
-            <button
-              id="apply-signout-btn"
-              type="button"
-              class="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
-            >
-              Not you? Sign out
-            </button>
-          </div>
-        )
-      }
 
-      <Card className="bg-card/50 backdrop-blur-xl border-border shadow-2xl">
-        <CardContent className="p-6 sm:p-10">
-          <form method="POST" class="space-y-12">
-            {
-              !isLoggedIn && (
-                <fieldset class="space-y-6">
-                  <legend class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full">
-                    Create Your Account
-                  </legend>
-                  <p class="text-sm text-muted-foreground -mt-4 mb-4">
-                    You'll use these credentials to access your plan after
-                    purchase.
-                  </p>
-                  <div class="space-y-3">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      autoComplete="name"
-                      placeholder="John Doe"
-                    />
-                    {errors.name && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.name[0]}
-                      </span>
-                    )}
+            <!-- Step: Daily Activity -->
+            <div class="form-step hidden" data-step={isLoggedIn ? "2" : "3"}>
+              <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
+                <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={isLoggedIn ? stepDefs[1]?.icon || "" : stepDefs[2]?.icon || ""} />
+                </div>
+                <div>
+                  <h2 class="text-2xl font-black tracking-tight text-foreground">Daily Activity</h2>
+                  <p class="text-sm text-muted-foreground">Tell me about your non-gym activity levels.</p>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="steps" className="text-sm font-semibold">Average Daily Steps</Label>
+                  <Input type="number" id="steps" name="steps" required min="0" max="50000" placeholder="8000" className="h-11" />
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="jobType" className="text-sm font-semibold">Type of Job</Label>
+                  <select id="jobType" name="jobType" required class="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    <option value="" disabled selected>Select your job type...</option>
+                    <option value="Desk Job / Sedentary (Standard Hours)">Desk Job / Sedentary (Standard Hours)</option>
+                    <option value="Desk Job / Sedentary (Shift/Irregular Hours)">Desk Job / Sedentary (Shift/Irregular Hours)</option>
+                    <option value="Standing / Light Activity (Standard Hours)">Standing / Light Activity (Standard Hours)</option>
+                    <option value="Active Walking / Moderate Labor">Active Walking / Moderate Labor</option>
+                    <option value="Heavy Manual Labor / Field Work">Heavy Manual Labor / Field Work</option>
+                    <option value="Student / Flexible Schedule">Student / Flexible Schedule</option>
+                  </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="jobDescription" className="text-sm font-semibold">Describe what you do at work</Label>
+                  <textarea id="jobDescription" name="jobDescription" required class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="e.g. I sit at a desk 8 hours coding, with occasional breaks to walk around..."></textarea>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <Label className="text-sm font-semibold">Do you do sport or cardio outside of the gym?</Label>
+                  <div class="flex flex-wrap gap-3">
+                    {["Yes", "No"].map((label) => {
+                      const value = label.toLowerCase();
+                      const id = `cardio-${value}`;
+                      const checked = label === "No";
+                      return (
+                        <div class="relative group">
+                          <input type="radio" name="hasCardio" id={id} value={value} checked={checked} class="peer sr-only" />
+                          <Label htmlFor={id} className="inline-flex items-center justify-center px-6 py-3 rounded-xl border-2 border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-all hover:border-primary/40 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-bold">
+                            {label}
+                          </Label>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="space-y-3">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        autoComplete="email"
-                        placeholder="john@example.com"
-                      />
-                      {errors.email && (
-                        <span class="text-sm text-destructive font-medium block mt-1">
-                          {errors.email[0]}
-                        </span>
-                      )}
+                  <div class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-36 [&.visible]:opacity-100 [&.visible]:mt-3" id="cardio-details-wrap">
+                    <textarea id="cardioDetails" name="cardioDetails" class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="e.g. I run 5k twice a week, play soccer on Saturdays..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step: Training Setup -->
+            <div class="form-step hidden" data-step={isLoggedIn ? "3" : "4"}>
+              <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
+                <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={isLoggedIn ? stepDefs[2]?.icon || "" : stepDefs[3]?.icon || ""} />
+                </div>
+                <div>
+                  <h2 class="text-2xl font-black tracking-tight text-foreground">Training Setup</h2>
+                  <p class="text-sm text-muted-foreground">How and where you'll be working out.</p>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                  <Label className="text-sm font-semibold">Equipment</Label>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    {[
+                      { label: "Commercial Gym", value: "Gym", sub: "Full access to machines, cables, and free weights" },
+                      { label: "Home Setup", value: "Home", sub: "Requires at least an adjustable bench and dumbbells" },
+                    ].map((item) => {
+                      const id = `eq-${item.value.toLowerCase()}`;
+                      const checked = item.value === "Gym";
+                      return (
+                        <div class="relative group flex-1">
+                          <input type="radio" name="equipment" id={id} value={item.value} checked={checked} class="peer sr-only" />
+                          <Label htmlFor={id} className="block cursor-pointer rounded-xl border-2 border-border bg-transparent p-5 transition-all hover:border-primary/40 peer-checked:border-primary peer-checked:bg-primary/5">
+                            <span class="font-bold text-foreground">{item.label}</span>
+                            <p class="text-xs text-muted-foreground mt-1.5">{item.sub}</p>
+                          </Label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="equipmentDetails" className="text-sm font-semibold">Notes / Extra Equipment <span class="text-muted-foreground font-normal">(Optional)</span></Label>
+                  <Input type="text" id="equipmentDetails" name="equipmentDetails" placeholder="e.g., I also have a pull-up bar and resistance bands..." className="h-11" />
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-5">
+                  <div class="flex flex-col gap-1.5 w-full sm:w-32">
+                    <Label htmlFor="frequency" className="text-sm font-semibold">Days / Week</Label>
+                    <Input type="number" id="frequency" name="frequency" required min="2" max="6" placeholder="4" className="h-11" />
+                  </div>
+                  <div class="flex flex-col gap-1.5 flex-1">
+                    <Label className="text-sm font-semibold">Training Days</Label>
+                    <div class="flex flex-wrap gap-2 overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-40 [&.visible]:opacity-100 mt-1" id="day-picker">
+                      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+                        <button type="button" class="day-btn w-12 h-10 border-2 border-border bg-muted/50 rounded-lg text-xs font-bold text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-25 [&.disabled]:cursor-not-allowed" data-day={day}>
+                          {day}
+                        </button>
+                      ))}
                     </div>
-                    <div class="space-y-3">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        autoComplete="new-password"
-                        placeholder="Min. 8 characters"
-                        minLength={8}
-                      />
-                      {errors.password && (
-                        <span class="text-sm text-destructive font-medium block mt-1">
-                          {errors.password[0]}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </fieldset>
-              )
-            }
-
-            {
-              isLoggedIn && currentUser && (
-                <input
-                  type="hidden"
-                  name="name"
-                  value={currentUser.name || ""}
-                />
-              )
-            }
-
-            { !isLoggedIn && <Separator className="my-8 opacity-50" /> }
-
-            <fieldset class="space-y-6">
-              <legend
-                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
-                >Body Metrics</legend
-              >
-
-              <div class="space-y-3">
-                <Label>Unit System</Label>
-                <div class="inline-flex bg-muted rounded-md p-1 unit-toggle">
-                  <button
-                    type="button"
-                    data-unit="metric"
-                    data-active="true"
-                    class="px-4 py-2 rounded-sm text-sm font-medium transition-colors data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm text-muted-foreground hover:text-foreground"
-                    >Metric (kg / cm)</button
-                  >
-                  <button
-                    type="button"
-                    data-unit="imperial"
-                    data-active="false"
-                    class="px-4 py-2 rounded-sm text-sm font-medium transition-colors data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm text-muted-foreground hover:text-foreground"
-                    >Imperial (lbs / in)</button
-                  >
-                </div>
-                <input
-                  type="hidden"
-                  name="unitSystem"
-                  id="unitSystem"
-                  value="metric"
-                />
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="space-y-3">
-                  <Label htmlFor="age">Age</Label>
-                  <Input
-                    type="number"
-                    id="age"
-                    name="age"
-                    required
-                    min="14"
-                    max="100"
-                    placeholder="25"
-                  />
-                  {
-                    errors.age && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.age[0]}
-                      </span>
-                    )
-                  }
-                </div>
-                <div class="space-y-3">
-                  <Label htmlFor="weight" id="weight-label">Weight (kg)</Label>
-                  <Input
-                    type="number"
-                    id="weight"
-                    name="weight"
-                    required
-                    placeholder="80"
-                    step="any"
-                  />
-                  {
-                    errors.weight && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.weight[0]}
-                      </span>
-                    )
-                  }
-                </div>
-                <div class="space-y-3">
-                  <Label htmlFor="height" id="height-label">Height (cm)</Label>
-                  <Input
-                    type="number"
-                    id="height"
-                    name="height"
-                    required
-                    placeholder="180"
-                    step="any"
-                  />
-                  {
-                    errors.height && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.height[0]}
-                      </span>
-                    )
-                  }
-                </div>
-              </div>
-            </fieldset>
-
-            <Separator className="my-8 opacity-50" />
-
-            <fieldset class="space-y-6">
-              <legend
-                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
-                >Training Setup</legend
-              >
-
-              <div class="space-y-3">
-                <Label>Equipment</Label>
-                <div class="flex flex-wrap gap-3">
-                  <div class="relative group">
-                    <input
-                      type="radio"
-                      name="equipment"
-                      id="eq-gym"
-                      value="Gym"
-                      checked
-                      class="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="eq-gym"
-                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-colors hover:border-primary/50 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-checked:font-bold"
-                      >Full Gym</Label
-                    >
-                  </div>
-                  <div class="relative group">
-                    <input
-                      type="radio"
-                      name="equipment"
-                      id="eq-home"
-                      value="Home"
-                      class="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="eq-home"
-                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-colors hover:border-primary/50 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-checked:font-bold"
-                      >Home Setup</Label
-                    >
-                  </div>
-                  <div class="relative group">
-                    <input
-                      type="radio"
-                      name="equipment"
-                      id="eq-other"
-                      value="Other"
-                      class="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="eq-other"
-                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-border bg-transparent text-sm font-medium text-muted-foreground cursor-pointer transition-colors hover:border-primary/50 hover:text-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-checked:font-bold"
-                      >Other</Label
-                    >
+                    <p class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-12 [&.visible]:opacity-100 text-xs text-muted-foreground" id="day-picker-label">
+                      <span id="day-count-text">Select your training days</span>
+                    </p>
+                    <input type="hidden" name="trainingDays" id="trainingDays" value="" />
                   </div>
                 </div>
-                <div
-                  class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-32 [&.visible]:opacity-100 [&.visible]:mt-4"
-                  id="equipment-details-wrap"
-                >
-                  <Input
-                    type="text"
-                    name="equipmentDetails"
-                    id="equipmentDetails"
-                    placeholder="e.g. dumbbells + pull-up bar + bench"
-                  />
-                  {
-                    errors.equipmentDetails && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.equipmentDetails[0]}
-                      </span>
-                    )
-                  }
+              </div>
+            </div>
+
+            <!-- Step: Goals -->
+            <div class="form-step hidden" data-step={isLoggedIn ? "4" : "5"}>
+              <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
+                <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={isLoggedIn ? stepDefs[3]?.icon || "" : stepDefs[4]?.icon || ""} />
+                </div>
+                <div>
+                  <h2 class="text-2xl font-black tracking-tight text-foreground">Experience & Goals</h2>
+                  <p class="text-sm text-muted-foreground">Where you're at and where you want to be.</p>
                 </div>
               </div>
 
-              <div class="flex flex-col sm:flex-row gap-6 items-start">
-                <div class="space-y-3 w-full sm:w-32">
-                  <Label htmlFor="frequency">Days / Week</Label>
-                  <Input
-                    type="number"
-                    id="frequency"
-                    name="frequency"
-                    required
-                    min="2"
-                    max="6"
-                    placeholder="4"
-                  />
-                  {
-                    errors.frequency && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.frequency[0]}
-                      </span>
-                    )
-                  }
+              <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="failureExp" className="text-sm font-semibold">How accustomed are you to training to true failure?</Label>
+                  <textarea id="failureExp" name="failureExp" required class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Describe your experience with pushing sets to or near failure..."></textarea>
                 </div>
-                <div class="space-y-3 flex-1">
-                  <Label>Training Days</Label>
-                  <div
-                    class="flex flex-wrap gap-2 overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-32 [&.visible]:opacity-100 mt-2"
-                    id="day-picker"
-                  >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Mon">Mon</button
-                    >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Tue">Tue</button
-                    >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Wed">Wed</button
-                    >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Thu">Thu</button
-                    >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Fri">Fri</button
-                    >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Sat">Sat</button
-                    >
-                    <button
-                      type="button"
-                      class="day-btn w-12 h-10 border border-border bg-muted rounded-md text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground [&.selected]:bg-primary [&.selected]:border-primary [&.selected]:text-primary-foreground [&.selected]:scale-105 [&.disabled]:opacity-30 [&.disabled]:cursor-not-allowed"
-                      data-day="Sun">Sun</button
-                    >
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="goals" className="text-sm font-semibold">Primary Goals</Label>
+                  <textarea id="goals" name="goals" required class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"></textarea>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="weakPoints" className="text-sm font-semibold">Weak Points <span class="text-muted-foreground font-normal">(optional, leave empty if beginner)</span></Label>
+                  <Input type="text" id="weakPoints" name="weakPoints" placeholder="e.g. Calves, Side Delts" className="h-11" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Step: Review -->
+            <div class="form-step hidden" data-step={isLoggedIn ? "5" : "6"}>
+              <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border/60">
+                <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={isLoggedIn ? stepDefs[4]?.icon || "" : stepDefs[5]?.icon || ""} />
+                </div>
+                <div>
+                  <h2 class="text-2xl font-black tracking-tight text-foreground">Final Details & Review</h2>
+                  <p class="text-sm text-muted-foreground">Last checks before your plan gets built.</p>
+                </div>
+              </div>
+
+              <!-- Summary card -->
+              <div id="review-summary" class="bg-gradient-to-br from-muted/60 to-muted/30 rounded-xl border border-border/50 p-5 sm:p-6 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M9 12h6"/><path d="M12 9v6"/><circle cx="12" cy="12" r="10"/></svg>
+                  <h3 class="text-xs font-bold text-primary uppercase tracking-[0.15em]">Your Summary</h3>
+                </div>
+                <div id="summary-content" class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm"></div>
+              </div>
+
+              <div class="flex flex-col gap-5 mt-6">
+                <div class="flex flex-col gap-1.5">
+                  <Label htmlFor="injuries" className="text-sm font-semibold">Injuries or Limitations <span class="text-muted-foreground font-normal">(optional)</span></Label>
+                  <textarea id="injuries" name="injuries" class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="List any past or current injuries that affect your lifting..."></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="likedExercises" className="text-sm font-semibold">Favorite Exercises <span class="text-muted-foreground font-normal">(optional)</span></Label>
+                    <textarea id="likedExercises" name="likedExercises" class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
                   </div>
-                  <div
-                    class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 [&.visible]:max-h-12 [&.visible]:opacity-100 text-xs text-muted-foreground mt-2"
-                    id="day-picker-label"
-                  >
-                    <span id="day-count-text">Select your training days</span>
+                  <div class="flex flex-col gap-1.5">
+                    <Label htmlFor="dislikedExercises" className="text-sm font-semibold">Disliked Exercises <span class="text-muted-foreground font-normal">(optional)</span></Label>
+                    <textarea id="dislikedExercises" name="dislikedExercises" class="flex min-h-[90px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="e.g. Conventional Deadlift"></textarea>
                   </div>
-                  <input
-                    type="hidden"
-                    name="trainingDays"
-                    id="trainingDays"
-                    value=""
-                  />
-                  {
-                    errors.trainingDays && (
-                      <span class="text-sm text-destructive font-medium block mt-1">
-                        {errors.trainingDays[0]}
-                      </span>
-                    )
-                  }
                 </div>
               </div>
-            </fieldset>
+            </div>
 
-            <Separator className="my-8 opacity-50" />
-
-            <fieldset class="space-y-6">
-              <legend
-                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
-                >Experience & Goals</legend
-              >
-              <div class="space-y-3">
-                <Label htmlFor="failureExp"
-                  >How accustomed are you to training to true failure?</Label
-                >
-                <textarea
-                  id="failureExp"
-                  name="failureExp"
-                  required
-                  class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="Describe your experience with pushing sets to or near failure..."
-                ></textarea>
-                {
-                  errors.failureExp && (
-                    <span class="text-sm text-destructive font-medium block mt-1">
-                      {errors.failureExp[0]}
-                    </span>
-                  )
-                }
+            <!-- Navigation -->
+            <div class="flex items-center justify-between mt-8 pt-6 border-t border-border/60" id="step-nav">
+              <Button type="button" id="prev-btn" variant="outline" size="lg" className="h-11 px-5 font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"/></svg>
+                Back
+              </Button>
+              <span id="step-counter" class="text-sm text-muted-foreground tabular-nums font-medium"></span>
+              <Button type="button" id="next-btn" size="lg" className="h-11 px-5 font-semibold">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="m9 18 6-6-6-6"/></svg>
+              </Button>
+              <div id="submit-btns" class="hidden flex items-center gap-3">
+                <Button type="button" id="save-btn" variant="outline" size="lg" className="h-11 px-5 font-semibold">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Save for Later
+                </Button>
+                <Button type="submit" id="pay-btn" size="lg" className="h-11 px-6 font-bold shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all animate-pulse-glow">
+                  Pay Now (€30)
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </Button>
               </div>
-              <div class="space-y-3">
-                <Label htmlFor="goals">Primary Goals</Label>
-                <textarea
-                  id="goals"
-                  name="goals"
-                  required
-                  class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="What are you trying to achieve? (e.g. general hypertrophy, bringing up arms, etc.)"
-                ></textarea>
-                {
-                  errors.goals && (
-                    <span class="text-sm text-destructive font-medium block mt-1">
-                      {errors.goals[0]}
-                    </span>
-                  )
-                }
-              </div>
-              <div class="space-y-3">
-                <Label htmlFor="weakPoints"
-                  >Weak Points <span class="text-muted-foreground font-normal"
-                    >(optional, leave empty if beginner)</span
-                  ></Label
-                >
-                <Input
-                  type="text"
-                  id="weakPoints"
-                  name="weakPoints"
-                  placeholder="e.g. Calves, Side Delts"
-                />
-              </div>
-            </fieldset>
-
-            <Separator className="my-8 opacity-50" />
-
-            <fieldset class="space-y-6">
-              <legend
-                class="text-2xl font-black tracking-tight text-foreground border-b border-border pb-3 w-full"
-                >Preferences & Medical</legend
-              >
-              <div class="space-y-3">
-                <Label htmlFor="injuries"
-                  >Injuries or Limitations <span
-                    class="text-muted-foreground font-normal">(optional)</span
-                  ></Label
-                >
-                <textarea
-                  id="injuries"
-                  name="injuries"
-                  class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="List any past or current injuries that affect your lifting..."
-                ></textarea>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div class="space-y-3">
-                  <Label htmlFor="likedExercises"
-                    >Favorite Exercises <span
-                      class="text-muted-foreground font-normal">(optional)</span
-                    ></Label
-                  >
-                  <textarea
-                    id="likedExercises"
-                    name="likedExercises"
-                    class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="e.g. Barbell Squat, Pull-ups"></textarea>
-                </div>
-                <div class="space-y-3">
-                  <Label htmlFor="dislikedExercises"
-                    >Disliked Exercises <span
-                      class="text-muted-foreground font-normal">(optional)</span
-                    ></Label
-                  >
-                  <textarea
-                    id="dislikedExercises"
-                    name="dislikedExercises"
-                    class="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="e.g. Conventional Deadlift"></textarea>
-                </div>
-              </div>
-            </fieldset>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-14 text-xl font-bold mt-8 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all"
-            >
-              Continue to Payment (€30)
-            </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
 
-      {
-        isLoggedIn && (
-          <p class="text-center mt-6 text-sm text-muted-foreground">
-            Already purchased?{" "}
-            <a
-              href="/dashboard"
-              class="text-primary hover:underline font-semibold"
-            >
-              Go to your dashboard →
-            </a>
-          </p>
-        )
-      }
+      {isLoggedIn && (
+        <p class="text-center mt-6 text-sm text-muted-foreground">
+          Already purchased? <a href="/dashboard" class="text-primary hover:underline font-semibold">
+            Go to your dashboard →
+          </a>
+        </p>
+      )}
     </div>
 
     <script>
-      import { authClient } from "../../lib/auth-client";
-      
+      import { authClient } from "@lib/auth-client";
+
+      // ── Sign out ──
       const applySignoutBtn = document.getElementById("apply-signout-btn");
       if (applySignoutBtn) {
         applySignoutBtn.addEventListener("click", async () => {
@@ -731,13 +456,229 @@ if (Astro.request.method === "POST") {
         });
       }
 
-      // ── Unit toggle ──────────────────────────────────────────────────────
-      const unitBtns = document.querySelectorAll<HTMLButtonElement>(
-        ".unit-toggle button",
-      );
-      const unitInput = document.getElementById(
-        "unitSystem",
-      ) as HTMLInputElement;
+      // ── Step navigation ──
+      const totalSteps = {totalSteps};
+      let currentStep = 1;
+      const form = document.getElementById("apply-form") as HTMLFormElement;
+      const prevBtn = document.getElementById("prev-btn") as HTMLButtonElement;
+      const nextBtn = document.getElementById("next-btn") as HTMLButtonElement;
+      const stepCounter = document.getElementById("step-counter") as HTMLSpanElement;
+      const submitBtns = document.getElementById("submit-btns") as HTMLDivElement;
+      const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+      const payBtn = document.getElementById("pay-btn") as HTMLButtonElement;
+      const submitAction = document.getElementById("submitAction") as HTMLInputElement;
+
+      function getStepEl(n: number): HTMLElement | null {
+        return document.querySelector(`.form-step[data-step="${n}"]`);
+      }
+
+      function getRequiredInputs(stepEl: HTMLElement): NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> {
+        return stepEl.querySelectorAll("input[required]:not([type=hidden]), textarea[required], select[required]");
+      }
+
+      function validateStep(stepEl: HTMLElement): boolean {
+        const inputs = getRequiredInputs(stepEl);
+        let valid = true;
+        const firstInvalid: HTMLElement | null = null;
+
+        for (const input of inputs) {
+          const el = input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+          if (el.type === "radio") {
+            const name = el.name;
+            if (!stepEl.querySelector(`input[name="${CSS.escape(name)}"]:checked`)) {
+              if (!firstInvalid) (el as any).reportValidity?.();
+              valid = false;
+            }
+          } else if (el instanceof HTMLSelectElement) {
+            if (!el.value) {
+              if (!firstInvalid) el.reportValidity();
+              valid = false;
+            }
+          } else if (!el.checkValidity()) {
+            if (!firstInvalid) el.reportValidity();
+            valid = false;
+            break;
+          }
+        }
+        return valid;
+      }
+
+      function updateProgressBar() {
+        const circles = document.querySelectorAll<HTMLElement>(".step-circle");
+        const lines = document.querySelectorAll<HTMLElement>(".step-line");
+        const labels = document.querySelectorAll<HTMLElement>(".step-label");
+
+        circles.forEach((c) => {
+          const idx = parseInt(c.dataset.stepIdx || "0");
+          const numEl = c.querySelector(".step-num") as HTMLElement | null;
+          const checkEl = c.querySelector(".step-check") as HTMLElement | null;
+          c.classList.remove("bg-primary", "text-primary-foreground", "border-primary", "border-muted-foreground/20", "text-muted-foreground", "bg-card", "bg-primary/10", "text-primary");
+          if (idx < currentStep - 1) {
+            c.classList.add("bg-primary", "text-primary-foreground", "border-primary", "shadow-md", "shadow-primary/20");
+            if (numEl) numEl.classList.add("hidden");
+            if (checkEl) checkEl.classList.remove("hidden");
+          } else if (idx === currentStep - 1) {
+            c.classList.add("border-primary", "text-primary", "bg-primary/10");
+            if (numEl) numEl.classList.remove("hidden");
+            if (checkEl) checkEl.classList.add("hidden");
+          } else {
+            c.classList.add("border-muted-foreground/20", "text-muted-foreground", "bg-card");
+            if (numEl) numEl.classList.remove("hidden");
+            if (checkEl) checkEl.classList.add("hidden");
+          }
+        });
+
+        lines.forEach((l) => {
+          const idx = parseInt(l.dataset.stepIdx || "0");
+          l.classList.remove("bg-primary", "bg-muted-foreground/15");
+          if (idx < currentStep - 1) {
+            l.classList.add("bg-primary");
+          } else {
+            l.classList.add("bg-muted-foreground/15");
+          }
+        });
+
+        labels.forEach((l) => {
+          const idx = parseInt(l.dataset.stepIdx || "0");
+          l.classList.remove("text-primary", "text-muted-foreground");
+          if (idx <= currentStep - 1) {
+            l.classList.add("text-primary");
+          } else {
+            l.classList.add("text-muted-foreground");
+          }
+        });
+      }
+
+      function goToStep(n: number) {
+        if (n < 1 || n > totalSteps) return;
+
+        const currentEl = getStepEl(currentStep);
+        const currentElCard = currentEl?.closest(".form-step") as HTMLElement | null;
+
+        if (n > currentStep && currentEl) {
+          if (!validateStep(currentEl)) return;
+        }
+
+        // Animate out current step
+        if (currentEl) {
+          const dir = n > currentStep ? "-translate-x-8" : "translate-x-8";
+          currentEl.style.opacity = "0";
+          currentEl.style.transform = `translateX(${n > currentStep ? "-" : ""}16px)`;
+          currentEl.style.transition = "opacity 150ms ease, transform 150ms ease";
+          setTimeout(() => {
+            currentEl.classList.add("hidden");
+          }, 150);
+        }
+
+        // Show and animate in new step
+        setTimeout(() => {
+          const nextEl = getStepEl(n);
+          if (nextEl) {
+            nextEl.classList.remove("hidden");
+            nextEl.style.opacity = "0";
+            nextEl.style.transform = `translateX(${n > currentStep ? "" : "-"}16px)`;
+            nextEl.style.transition = "none";
+            requestAnimationFrame(() => {
+              nextEl.style.opacity = "1";
+              nextEl.style.transform = "translateX(0)";
+              nextEl.style.transition = "opacity 200ms ease-out, transform 200ms ease-out";
+            });
+          }
+
+          currentStep = n;
+          stepCounter.textContent = `Step ${currentStep} of ${totalSteps}`;
+
+          prevBtn.classList.toggle("hidden", currentStep === 1);
+          nextBtn.classList.toggle("hidden", currentStep === totalSteps);
+          submitBtns.classList.toggle("hidden", currentStep !== totalSteps);
+
+          if (currentStep === totalSteps) {
+            generateSummary();
+          }
+
+          updateProgressBar();
+
+          document.getElementById("progress-bar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 180);
+      }
+
+      prevBtn.addEventListener("click", () => goToStep(currentStep - 1));
+      nextBtn.addEventListener("click", () => goToStep(currentStep + 1));
+
+      // ── Submit buttons ──
+      saveBtn.addEventListener("click", () => {
+        submitAction.value = "save";
+        form.submit();
+      });
+
+      payBtn.addEventListener("click", (e) => {
+        submitAction.value = "pay";
+      });
+
+      // ── Summary generation ──
+      function getVal(id: string): string {
+        const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+        if (!el) return "";
+        if (el instanceof HTMLSelectElement) return el.options[el.selectedIndex]?.text || "";
+        return el.value || "";
+      }
+
+      function getRadioVal(name: string): string {
+        const el = document.querySelector(`input[name="${CSS.escape(name)}"]:checked`) as HTMLInputElement | null;
+        return el?.value || "";
+      }
+
+      function getUnit(): string {
+        return (document.getElementById("unitSystem") as HTMLInputElement)?.value || "metric";
+      }
+
+      function generateSummary() {
+        const container = document.getElementById("summary-content");
+        if (!container) return;
+
+        const unit = getUnit();
+        const wUnit = unit === "imperial" ? "lbs" : "kg";
+        const hUnit = unit === "imperial" ? "in" : "cm";
+
+        const rows: [string, string][] = [];
+
+        const nameEl = document.getElementById("name") as HTMLInputElement | null;
+        if (nameEl) rows.push(["Name", getVal("name")]);
+
+        const emailEl = document.getElementById("email") as HTMLInputElement | null;
+        if (emailEl) rows.push(["Email", getVal("email")]);
+
+        rows.push(["Sex", getRadioVal("sex") === "male" ? "Male" : "Female"]);
+        rows.push(["Age", getVal("age")]);
+        rows.push(["Weight", `${getVal("weight")} ${wUnit}`]);
+        rows.push(["Height", `${getVal("height")} ${hUnit}`]);
+        rows.push(["Daily Steps", getVal("steps")]);
+        rows.push(["Job Type", getVal("jobType")]);
+        rows.push(["Job", getVal("jobDescription")]);
+
+        const cardio = getRadioVal("hasCardio");
+        rows.push(["Cardio/Sport", cardio === "yes" ? `Yes — ${getVal("cardioDetails")}` : "No"]);
+
+        rows.push(["Equipment", getRadioVal("equipment") === "Gym" ? "Commercial Gym" : "Home Setup"]);
+        const eqNotes = getVal("equipmentDetails");
+        if (eqNotes) rows.push(["Extra Equipment", eqNotes]);
+
+        rows.push(["Days / Week", getVal("frequency")]);
+        rows.push(["Training Days", getVal("trainingDays")]);
+        rows.push(["Failure Experience", getVal("failureExp")]);
+        rows.push(["Goals", getVal("goals")]);
+
+        const wp = getVal("weakPoints");
+        if (wp) rows.push(["Weak Points", wp]);
+
+        container.innerHTML = rows.map(([label, value]) =>
+          `<div class="flex flex-col gap-0.5"><span class="text-[0.6rem] uppercase tracking-[0.15em] text-muted-foreground font-bold">${label}</span><span class="text-foreground font-medium truncate">${value || "—"}</span></div>`
+        ).join("");
+      }
+
+      // ── Unit toggle ──
+      const unitBtns = document.querySelectorAll<HTMLButtonElement>(".unit-toggle button");
+      const unitInput = document.getElementById("unitSystem") as HTMLInputElement;
       const weightLabel = document.getElementById("weight-label")!;
       const heightLabel = document.getElementById("height-label")!;
       const weightInput = document.getElementById("weight") as HTMLInputElement;
@@ -764,33 +705,13 @@ if (Astro.request.method === "POST") {
         });
       });
 
-      // ── Equipment "Other" reveal ─────────────────────────────────────────
-      const eqRadios = document.querySelectorAll<HTMLInputElement>(
-        'input[name="equipment"]',
-      );
-      const eqDetailsWrap = document.getElementById("equipment-details-wrap")!;
-
-      eqRadios.forEach((radio) => {
-        radio.addEventListener("change", () => {
-          if (radio.value === "Other" && radio.checked) {
-            eqDetailsWrap.classList.add("visible");
-          } else {
-            eqDetailsWrap.classList.remove("visible");
-          }
-        });
-      });
-
-      // ── Day picker ───────────────────────────────────────────────────────
-      const freqInput = document.getElementById(
-        "frequency",
-      ) as HTMLInputElement;
+      // ── Day picker ──
+      const freqInput = document.getElementById("frequency") as HTMLInputElement;
       const dayPicker = document.getElementById("day-picker")!;
       const dayPickerLabel = document.getElementById("day-picker-label")!;
       const dayCountText = document.getElementById("day-count-text")!;
       const dayBtns = dayPicker.querySelectorAll<HTMLButtonElement>(".day-btn");
-      const trainingDaysInput = document.getElementById(
-        "trainingDays",
-      ) as HTMLInputElement;
+      const trainingDaysInput = document.getElementById("trainingDays") as HTMLInputElement;
 
       let selectedDays: string[] = [];
       let maxDays = 0;
@@ -810,7 +731,6 @@ if (Astro.request.method === "POST") {
         dayPicker.classList.add("visible");
         dayPickerLabel.classList.add("visible");
 
-        // If we already have more selected than the new max, trim
         while (selectedDays.length > maxDays) {
           const removed = selectedDays.pop()!;
           dayBtns.forEach((b) => {
@@ -833,7 +753,7 @@ if (Astro.request.method === "POST") {
         if (remaining > 0) {
           dayCountText.textContent = `Select ${remaining} more day${remaining > 1 ? "s" : ""}`;
         } else {
-          dayCountText.textContent = `All ${maxDays} days selected ✓`;
+          dayCountText.textContent = `All ${maxDays} days selected`;
         }
       }
 
@@ -852,17 +772,14 @@ if (Astro.request.method === "POST") {
           const idx = selectedDays.indexOf(day);
 
           if (idx >= 0) {
-            // Deselect
             selectedDays.splice(idx, 1);
             btn.classList.remove("selected");
           } else if (selectedDays.length < maxDays) {
-            // Select
             selectedDays.push(day);
             btn.classList.add("selected");
           } else {
-            // At limit - shake animation
             btn.style.animation = "none";
-            btn.offsetHeight; // reflow
+            btn.offsetHeight;
             btn.style.animation = "shake 0.3s ease";
           }
 
@@ -871,29 +788,71 @@ if (Astro.request.method === "POST") {
         });
       });
 
-      // Init on page load (if frequency is pre-filled)
       updateDayPicker();
+
+      // ── Toggle cardio details ──
+      const cardioRadios = document.querySelectorAll<HTMLInputElement>('input[name="hasCardio"]');
+      const cardioDetailsWrap = document.getElementById("cardio-details-wrap")!;
+      const cardioDetailsTextarea = document.getElementById("cardioDetails") as HTMLTextAreaElement | null;
+
+      function updateCardioDetails() {
+        const selected = document.querySelector<HTMLInputElement>('input[name="hasCardio"]:checked');
+        if (selected?.value === "yes") {
+          cardioDetailsWrap.classList.add("visible");
+          if (cardioDetailsTextarea) cardioDetailsTextarea.required = true;
+        } else {
+          cardioDetailsWrap.classList.remove("visible");
+          if (cardioDetailsTextarea) cardioDetailsTextarea.required = false;
+        }
+      }
+
+      cardioRadios.forEach((radio) => {
+        radio.addEventListener("change", updateCardioDetails);
+      });
+      updateCardioDetails();
+
+      // ── Password confirmation validation ──
+      const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+      const confirmPasswordInput = document.getElementById("confirmPassword") as HTMLInputElement | null;
+
+      if (passwordInput && confirmPasswordInput) {
+        form.addEventListener("submit", (e) => {
+          if (passwordInput.value !== confirmPasswordInput.value) {
+            e.preventDefault();
+            confirmPasswordInput.setCustomValidity("Passwords do not match");
+            confirmPasswordInput.reportValidity();
+          } else {
+            confirmPasswordInput.setCustomValidity("");
+          }
+        });
+
+        confirmPasswordInput.addEventListener("input", () => {
+          confirmPasswordInput.setCustomValidity("");
+        });
+      }
+
+      // ── Init ──
+      updateProgressBar();
+      stepCounter.textContent = `Step 1 of ${totalSteps}`;
+      prevBtn.classList.add("hidden");
     </script>
 
     <style>
       @keyframes shake {
-        0%,
-        100% {
-          transform: translateX(0);
-        }
-        20% {
-          transform: translateX(-3px);
-        }
-        40% {
-          transform: translateX(3px);
-        }
-        60% {
-          transform: translateX(-2px);
-        }
-        80% {
-          transform: translateX(2px);
-        }
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-3px); }
+        40% { transform: translateX(3px); }
+        60% { transform: translateX(-2px); }
+        80% { transform: translateX(2px); }
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .step-active {
+        animation: fade-in 0.35s ease-out;
       }
     </style>
-  </body>
-</html>
+</BaseLayout>

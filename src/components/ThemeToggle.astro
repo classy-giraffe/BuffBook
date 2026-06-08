@@ -1,10 +1,39 @@
 ---
 ---
-<button id="theme-toggle" class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md" aria-label="Toggle theme">
-  <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+
+<button
+  data-theme-toggle
+  class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md"
+  aria-label="Toggle theme"
+>
+  <svg
+    data-theme-icon-dark
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="hidden"
+  >
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
   </svg>
-  <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+  <svg
+    data-theme-icon-light
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="hidden"
+  >
     <circle cx="12" cy="12" r="4"></circle>
     <path d="M12 2v2"></path>
     <path d="M12 20v2"></path>
@@ -18,31 +47,36 @@
 </button>
 
 <script is:inline>
-  const toggleBtn = document.getElementById('theme-toggle');
-  const darkIcon = document.getElementById('theme-icon-dark');
-  const lightIcon = document.getElementById('theme-icon-light');
+  (() => {
+    if (window.__bbThemeInit) return;
+    window.__bbThemeInit = true;
 
-  if (toggleBtn && darkIcon && lightIcon) {
-    function updateIcon(theme) {
-      if (theme === 'light') {
-        darkIcon.classList.remove('hidden');
-        lightIcon.classList.add('hidden');
-      } else {
-        lightIcon.classList.remove('hidden');
-        darkIcon.classList.add('hidden');
-      }
+    function updateAllIcons(theme) {
+      document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
+        const darkIcon = btn.querySelector("[data-theme-icon-dark]");
+        const lightIcon = btn.querySelector("[data-theme-icon-light]");
+        if (theme === "light") {
+          darkIcon?.classList.remove("hidden");
+          lightIcon?.classList.add("hidden");
+        } else {
+          lightIcon?.classList.remove("hidden");
+          darkIcon?.classList.add("hidden");
+        }
+      });
     }
 
-    updateIcon(document.documentElement.dataset.theme);
+    updateAllIcons(document.documentElement.dataset.theme);
 
-    toggleBtn.addEventListener('click', () => {
-      const currentTheme = document.documentElement.dataset.theme;
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      document.documentElement.dataset.theme = newTheme;
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('starlight-theme', newTheme);
-      }
-      updateIcon(newTheme);
+    document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const currentTheme = document.documentElement.dataset.theme;
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+        document.documentElement.dataset.theme = newTheme;
+        if (typeof localStorage !== "undefined") {
+          localStorage.setItem("starlight-theme", newTheme);
+        }
+        updateAllIcons(newTheme);
+      });
     });
-  }
+  })();
 </script>

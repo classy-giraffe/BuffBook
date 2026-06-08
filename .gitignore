@@ -14,6 +14,7 @@ pnpm-debug.log*
 
 # ── Environment variables ──────────────────────────────────────────────────
 .env
+.env.local
 .env.production
 .dev.vars
 
@@ -32,3 +33,8 @@ Thumbs.db
 
 # ── Logs ───────────────────────────────────────────────────────────────────
 *.log
+
+# ── Testing ─────────────────────────────────────────────────────────────────
+test-results/
+playwright-report/
+coverage/

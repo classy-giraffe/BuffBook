@@ -1,0 +1,14 @@
+---
+import { env } from "cloudflare:workers";
+const GA_ID = env.GA_MEASUREMENT_ID || "G-NG1D7QNQS7";
+---
+<!-- Google Analytics via Partytown (off main thread) -->
+<script type="text/partytown" src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+<script type="text/partytown" set:html={`
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () {
+    dataLayer.push(arguments);
+  };
+  window.gtag("js", new Date());
+  window.gtag("config", "${GA_ID}", { anonymize_ip: true });
+`}></script>

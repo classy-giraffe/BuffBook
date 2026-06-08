@@ -1,25 +1,18 @@
 ---
+import Logo from "./shared/Logo.astro";
 ---
+
 <footer class="relative mt-auto">
-  <!-- Gradient top border -->
   <div class="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
   <div class="py-16 px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
       <!-- Col 1: Brand -->
       <div class="flex flex-col gap-4">
-        <a href="/" class="flex items-center gap-2 font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity w-fit">
-          <svg
-            viewBox="0 0 24 24"
-            class="h-5 w-5 fill-primary"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"
-            ></path>
-          </svg>
-          BuffBook
-        </a>
+        <div class="flex items-center gap-2 w-fit">
+          <Logo size="sm" href="" />
+          <a href="/" class="font-bold tracking-tight text-xl text-primary hover:opacity-80 transition-opacity">BuffBook</a>
+        </div>
         <p class="text-sm text-muted-foreground leading-relaxed max-w-xs">
           A free, peer-reviewed guide to the science of muscle hypertrophy. Open-source, forever.
         </p>
@@ -40,7 +33,7 @@
         <a href="/privacy" class="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">Privacy Policy</a>
         <a href="/terms" class="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">Terms of Service</a>
         <div class="mt-auto pt-4">
-          <span class="text-xs text-muted-foreground/70">Built with 💛 by classy-giraffe</span>
+          <span class="text-xs text-muted-foreground/70">Built with love by classy-giraffe</span>
         </div>
       </div>
     </div>

@@ -1,122 +1,140 @@
 ---
 import { env } from "cloudflare:workers";
-import DashboardLayout from "../../components/DashboardLayout.astro";
-import AdminNav from "../../components/AdminNav.astro";
+import DashboardLayout from "@components/DashboardLayout.astro";
+import AdminNav from "@components/AdminNav.astro";
 import { Badge } from "@components/ui/badge";
-import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@components/ui/table";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../db/schema";
-import { eq, desc, sql } from "drizzle-orm";
-import "../../styles/global.css";
+import { getDb } from "@lib/db";
+import { user as userTable } from "@db/schema";
+import { desc, sql } from "drizzle-orm";
+import { isAdmin } from "@lib/admin";
 
 export const prerender = false;
 
 const { user } = Astro.locals;
-const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
 if (!user) {
   return Astro.redirect("/admin/login");
 }
-if (user.email !== ADMIN_EMAIL) {
+if (!isAdmin(user, env.ADMIN_EMAIL)) {
   return Astro.redirect("/dashboard");
 }
 
-const db = drizzle(env.DB, { schema: dbSchema });
+const db = getDb(env);
 
-const users = await db
-  .select({
-    id: dbSchema.user.id,
-    name: dbSchema.user.name,
-    email: dbSchema.user.email,
-    emailVerified: dbSchema.user.emailVerified,
-    createdAt: dbSchema.user.createdAt,
-    orderCount: sql<number>`count(${dbSchema.planRequests.id})`,
-  })
-  .from(dbSchema.user)
-  .leftJoin(dbSchema.planRequests, eq(dbSchema.user.id, dbSchema.planRequests.userId))
-  .groupBy(dbSchema.user.id)
-  .orderBy(desc(dbSchema.user.createdAt));
+const users = await db.select({
+  id: userTable.id,
+  name: userTable.name,
+  email: userTable.email,
+  createdAt: userTable.createdAt,
+  planCount: sql<number>`(SELECT COUNT(*) FROM plan_requests WHERE plan_requests.userId = user.id AND plan_requests.status != 'pending_payment')`.mapWith(Number),
+}).from(userTable).orderBy(desc(userTable.createdAt));
+
+const totalUsers = users.length;
+const totalPlans = users.reduce((sum, u) => sum + u.planCount, 0);
 ---
 
-<DashboardLayout title="Admin Users" user={user}>
+<DashboardLayout title="Admin Users - BuffBook" user={user}>
   <div class="max-w-6xl mx-auto space-y-8">
     <div class="flex flex-col gap-4">
       <AdminNav active="users" />
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight text-foreground">Users</h1>
-        <p class="text-muted-foreground mt-1">
-          Manage registered users and their accounts.
-        </p>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-foreground">Users</h1>
+          <p class="text-muted-foreground mt-1">View registered users and their plan activity.</p>
+        </div>
       </div>
     </div>
 
+    <!-- Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Users</span>
-        <span class="text-3xl font-black text-foreground tracking-tight">{users.length}</span>
-      </div>
-      <div class="rounded-xl border border-destructive/20 bg-destructive/5 p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Unverified</span>
-        <span class="text-3xl font-black text-destructive tracking-tight">{users.filter(u => !u.emailVerified).length}</span>
-      </div>
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">With Orders</span>
-        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{users.filter(u => u.orderCount > 0).length}</span>
-      </div>
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{totalUsers}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Registered Users</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-amber-500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{totalPlans}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Plans</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-emerald-500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg>
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{totalUsers > 0 ? (totalPlans / totalUsers).toFixed(1) : "0"}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Avg Plans/User</span>
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
-    <div class="border rounded-xl bg-card overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Verified</TableHead>
-            <TableHead>Joined</TableHead>
-            <TableHead className="text-center">Orders</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {
-            users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  No users found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((u) => (
-                <TableRow>
-                  <TableCell class="font-semibold text-foreground">{u.name}</TableCell>
-                  <TableCell class="text-muted-foreground">{u.email}</TableCell>
+    <!-- Users table -->
+    <Card class="border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <CardHeader class="pb-3">
+        <div class="flex items-center justify-between">
+          <CardTitle class="text-lg font-bold">Registered Users</CardTitle>
+          <span class="text-xs text-muted-foreground font-medium">{totalUsers} user{totalUsers !== 1 ? "s" : ""}</span>
+        </div>
+      </CardHeader>
+      <CardContent class="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow class="hover:bg-transparent">
+              <TableHead>User</TableHead>
+              <TableHead>Plans</TableHead>
+              <TableHead class="hidden sm:table-cell">Joined</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((u) => {
+              const initials = u.name
+                ? u.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+                : "?";
+              return (
+                <TableRow class="group">
                   <TableCell>
-                    {u.emailVerified ? (
-                      <Badge variant="default" className="rounded-sm">Verified</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="rounded-sm">Unverified</Badge>
-                    )}
+                    <div class="flex items-center gap-3">
+                      <div class="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                        <span class="text-[0.65rem] font-bold text-muted-foreground">{initials}</span>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-foreground text-sm">{u.name || "—"}</div>
+                        <div class="text-xs text-muted-foreground">{u.email}</div>
+                      </div>
+                    </div>
                   </TableCell>
-                  <TableCell class="text-muted-foreground">
-                    {new Date(u.createdAt).toLocaleDateString(undefined, {
-                      year: "numeric", month: "short", day: "numeric",
-                    })}
+                  <TableCell>
+                    <Badge variant="secondary" class="font-medium">{u.planCount}</Badge>
                   </TableCell>
-                  <TableCell class="text-center font-medium">{u.orderCount}</TableCell>
+                  <TableCell class="hidden sm:table-cell text-muted-foreground text-sm tabular-nums">
+                    {new Date(u.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                  </TableCell>
                 </TableRow>
-              ))
-            )
-          }
-        </TableBody>
-      </Table>
-    </div>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   </div>
 </DashboardLayout>

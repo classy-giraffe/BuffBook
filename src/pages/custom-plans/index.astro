@@ -1,11 +1,10 @@
 ---
 import { Button } from "@components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@components/ui/card";
+import { Card, CardContent } from "@components/ui/card";
 import { Separator } from "@components/ui/separator";
 import { Badge } from "@components/ui/badge";
-import { FaqAccordion } from "../../components/FaqAccordion";
-import "../../styles/global.css";
-import MarketingLayout from "../../layouts/MarketingLayout.astro";
+import { FaqAccordion } from "@components/FaqAccordion";
+import MarketingLayout from "@layouts/MarketingLayout.astro";
 
 const faqs = [
   {
@@ -68,27 +67,70 @@ const faqs = [
 const steps = [
   {
     num: "01",
-    title: "A Fully Customized Mesocycle",
-    desc: "A training program built specifically around your individual biomechanics, goals, and training history. You tell me what you want to achieve, and I build the exact roadmap to get you there without any guesswork.",
-    icon: `<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>`,
+    title: "Fill Out the Assessment",
+    desc: "Answer a comprehensive questionnaire covering your body metrics, training history, available equipment, weak points, and goals. Every detail helps me tailor the program specifically to you — not a template, not AI-generated.",
+    icon: `<path d="m9 12 2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>`,
   },
   {
     num: "02",
-    title: "Science-Backed Progression",
-    desc: "Your sets, reps, and progression schemes are mathematically matched to your recovery capacity. Using the peer-reviewed principles outlined in the BuffBook, I ensure you apply the exact amount of volume needed to grow — no more, no less.",
+    title: "Pay & We Get to Work",
+    desc: "Secure your spot with a one-time €30 payment. Once your assessment lands, I personally analyze every variable — volume landmarks, exercise selection, weak point prioritization — and craft your full mesocycle from scratch within 72-96 hours.",
     icon: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>`,
   },
   {
     num: "03",
-    title: "Personalized Exercise Selection",
-    desc: "Not everyone is built to barbell squat or bench press. I personally review your past injuries, weak points, and available equipment to select exercises that are highly stimulating and safe for your specific leverages.",
-    icon: `<path d="m9 12 2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>`,
+    title: "Receive Your Custom Plan",
+    desc: "You'll get a detailed PDF with your complete training split, set/rep schemes, progression method, exercise-specific form cues, warm-up protocols, and exact logging instructions. Ready to execute from day one.",
+    icon: `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>`,
   },
   {
     num: "04",
-    title: "Detailed Execution Guide",
-    desc: "You won't just get a confusing spreadsheet. You'll receive a detailed PDF breakdown with specific form cues for each exercise, warm-up strategies, and exact instructions on how to log your progression accurately.",
+    title: "Run It & Grow",
+    desc: "Follow the plan week by week, logging your lifts and applying progressive overload. Your mesocycle is designed to run until your goals are met — no recurring fees, no subscriptions. If your goals change, you can always come back for a new program.",
+    icon: `<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>`,
+  },
+];
+
+const features = [
+  {
+    title: "Volume Landmarks",
+    desc: "MEV, MAV, MRV — your exact weekly set ranges calibrated to your training age and recovery capacity.",
+    icon: `<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>`,
+  },
+  {
+    title: "Exercise Selection",
+    desc: "Joint-friendly variations chosen for your specific weak points, injuries, and equipment availability.",
+    icon: `<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>`,
+  },
+  {
+    title: "Progression Scheme",
+    desc: "Double progression, dynamic double progression, or RPE-based — matched to your training style and goals.",
+    icon: `<path d="m12 3-1.35 1.85M18.15 6.85 20 8.5M3 12l1.85 1.35M5.15 6.85 3.5 8M21 12l-1.85-1.35"/><circle cx="12" cy="12" r="3"/>`,
+  },
+  {
+    title: "Exercise Form Cues",
+    desc: "Specific cues for every movement so you execute with perfect technique and maximize stimulus-to-fatigue ratio.",
+    icon: `<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>`,
+  },
+  {
+    title: "Warm-Up Protocol",
+    desc: "Pre-workout ramp-up routines designed to prime your nervous system and protect your joints.",
+    icon: `<path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/>`,
+  },
+  {
+    title: "Logging Instructions",
+    desc: "Track sets, reps, and RPE so you can objectively apply progressive overload week after week.",
     icon: `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>`,
+  },
+  {
+    title: "Cardio Integration",
+    desc: "Conditioning prescriptions that support your goals without sabotaging your hypertrophy (interference effect avoidance).",
+    icon: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>`,
+  },
+  {
+    title: "Nutritional Targets",
+    desc: "Caloric and macronutrient targets based on your goals (bulk/cut/maintain) — general guidelines, not meal plans.",
+    icon: `<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2Z"/><path d="M10 14h4"/><path d="M10 10h4"/><path d="M10 18h4"/>`,
   },
 ];
 ---
@@ -98,22 +140,28 @@ const steps = [
   description="Get a handcrafted, science-based gym plan tailored exactly to your goals, body, and experience level."
 >
   <main class="flex-1">
+    <!-- ===== HERO ===== -->
     <section
-      class="relative flex min-h-[75vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-16 grain-overlay"
+      class="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-6 text-center pt-24 pb-20 grain-overlay"
     >
-      <div class="pointer-events-none absolute inset-0 -z-10 bg-background">
-        <!-- Subtle top gradient -->
+      <!-- Background: layered gradient orbs -->
+      <div class="pointer-events-none absolute inset-0 -z-10">
         <div
-          class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary/5 blur-[100px] rounded-full"
-        >
-        </div>
+          class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/8 blur-[120px] rounded-full"
+        ></div>
+        <div
+          class="absolute top-1/3 right-0 w-[400px] h-[400px] bg-chart-1/6 blur-[100px] rounded-full"
+        ></div>
+        <div
+          class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-chart-5/6 blur-[100px] rounded-full"
+        ></div>
       </div>
+
       <!-- Dot grid -->
       <div
         class="pointer-events-none absolute inset-0 -z-10 opacity-[0.03]"
         style="background-image: radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px); background-size: 32px 32px;"
-      >
-      </div>
+      ></div>
 
       <!-- Shimmer badge -->
       <div
@@ -127,25 +175,59 @@ const steps = [
         class="max-w-4xl text-5xl sm:text-7xl font-black tracking-tighter leading-[0.95] text-foreground mb-6"
         data-animate data-animate-delay="1"
       >
-        Hand-crafted <span class="text-gradient">Just For You.</span>
+        Your training, <span class="text-gradient">hand-crafted.</span>
       </h1>
 
       <p
-        class="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed"
+        class="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-6 leading-relaxed"
         data-animate data-animate-delay="2"
       >
-        No AI. No cookie-cutter templates. You fill out a comprehensive
-        assessment, and I personally build your ideal hypertrophy plan from
-        scratch in 72-96 hours.
+        No AI. No cookie-cutter templates. You fill out a comprehensive assessment, and I personally build your ideal hypertrophy plan from scratch.
       </p>
 
-      <div class="flex flex-col sm:flex-row gap-4 items-center justify-center" data-animate data-animate-delay="3">
+      <!-- Trust stats -->
+      <div
+        class="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 mt-4 mb-12"
+        data-animate data-animate-delay="3"
+      >
+        <div class="text-center">
+          <div
+            class="text-3xl font-black text-primary tracking-tight"
+            data-count-to="96"
+            data-count-suffix="h"
+          >0</div>
+          <div class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1">Turnaround</div>
+        </div>
+        <Separator orientation="vertical" className="hidden sm:block h-10" />
+        <div class="text-center">
+          <div class="text-3xl font-black text-primary tracking-tight">100%</div>
+          <div class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1">Handcrafted</div>
+        </div>
+        <Separator orientation="vertical" className="hidden sm:block h-10" />
+        <div class="text-center">
+          <div class="text-3xl font-black text-primary tracking-tight">€30</div>
+          <div class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1">One-Time</div>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col sm:flex-row gap-4 items-center justify-center"
+        data-animate data-animate-delay="4"
+      >
         <a href="/custom-plans/apply">
           <Button
             size="lg"
-            className="h-12 px-8 text-sm font-semibold tracking-wide rounded-full shadow-sm animate-pulse-glow"
+            className="h-14 px-10 text-base font-bold rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow animate-pulse-glow"
           >
             Buy Now — €30
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              class="ml-2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
           </Button>
         </a>
         <a
@@ -157,61 +239,196 @@ const steps = [
       </div>
     </section>
 
-    <!-- WHAT YOU GET — Timeline/stepper layout -->
-    <section
-      id="how-it-works"
-      class="max-w-5xl mx-auto px-6 py-24 scroll-mt-16"
-    >
+    <Separator className="max-w-5xl mx-auto opacity-40" />
+
+    <!-- ===== HOW IT WORKS — Alternating card layout ===== -->
+    <section id="how-it-works" class="max-w-5xl mx-auto px-6 py-24 scroll-mt-16">
       <div class="text-center mb-16" data-animate>
-        <h2 class="text-3xl font-black tracking-tight text-foreground mb-4">
-          Here is exactly what you get:
-        </h2>
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Process</div>
+        <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-4">How it works</h2>
         <p class="text-muted-foreground text-lg max-w-xl mx-auto">
-          A structured, science-based approach to your training, delivered in
-          four comprehensive parts.
+          From assessment to training — your complete journey in four steps.
         </p>
       </div>
 
-      <!-- Timeline stepper -->
-      <div class="relative">
-        {/* Connecting vertical line */}
-        <div class="hidden md:block absolute left-[39px] top-8 bottom-8 w-px bg-gradient-to-b from-primary/30 via-border to-primary/30"></div>
+      <div class="flex flex-col gap-6 relative">
+        <!-- Connecting vertical line (desktop) -->
+        <div
+          class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/20 via-primary/40 to-primary/20 -translate-x-1/2"
+        ></div>
 
-        <div class="flex flex-col gap-8 md:gap-0">
-          {
-            steps.map((step, i) => (
-              <div class="flex gap-6 md:gap-10 relative" data-animate data-animate-delay={String(i + 1)}>
-                {/* Step indicator */}
-                <div class="flex flex-col items-center flex-shrink-0">
-                  <div class="h-[80px] w-[80px] rounded-2xl bg-card border-2 border-primary/20 flex items-center justify-center relative z-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={step.icon} />
+        {
+          steps.map((step, i) => {
+            const isLeft = i % 2 === 0;
+            return (
+              <div
+                class="flex flex-col md:flex-row items-center gap-6 md:gap-12 relative"
+                data-animate data-animate-delay={String(i + 1)}
+              >
+                {/* Content card */}
+                <div class:list={["flex-1 w-full", isLeft ? "md:text-right" : "md:order-2"]}>
+                  <Card className="border-border/60 bg-card/80 backdrop-blur-sm hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group">
+                    <CardContent className="p-6">
+                      <Badge variant="secondary" className="text-[0.6rem] font-bold tracking-[0.15em] uppercase mb-3">
+                        Step {step.num}
+                      </Badge>
+                      <h3 class="text-2xl font-black text-foreground mb-3 group-hover:text-primary transition-colors">
+                        {step.title}
+                      </h3>
+                      <p class="text-muted-foreground leading-relaxed">
+                        {step.desc}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Center icon */}
+                <div class="relative z-10 flex-shrink-0">
+                  <div class="h-16 w-16 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary glow-sm">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      set:html={step.icon}
+                    />
                   </div>
                 </div>
 
-                {/* Step content */}
-                <div class="flex-1 pb-12 md:pb-16">
-                  <Badge variant="secondary" className="text-[0.6rem] font-bold tracking-[0.15em] uppercase mb-3">
-                    Step {step.num}
-                  </Badge>
-                  <h3 class="text-2xl font-black text-foreground mb-3">
-                    {step.title}
-                  </h3>
-                  <p class="text-muted-foreground leading-relaxed text-lg max-w-2xl">
-                    {step.desc}
-                  </p>
-                </div>
+                {/* Spacer for opposite side */}
+                <div class="flex-1 hidden md:block"></div>
               </div>
-            ))
-          }
-        </div>
+            );
+          })
+        }
       </div>
     </section>
 
-    <Separator className="max-w-4xl mx-auto opacity-50" />
+    <Separator className="max-w-5xl mx-auto opacity-40" />
 
-    <!-- FAQ -->
+    <!-- ===== WHAT'S INCLUDED — Features grid ===== -->
+    <section class="max-w-5xl mx-auto px-6 py-24">
+      <div class="text-center mb-16" data-animate>
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">What You Get</div>
+        <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-4">
+          Everything included
+        </h2>
+        <p class="text-muted-foreground text-lg max-w-xl mx-auto">
+          Your custom plan is a complete, ready-to-execute training system — not just a list of exercises.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {
+          features.map((feat, i) => (
+            <div
+              class:list={[
+                "group relative border rounded-xl p-6 flex flex-col gap-3 transition-all duration-300 bg-card border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5",
+                i === 0 ? "sm:col-span-2" : "",
+              ]}
+              data-animate data-animate-delay={String((i % 3) + 1)}
+            >
+              {/* Accent line on hover */}
+              <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></div>
+
+              <div class="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  class="text-primary"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  set:html={feat.icon}
+                />
+              </div>
+              <span class="text-base font-bold text-foreground">{feat.title}</span>
+              <span class="text-sm text-muted-foreground leading-relaxed flex-1">{feat.desc}</span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <Separator className="max-w-4xl mx-auto opacity-40" />
+
+    <!-- ===== PRICING SPOTLIGHT ===== -->
+    <section class="max-w-lg mx-auto px-6 py-24 text-center">
+      <div data-animate>
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Pricing</div>
+        <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-foreground mb-12">
+          Simple, honest pricing.
+        </h2>
+      </div>
+
+      <Card
+        className="border-primary/30 bg-card/80 backdrop-blur-sm glow"
+        data-animate data-animate-delay="2"
+      >
+        <CardContent className="p-8">
+          <div class="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-3">
+            One-Time Payment
+          </div>
+          <div class="text-6xl font-black text-primary mb-3">€30</div>
+          <p class="text-muted-foreground mb-8 leading-relaxed">
+            Pay once. Get your complete mesocycle. Run it until your goals are met — no subscriptions, no hidden fees.
+          </p>
+
+          <div class="space-y-3 text-left mb-8">
+            {
+              [
+                "Full training split with set/rep/progression schemes",
+                "Exercise-specific form cues & execution notes",
+                "Warm-up protocols & logging instructions",
+                "Cardio & nutritional targets (if needed)",
+                "72-96 hour turnaround after assessment",
+              ].map((item) => (
+                <div class="flex items-start gap-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    class="text-primary flex-shrink-0 mt-0.5"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="text-sm text-muted-foreground">{item}</span>
+                </div>
+              ))
+            }
+          </div>
+
+          <a href="/custom-plans/apply">
+            <Button
+              size="lg"
+              className="w-full h-12 text-base font-bold animate-pulse-glow"
+            >
+              Start Your Assessment →
+            </Button>
+          </a>
+        </CardContent>
+      </Card>
+    </section>
+
+    <Separator className="max-w-4xl mx-auto opacity-40" />
+
+    <!-- ===== FAQ ===== -->
     <section class="max-w-3xl mx-auto px-6 py-24">
       <div class="text-center mb-12" data-animate>
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">FAQ</div>
         <h2 class="text-3xl font-black tracking-tight text-foreground">
           Frequently Asked Questions
         </h2>
@@ -219,15 +436,58 @@ const steps = [
           Everything you need to know before applying.
         </p>
       </div>
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm">
+      <Card
+        className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm"
+        data-animate data-animate-delay="2"
+      >
         <CardContent className="p-6">
           <FaqAccordion client:visible items={faqs} />
         </CardContent>
       </Card>
     </section>
+
+    <!-- ===== BOTTOM CTA ===== -->
+    <section class="max-w-4xl mx-auto px-6 pb-24 pt-8 text-center relative">
+      <!-- Decorative quotation mark -->
+      <div
+        class="absolute top-0 left-1/2 -translate-x-1/2 text-[10rem] leading-none font-serif text-primary/[0.04] pointer-events-none select-none"
+        aria-hidden="true"
+      >"</div>
+
+      <div data-animate>
+        <blockquote
+          class="relative z-10 text-2xl sm:text-4xl font-black tracking-tight leading-tight text-foreground mb-6"
+        >
+          "Give me your data. I'll give you the <span class="text-gradient pb-1">blueprint.</span>"
+        </blockquote>
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground mb-12">
+          — Atahan, BuffBook
+        </p>
+
+        <a href="/custom-plans/apply" data-animate data-animate-delay="2">
+          <Button
+            size="lg"
+            className="h-14 px-10 text-base font-bold rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow animate-pulse-glow"
+          >
+            Get Your Custom Plan — €30
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              class="ml-2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+          </Button>
+        </a>
+        <p class="text-xs text-muted-foreground mt-4">
+          One-time payment. No subscription. No auto-renew.
+        </p>
+      </div>
+    </section>
   </main>
 
   <script>
-    import "../../lib/scroll-animations";
+    import "@lib/scroll-animations";
   </script>
 </MarketingLayout>

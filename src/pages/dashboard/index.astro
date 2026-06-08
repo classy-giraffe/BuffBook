@@ -1,16 +1,13 @@
 ---
 import { env } from "cloudflare:workers";
-import DashboardLayout from "../../components/DashboardLayout.astro";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../db/schema";
+import DashboardLayout from "@components/DashboardLayout.astro";
+import CsrfInput from "@components/shared/CsrfInput.astro";
+import { getDb } from "@lib/db";
+import { planRequests } from "@db/schema";
 import { eq, desc } from "drizzle-orm";
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@components/ui/table";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
@@ -24,9 +21,8 @@ if (!user) {
   return Astro.redirect("/login");
 }
 
-const db = drizzle(env.DB, { schema: dbSchema });
+const db = getDb(env);
 
-// If returning from Stripe Checkout, verify the payment and update DB
 const sessionId = Astro.url.searchParams.get("session_id");
 if (sessionId) {
   try {
@@ -34,35 +30,22 @@ if (sessionId) {
     const stripe = new Stripe(env.STRIPE_SECRET_KEY);
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (
-      checkoutSession.payment_status === "paid" &&
-      checkoutSession.metadata?.requestId
-    ) {
+    if (checkoutSession.payment_status === "paid" && checkoutSession.metadata?.requestId) {
       await db
-        .update(dbSchema.planRequests)
-        .set({
-          status: "paid",
-          stripeSessionId: sessionId,
-          updatedAt: new Date(),
-        })
-        .where(
-          eq(dbSchema.planRequests.id, checkoutSession.metadata.requestId),
-        );
+        .update(planRequests)
+        .set({ status: "paid", stripeSessionId: sessionId, updatedAt: new Date() })
+        .where(eq(planRequests.id, checkoutSession.metadata.requestId));
     }
   } catch (err) {
     console.error("Stripe session verification error:", err);
   }
-  // Redirect to clean URL (remove query param) so refreshing doesn't re-verify
   return Astro.redirect("/dashboard");
 }
 
-// Fetch the user's plan requests
-let requests = await db.query.planRequests.findMany({
-  where: eq(dbSchema.planRequests.userId, user.id),
-  orderBy: [desc(dbSchema.planRequests.createdAt)],
-});
+let requests = await db.select().from(planRequests)
+  .where(eq(planRequests.userId, user.id))
+  .orderBy(desc(planRequests.createdAt));
 
-// Sweep: check any "pending_payment" requests and verify with Stripe
 const pendingRequests = requests.filter((r) => r.status === "pending_payment");
 if (pendingRequests.length > 0) {
   try {
@@ -70,205 +53,235 @@ if (pendingRequests.length > 0) {
     const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
     for (const req of pendingRequests) {
-      let isPaid = false;
+      if (!req.stripeSessionId) continue;
 
-      if (req.stripeSessionId) {
-        // Direct lookup by session ID
-        const cs = await stripe.checkout.sessions.retrieve(req.stripeSessionId);
-        isPaid = cs.payment_status === "paid";
-      } else {
-        // Fallback: search recent checkout sessions for this request's metadata
-        const sessions = await stripe.checkout.sessions.list({ limit: 20 });
-        const match = sessions.data.find(
-          (s) =>
-            s.metadata?.requestId === req.id && s.payment_status === "paid",
-        );
-        if (match) {
-          isPaid = true;
-          req.stripeSessionId = match.id;
-        }
-      }
-
-      if (isPaid) {
+      const cs = await stripe.checkout.sessions.retrieve(req.stripeSessionId);
+      if (cs.payment_status === "paid") {
         await db
-          .update(dbSchema.planRequests)
-          .set({
-            status: "paid",
-            stripeSessionId: req.stripeSessionId || undefined,
-            updatedAt: new Date(),
-          })
-          .where(eq(dbSchema.planRequests.id, req.id));
+          .update(planRequests)
+          .set({ status: "paid", updatedAt: new Date() })
+          .where(eq(planRequests.id, req.id));
       }
     }
-    // Re-fetch after updates
-    requests = await db.query.planRequests.findMany({
-      where: eq(dbSchema.planRequests.userId, user.id),
-      orderBy: [desc(dbSchema.planRequests.createdAt)],
-    });
+    requests = await db.select().from(planRequests)
+      .where(eq(planRequests.userId, user.id))
+      .orderBy(desc(planRequests.createdAt));
   } catch (err) {
     console.error("Stripe sweep error:", err);
   }
 }
 
-// A helper for status badges
+const totalPlans = requests.length;
+const inProgress = requests.filter(r => r.status === "paid").length;
+const delivered = requests.filter(r => r.status === "delivered").length;
+const pendingPayment = requests.filter(r => r.status === "pending_payment").length;
+const initials = user.name
+  ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+  : "U";
+
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "pending_payment":
-      return {
-        label: "Pending Payment",
-        variant: "destructive",
-        className: "",
-      };
+      return { label: "Pending Payment", className: "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/15" };
     case "paid":
-      return {
-        label: "In Progress (72-96 hrs)",
-        variant: "default",
-        className: "bg-amber-500 hover:bg-amber-600 text-amber-50",
-      };
+      return { label: "In Progress", className: "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/15" };
     case "delivered":
-      return {
-        label: "Delivered",
-        variant: "default",
-        className: "bg-green-600 hover:bg-green-700 text-green-50",
-      };
+      return { label: "Delivered", className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/15" };
     default:
-      return { label: status, variant: "secondary", className: "" };
+      return { label: status, className: "" };
   }
+};
+
+const iconPaths = {
+  total: `<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>`,
+  progress: `<path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/>`,
+  delivered: `<path d="M20 6 9 17l-5-5"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>`,
+  clock: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+  plus: `<path d="M5 12h14M12 5v14"/>`,
+  file: `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>`,
+  download: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>`,
+  card: `<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>`,
 };
 ---
 
 <DashboardLayout title="Dashboard - BuffBook" user={user}>
   <div class="max-w-6xl mx-auto space-y-8">
-    <!-- Greeting -->
-    <div
-      class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-    >
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight text-foreground">
-          Welcome back{user.name ? `, ${user.name.split(" ")[0]}` : ""}.
-        </h1>
-        <p class="text-muted-foreground mt-1">
-          Manage and track your custom gym plans.
-        </p>
+
+    <!-- Saved banner -->
+    {Astro.url.searchParams.get("saved") && (
+      <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl p-4 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="text-sm font-medium">Your plan request has been saved. You can complete the payment whenever you're ready.</span>
       </div>
-      <a href="/custom-plans/apply">
-        <Button className="font-bold">Request New Plan</Button>
-      </a>
+    )}
+
+    <!-- Welcome card -->
+    <Card class="border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-primary/3 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+      <CardContent class="p-6 sm:p-8 relative">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <div class="h-14 w-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+              <span class="text-xl font-black text-primary">{initials}</span>
+            </div>
+            <div>
+              <h1 class="text-2xl font-black tracking-tight text-foreground">
+                Welcome back{user.name ? `, ${user.name.split(" ")[0]}` : ""}
+              </h1>
+              <p class="text-sm text-muted-foreground mt-0.5">{user.email}</p>
+            </div>
+          </div>
+          <div class="flex gap-3 w-full sm:w-auto">
+            <a href="/custom-plans/apply" class="flex-1 sm:flex-none">
+              <Button size="lg" class="w-full font-bold shadow-md shadow-primary/20 animate-pulse-glow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2" set:html={iconPaths.plus} />
+                New Plan
+              </Button>
+            </a>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Stats cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm hover:border-primary/20 transition-colors">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths.total} />
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{totalPlans}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Plans</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm hover:border-amber-500/20 transition-colors">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-amber-500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths.progress} />
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{inProgress}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">In Progress</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm hover:border-emerald-500/20 transition-colors">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-emerald-500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths.delivered} />
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{delivered}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm hover:border-destructive/20 transition-colors">
+        <CardContent class="p-5 flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-destructive" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths.clock} />
+          </div>
+          <div>
+            <span class="text-2xl font-black text-foreground tracking-tight">{pendingPayment}</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Pending</span>
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
-    <!-- Stat cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Plans</span>
-        <span class="text-3xl font-black text-foreground tracking-tight">{requests.length}</span>
-      </div>
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">In Progress</span>
-        <span class="text-3xl font-black text-primary tracking-tight">{requests.filter(r => r.status === "paid").length}</span>
-      </div>
-      <div class="rounded-xl border bg-card p-5 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivered</span>
-        <span class="text-3xl font-black tracking-tight" style="color: hsl(142 71% 45%)">{requests.filter(r => r.status === "delivered").length}</span>
-      </div>
-    </div>
+    <Separator class="opacity-40" />
 
-    <Separator className="opacity-50" />
-
-    <div class="border rounded-xl bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date Requested</TableHead>
-            <TableHead>Plan Details</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {
-            requests.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="h-56 text-center text-muted-foreground"
-                >
-                  <div class="flex flex-col items-center gap-4">
-                    <div class="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground/60"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                    </div>
-                    <div>
-                      <p class="font-semibold text-foreground mb-1">No plans yet</p>
-                      <p class="text-sm mb-4">Get a hand-crafted hypertrophy plan built just for you.</p>
-                    </div>
-                    <a href="/custom-plans/apply">
-                      <Button size="sm" className="font-bold">
-                        Get Your First Plan
-                      </Button>
-                    </a>
-                  </div>
-                </TableCell>
+    <!-- Plans table -->
+    <Card class="border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <CardHeader class="pb-3">
+        <div class="flex items-center justify-between">
+          <CardTitle class="text-lg font-bold">Your Plans</CardTitle>
+          {requests.length > 0 && (
+            <span class="text-xs text-muted-foreground font-medium">{requests.length} plan{requests.length !== 1 ? "s" : ""}</span>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent class="p-0">
+        {requests.length === 0 ? (
+          <div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div class="h-16 w-16 rounded-2xl bg-muted/60 border border-border/50 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground/40" set:html={iconPaths.file} />
+            </div>
+            <h3 class="text-base font-bold text-foreground mb-1">No plans yet</h3>
+            <p class="text-sm text-muted-foreground mb-6 max-w-sm">
+              Get a hand-crafted hypertrophy plan built specifically for your body, goals, and experience level.
+            </p>
+            <a href="/custom-plans/apply">
+              <Button size="lg" class="font-bold shadow-md shadow-primary/20 animate-pulse-glow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2" set:html={iconPaths.plus} />
+                Get Your First Plan
+              </Button>
+            </a>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow class="hover:bg-transparent">
+                <TableHead class="w-[140px]">Date</TableHead>
+                <TableHead>Plan</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead class="text-right">Action</TableHead>
               </TableRow>
-            ) : (
-              requests.map((req) => {
+            </TableHeader>
+            <TableBody>
+              {requests.map((req) => {
                 const status = getStatusBadge(req.status);
                 let subtext = "";
-                if (req.status === "pending_payment")
-                  subtext = "Checkout interrupted. Contact support.";
-                else if (req.status === "paid")
-                  subtext = "Being crafted by our coaches.";
-                else if (req.status === "delivered")
-                  subtext = "Ready for download.";
+                if (req.status === "pending_payment") subtext = "Complete payment to begin.";
+                else if (req.status === "paid") subtext = "Your plan is being crafted — 72-96 hours.";
+                else if (req.status === "delivered") subtext = "Ready for download.";
 
                 return (
-                  <TableRow>
-                    <TableCell className="font-medium text-muted-foreground whitespace-nowrap">
-                      {new Date(req.createdAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                  <TableRow class="group">
+                    <TableCell class="text-muted-foreground text-sm tabular-nums">
+                      {new Date(req.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
                     </TableCell>
                     <TableCell>
-                      <div class="font-semibold text-foreground">
-                        Hypertrophy Plan
-                      </div>
-                      <div class="text-xs text-muted-foreground">{subtext}</div>
+                      <div class="font-semibold text-foreground">Hypertrophy Plan</div>
+                      <div class="text-xs text-muted-foreground mt-0.5">{subtext}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={status.variant as any}
-                        className={`rounded-sm whitespace-nowrap ${status.className}`}
-                      >
-                        {status.label}
-                      </Badge>
+                      <Badge variant="outline" class={`font-medium text-xs ${status.className}`}>{status.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell class="text-right">
                       {req.status === "delivered" ? (
                         <a href={`/api/download/${req.id}`} target="_blank">
-                          <Button variant="outline" size="sm">
-                            Download PDF
+                          <Button variant="outline" size="sm" class="group-hover:border-primary/30 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5" set:html={iconPaths.download} />
+                            Download
                           </Button>
                         </a>
                       ) : req.status === "pending_payment" ? (
                         <form method="POST" action="/api/stripe/create-checkout" class="inline">
+                          <CsrfInput />
                           <input type="hidden" name="requestId" value={req.id} />
-                          <Button variant="default" size="sm" type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-md glow-sm animate-pulse-glow">
-                            Complete Payment
+                          <Button variant="default" size="sm" type="submit" class="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-sm animate-pulse-glow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5" set:html={iconPaths.card} />
+                            Pay €30
                           </Button>
                         </form>
                       ) : (
-                        <Button variant="outline" size="sm" disabled>
-                          Download PDF
-                        </Button>
+                        <Button variant="outline" size="sm" disabled>Download</Button>
                       )}
                     </TableCell>
                   </TableRow>
                 );
-              })
-            )
-          }
-        </TableBody>
-      </Table>
-    </div>
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+
   </div>
 </DashboardLayout>

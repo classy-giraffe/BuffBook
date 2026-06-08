@@ -1,18 +1,14 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
+import { isAdmin } from "@lib/admin";
 
 export const prerender = false;
 
 export const GET: APIRoute = async (ctx) => {
-  const { user } = ctx.locals;
-  
-  const ADMIN_EMAIL = env.ADMIN_EMAIL;
-  const isAdmin = user ? user.email === ADMIN_EMAIL : false;
+  const isUserAdmin = isAdmin(ctx.locals.user, env.ADMIN_EMAIL);
 
-  return new Response(JSON.stringify({ isAdmin }), {
+  return new Response(JSON.stringify({ isAdmin: isUserAdmin }), {
     status: 200,
-    headers: {
-      "Content-Type": "application/json"
-    }
+    headers: { "Content-Type": "application/json" },
   });
 };

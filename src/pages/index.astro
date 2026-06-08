@@ -5,12 +5,10 @@ import { Separator } from "@components/ui/separator";
 import { Badge } from "@components/ui/badge";
 import { Card, CardContent } from "@components/ui/card";
 import { Alert, AlertDescription } from "@components/ui/alert";
-import { PlanTabs } from "../components/PlanTabs";
-import { DefinitionsHover } from "../components/DefinitionsHover";
-import "../styles/global.css";
-
-import { chapters } from "../data/chapters";
-import MarketingLayout from "../layouts/MarketingLayout.astro";
+import { PlanTabs } from "@components/PlanTabs";
+import { DefinitionsHover } from "@components/DefinitionsHover";
+import { chapters } from "@data/chapters";
+import MarketingLayout from "@layouts/MarketingLayout.astro";
 
 // Lucide-style icons for each chapter (as inline SVGs for zero-JS)
 const chapterIcons = [
@@ -407,7 +405,7 @@ const chapterIcons = [
     </section>
 
     <script>
-      import "../lib/scroll-animations";
+      import "@lib/scroll-animations";
     </script>
 
 </MarketingLayout>

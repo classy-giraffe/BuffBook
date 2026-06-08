@@ -279,7 +279,7 @@ export default defineConfig({
   }), sitemap({
     filter: (page) =>
       page !== "https://buffbook.org/admin" &&
-      page !== "https://buffbook.org/api/admin/setup" &&
+      page !== "https://buffbook.org/api/admin/create-admin" &&
       page !== "https://buffbook.org/api/admin/upload-plan"
   }), react()],
 
@@ -289,6 +289,11 @@ export default defineConfig({
     resolve: {
       alias: {
         '@components': resolve(__dirname, './src/components'),
+        '@lib': resolve(__dirname, './src/lib'),
+        '@db': resolve(__dirname, './src/db'),
+        '@pages': resolve(__dirname, './src/pages'),
+        '@layouts': resolve(__dirname, './src/layouts'),
+        '@data': resolve(__dirname, './src/data'),
       },
     },
     plugins: [tailwindcss()],

@@ -1,6 +1,6 @@
 import Stripe from "stripe";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../db/schema";
+import { getDb } from "@lib/db";
+import { planRequests } from "@db/schema";
 import { eq } from "drizzle-orm";
 
 type CreateCheckoutParams = {
@@ -9,7 +9,7 @@ type CreateCheckoutParams = {
   customerEmail: string;
   siteUrl: string;
   cancelUrl: string;
-  db: D1Database;
+  env: Env;
 };
 
 export async function createCheckoutSession({
@@ -18,7 +18,7 @@ export async function createCheckoutSession({
   customerEmail,
   siteUrl,
   cancelUrl,
-  db,
+  env,
 }: CreateCheckoutParams): Promise<string> {
   const stripe = new Stripe(stripeSecretKey);
 
@@ -50,11 +50,11 @@ export async function createCheckoutSession({
     throw new Error("Failed to create Stripe session");
   }
 
-  const orm = drizzle(db, { schema: dbSchema });
-  await orm
-    .update(dbSchema.planRequests)
+  const db = getDb(env);
+  await db
+    .update(planRequests)
     .set({ stripeSessionId: stripeSession.id, updatedAt: new Date() })
-    .where(eq(dbSchema.planRequests.id, requestId));
+    .where(eq(planRequests.id, requestId));
 
   return stripeSession.url;
 }

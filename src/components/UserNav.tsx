@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +10,17 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { User, Settings, LogOut } from "lucide-react";
-import { authClient } from "../lib/auth-client";
+import { Settings, LogOut } from "lucide-react";
+import { authClient } from "@lib/auth-client";
 import { AccountSettings } from "./AccountSettings";
 
-export function UserNav({ user }: { user: any }) {
+interface UserNavUser {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+export function UserNav({ user }: { user: UserNavUser }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleSignOut = async () => {

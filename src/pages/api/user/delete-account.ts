@@ -1,44 +1,46 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../../db/schema";
+import { getDb } from "@lib/db";
 import { eq } from "drizzle-orm";
+import { planRequests, session, account, verification, user as userTable } from "@db/schema";
 
 export const prerender = false;
 
 export const POST: APIRoute = async (ctx) => {
-  const { user, session } = ctx.locals;
+  const { user, userSession } = ctx.locals;
 
-  if (!user || !session) {
+  if (!user || !userSession) {
     return new Response("Unauthorized", { status: 401 });
   }
 
   try {
-    const db = drizzle(env.DB, { schema: dbSchema });
+    const db = getDb(env);
 
-    await db.delete(dbSchema.planRequests)
-      .where(eq(dbSchema.planRequests.userId, user.id));
+    const plans = await db.select({ pdfKey: planRequests.pdfKey })
+      .from(planRequests)
+      .where(eq(planRequests.userId, user.id));
 
-    await db.delete(dbSchema.session)
-      .where(eq(dbSchema.session.userId, user.id));
+    for (const plan of plans) {
+      if (plan.pdfKey) {
+        await env.PLANS_BUCKET.delete(plan.pdfKey);
+      }
+    }
 
-    await db.delete(dbSchema.account)
-      .where(eq(dbSchema.account.userId, user.id));
+    await db.delete(planRequests).where(eq(planRequests.userId, user.id));
+    await db.delete(session).where(eq(session.userId, user.id));
+    await db.delete(account).where(eq(account.userId, user.id));
 
-    await db.delete(dbSchema.verification)
-      .where(eq(dbSchema.verification.identifier, user.email));
+    if (user.email) {
+      await db.delete(verification).where(eq(verification.identifier, user.email));
+    }
 
-    await db.delete(dbSchema.user)
-      .where(eq(dbSchema.user.id, user.id));
+    await db.delete(userTable).where(eq(userTable.id, user.id));
 
     const headers = new Headers();
     headers.append("Set-Cookie", "buffbook-session-token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
     headers.append("Content-Type", "application/json");
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers
-    });
+    return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
     console.error("Account deletion error:", err);
     return new Response("Internal Server Error", { status: 500 });

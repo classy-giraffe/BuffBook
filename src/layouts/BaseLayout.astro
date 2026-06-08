@@ -1,0 +1,51 @@
+---
+import ThemeInitScript from "../components/shared/ThemeInitScript.astro";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  bodyClass?: string;
+  ogImage?: string;
+  ogType?: string;
+}
+
+const {
+  title = "BuffBook",
+  description = "A comprehensive, evidence-based guide to muscle hypertrophy and resistance training.",
+  bodyClass = "",
+  ogImage = "/favicon.svg",
+  ogType = "website",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="BuffBook" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <ThemeInitScript />
+    <slot name="head" />
+  </head>
+
+  <body class={`bg-background text-foreground font-sans antialiased relative min-h-screen${bodyClass ? ` ${bodyClass}` : ""}`}>
+    <slot />
+  </body>
+</html>

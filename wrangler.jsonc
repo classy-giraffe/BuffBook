@@ -7,7 +7,8 @@
 	"name": "buffbook",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"vars": {
-		"BETTER_AUTH_URL": "https://buffbook.org"
+		"BETTER_AUTH_URL": "https://buffbook.org",
+		"GA_MEASUREMENT_ID": "G-NG1D7QNQS7"
 	},
 	"assets": {
 		"directory": "./dist",

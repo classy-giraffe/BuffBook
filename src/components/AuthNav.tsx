@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { UserNav } from "./UserNav";
-import { authClient } from "../lib/auth-client";
+import { authClient } from "@lib/auth-client";
 import { LogIn } from "lucide-react";
+import type { User } from "better-auth";
 
 export function AuthNav() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

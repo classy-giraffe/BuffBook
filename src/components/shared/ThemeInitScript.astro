@@ -1,0 +1,5 @@
+<script is:inline>
+  const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+  const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+</script>

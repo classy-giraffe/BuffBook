@@ -1,27 +1,24 @@
 ---
 import { env } from "cloudflare:workers";
-import DashboardLayout from "../../../components/DashboardLayout.astro";
+import DashboardLayout from "@components/DashboardLayout.astro";
+import CsrfInput from "@components/shared/CsrfInput.astro";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@components/ui/card";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { CheckCircle2, ChevronLeft } from "lucide-react";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../../db/schema";
+import { Separator } from "@components/ui/separator";
+import { getDb } from "@lib/db";
+import { planRequests, user as userTable } from "@db/schema";
 import { eq } from "drizzle-orm";
-import "../../../styles/global.css";
+import { isAdmin } from "@lib/admin";
 
 export const prerender = false;
 
 const { user } = Astro.locals;
-const ADMIN_EMAIL = env.ADMIN_EMAIL;
 
-if (!user || !ADMIN_EMAIL) {
+if (!user || !isAdmin(user, env.ADMIN_EMAIL)) {
   return Astro.redirect("/admin/login");
-}
-if (user.email !== ADMIN_EMAIL) {
-  return Astro.redirect("/dashboard");
 }
 
 const { id } = Astro.params;
@@ -29,173 +26,243 @@ if (!id) {
   return Astro.redirect("/admin/dashboard");
 }
 
-const db = drizzle(env.DB, { schema: dbSchema });
+const db = getDb(env);
 
-const result = await db
-  .select({
-    request: dbSchema.planRequests,
-    user: {
-      email: dbSchema.user.email,
-      name: dbSchema.user.name,
-    }
-  })
-  .from(dbSchema.planRequests)
-  .leftJoin(dbSchema.user, eq(dbSchema.planRequests.userId, dbSchema.user.id))
-  .where(eq(dbSchema.planRequests.id, id))
+const request = await db.select({
+  request: planRequests,
+  user: { email: userTable.email, name: userTable.name },
+}).from(planRequests)
+  .leftJoin(userTable, eq(planRequests.userId, userTable.id))
+  .where(eq(planRequests.id, id))
   .limit(1);
 
-const orderData = result[0];
-
-if (!orderData) {
+const data = request[0];
+if (!data) {
   return Astro.redirect("/admin/dashboard");
 }
 
-const { request, user: requestUser } = orderData;
-
-const getStatusDetails = (status: string) => {
+const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'paid': return { label: 'Needs Fulfillment', variant: 'destructive' as const };
-    case 'delivered': return { label: 'Delivered', variant: 'default' as const };
-    default: return { label: status, variant: 'secondary' as const };
+    case "paid":
+      return { label: "Needs Fulfillment", className: "bg-destructive/10 text-destructive border-destructive/20" };
+    case "delivered":
+      return { label: "Delivered", className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
+    default:
+      return { label: status, className: "" };
   }
 };
 
-const status = getStatusDetails(request.status);
+const row = data.request;
+const customer = data.user;
+const initials = customer?.name
+  ? customer.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+  : "?";
 ---
 
-<DashboardLayout title={`Order - ${requestUser?.email}`} user={user}>
-  <div class="max-w-6xl mx-auto space-y-8 pb-16">
-    <div>
-      <a href="/admin/dashboard" class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-6">
-        <ChevronLeft className="w-4 h-4" />
-        Back to Orders
-      </a>
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h1 class="text-3xl font-black tracking-tight text-foreground">Order Details</h1>
-          <p class="text-muted-foreground mt-1 text-lg">Client: {requestUser?.email}</p>
+<DashboardLayout title={`Order ${id}`} user={user}>
+  <div class="max-w-4xl mx-auto space-y-6">
+    <a href="/admin/dashboard" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-0.5 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+      Back to Orders
+    </a>
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="h-12 w-12 rounded-xl bg-muted border border-border flex items-center justify-center flex-shrink-0">
+          <span class="text-sm font-black text-muted-foreground">{initials}</span>
         </div>
         <div>
-          <Badge variant={status.variant} className="text-sm px-3 py-1 uppercase tracking-widest rounded-sm">
-            {status.label}
-          </Badge>
+          <h1 class="text-2xl font-black tracking-tight text-foreground">{row.name || "Unknown"}</h1>
+          <p class="text-sm text-muted-foreground">{customer?.email || "—"} · {new Date(row.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
       </div>
+      <Badge variant="outline" class={`px-3 py-1 text-sm font-medium ${getStatusBadge(row.status).className}`}>
+        {getStatusBadge(row.status).label}
+      </Badge>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Left Column */}
-      <div class="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-black uppercase tracking-wide text-foreground border-b border-border pb-3">Training Preferences</CardTitle>
+    <Separator class="opacity-40" />
+
+    <!-- Grid layout for details -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- Customer Info -->
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm lg:col-span-2">
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Customer
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Age</span>
+              <p class="font-semibold text-foreground">{row.age || "—"}</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Weight</span>
+              <p class="font-semibold text-foreground">{row.weight || "—"} kg</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Height</span>
+              <p class="font-semibold text-foreground">{row.height || "—"} cm</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Order ID</span>
+              <p class="font-semibold text-foreground text-xs font-mono">{row.id.slice(0, 8)}...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Training Setup -->
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="6" x="2" y="4" rx="2"/><rect width="8" height="6" x="8" y="14" rx="1"/></svg>
+            Training Setup
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Frequency</span>
+              <p class="font-semibold text-foreground text-sm">{row.trainingFrequency} days/week</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Equipment</span>
+              <p class="font-semibold text-foreground text-sm">{row.equipment}</p>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Training Days</span>
+            <div class="flex flex-wrap gap-1.5 mt-1">
+              {row.trainingDays?.split(",").map((day: string) => (
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[0.65rem] font-bold text-primary">{day.trim()}</span>
+              ))}
+            </div>
+          </div>
+          {row.equipmentDetails && (
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Notes</span>
+              <p class="text-sm text-muted-foreground">{row.equipmentDetails}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <!-- Goals -->
+      <Card class="border-border/60 bg-card/50 backdrop-blur-sm">
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Goals & Experience
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-3">
+          {row.failureExp && (
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Failure Experience</span>
+              <p class="text-sm text-muted-foreground">{row.failureExp}</p>
+            </div>
+          )}
+          {row.goals && (
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Primary Goals</span>
+              <p class="text-sm text-muted-foreground">{row.goals}</p>
+            </div>
+          )}
+          {row.weakPoints && (
+            <div class="space-y-1">
+              <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Weak Points</span>
+              <p class="text-sm text-muted-foreground">{row.weakPoints}</p>
+            </div>
+          )}
+          {!row.failureExp && !row.goals && !row.weakPoints && (
+            <p class="text-sm text-muted-foreground italic">No goals data provided.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <!-- Preferences & Medical -->
+      {(row.injuries || row.likedExercises || row.dislikedExercises) && (
+        <Card class="border-border/60 bg-card/50 backdrop-blur-sm lg:col-span-2">
+          <CardHeader class="pb-3">
+            <CardTitle class="text-base font-bold flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              Preferences & Medical
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul class="space-y-3 text-muted-foreground text-sm leading-relaxed">
-              <li><strong class="text-foreground">Frequency:</strong> {request.trainingFrequency} days/week</li>
-              <li><strong class="text-foreground">Available Days:</strong> {request.trainingDays}</li>
-              <li><strong class="text-foreground">Equipment:</strong> {request.equipment} {request.equipmentDetails ? `(${request.equipmentDetails})` : ''}</li>
-              <li><strong class="text-foreground">Failure Exp:</strong> {request.failureExp}</li>
-              <li><strong class="text-foreground">Injuries/Limitations:</strong> <span class="text-destructive font-medium">{request.injuries || 'None'}</span></li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Right Column */}
-      <div class="space-y-8 flex flex-col">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-black uppercase tracking-wide text-foreground border-b border-border pb-3">Goals & Focus</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Primary Goals</div>
-              <div class="bg-muted/30 p-4 rounded-lg border border-border text-muted-foreground text-sm leading-relaxed">
-                {request.goals}
-              </div>
-            </div>
-
-            <div>
-              <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Weak Points to Focus</div>
-              <div class="bg-muted/30 p-4 rounded-lg border border-border text-muted-foreground text-sm leading-relaxed">
-                {request.weakPoints || 'None specified'}
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Liked Exercises</div>
-                <div class="bg-primary/5 border border-primary/20 p-4 rounded-lg text-primary text-sm leading-relaxed font-medium">
-                  {request.likedExercises || 'None specified'}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {row.injuries && (
+                <div class="space-y-1">
+                  <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Injuries</span>
+                  <p class="text-sm text-muted-foreground">{row.injuries}</p>
                 </div>
-              </div>
-              <div>
-                <div class="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">Disliked Exercises</div>
-                <div class="bg-destructive/5 border border-destructive/20 p-4 rounded-lg text-destructive text-sm leading-relaxed font-medium">
-                  {request.dislikedExercises || 'None specified'}
+              )}
+              {row.likedExercises && (
+                <div class="space-y-1">
+                  <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Liked Exercises</span>
+                  <p class="text-sm text-muted-foreground">{row.likedExercises}</p>
                 </div>
-              </div>
+              )}
+              {row.dislikedExercises && (
+                <div class="space-y-1">
+                  <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Disliked Exercises</span>
+                  <p class="text-sm text-muted-foreground">{row.dislikedExercises}</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
+      )}
 
-        {/* Action Area */}
-        <div class="mt-auto">
-          {request.status === 'paid' && (
-            <Card className="border-primary/50 bg-primary/5 shadow-lg shadow-primary/5">
-              <CardHeader>
-                <CardTitle className="text-xl text-primary font-bold">Fulfill Order</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p class="text-sm text-muted-foreground mb-6">Upload the completed custom plan PDF. This will notify the client and mark the order as delivered.</p>
-                <form action="/api/admin/upload-plan" method="post" enctype="multipart/form-data" class="space-y-4">
-                  <input type="hidden" name="requestId" value={request.id} />
-                  <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="pdf">Plan PDF Document</Label>
-                    <Input id="pdf" name="pdf" type="file" accept="application/pdf" required className="bg-background cursor-pointer" />
-                  </div>
-                  <Button type="submit" size="lg" className="w-full font-bold">Upload PDF & Complete Order</Button>
-                </form>
-              </CardContent>
-            </Card>
-          )}
-
-          {request.status === 'delivered' && (
-            <Card className="border-green-500/30 bg-green-500/5">
-              <CardContent className="pt-8 pb-6 flex flex-col items-center text-center">
-                <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-green-500" />
-                </div>
-                <h4 class="text-xl font-bold text-green-500 mb-2">Order Completed</h4>
-                <p class="text-sm text-muted-foreground mb-6">This custom plan was successfully delivered.</p>
-                
-                <a href={`/api/download/${request.id}`} target="_blank" class="w-full mb-6">
-                  <Button variant="outline" className="w-full border-green-500/50 text-green-600 hover:bg-green-500/10 hover:text-green-700">
-                    View Uploaded PDF
-                  </Button>
-                </a>
-                
-                <div class="w-full pt-6 border-t border-dashed border-green-500/30 text-left">
-                  <details class="group">
-                    <summary class="cursor-pointer text-sm font-medium text-primary hover:text-primary/80 transition-colors list-none flex items-center">
-                      <span class="border-b border-primary/30 group-hover:border-primary">Made a mistake? Update PDF</span>
-                    </summary>
-                    <form action="/api/admin/upload-plan" method="post" enctype="multipart/form-data" class="mt-4 space-y-4 p-4 bg-background rounded-lg border border-border shadow-inner">
-                      <input type="hidden" name="requestId" value={request.id} />
-                      <div class="grid w-full items-center gap-1.5">
-                        <Label htmlFor="new-pdf" className="text-xs">New PDF Document</Label>
-                        <Input id="new-pdf" name="pdf" type="file" accept="application/pdf" required className="bg-background cursor-pointer h-9 text-xs" />
-                      </div>
-                      <Button type="submit" variant="secondary" size="sm" className="w-full">Overwrite PDF</Button>
-                    </form>
-                  </details>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
     </div>
+
+    <!-- Upload / Delivered section -->
+    {row.status === "paid" && (
+      <Card class="border-primary/20 bg-primary/[0.02] backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle class="text-base font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Upload Plan PDF
+          </CardTitle>
+          <CardDescription>Upload the completed training plan to mark this order as delivered.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form method="POST" action="/api/admin/upload-plan" enctype="multipart/form-data" class="space-y-4">
+            <CsrfInput />
+            <input type="hidden" name="requestId" value={row.id} />
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+              <div class="flex-1 w-full space-y-1.5">
+                <Label htmlFor="pdf" class="text-xs font-semibold">PDF File (max 50MB)</Label>
+                <Input id="pdf" name="pdf" type="file" accept="application/pdf" required class="cursor-pointer file:cursor-pointer" />
+              </div>
+              <Button type="submit" size="lg" class="w-full sm:w-auto font-bold shadow-md shadow-primary/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                Upload & Mark Delivered
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    )}
+
+    {row.status === "delivered" && (
+      <Card class="border-emerald-500/20 bg-emerald-500/[0.02] backdrop-blur-sm">
+        <CardContent class="p-6 flex items-center gap-4">
+          <div class="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-emerald-500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-foreground">Plan Delivered</h3>
+            <p class="text-sm text-muted-foreground">This order has been fulfilled and the PDF has been uploaded.</p>
+          </div>
+        </CardContent>
+      </Card>
+    )}
   </div>
 </DashboardLayout>

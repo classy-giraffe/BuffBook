@@ -2,7 +2,7 @@ const PBKDF2_ITERATIONS = 100000;
 const SALT_BYTES = 32;
 
 function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 function hexToBytes(hex: string): Uint8Array | null {
@@ -28,8 +28,17 @@ export async function hashPassword(password: string): Promise<string> {
   return `${bytesToHex(salt)}:${bytesToHex(new Uint8Array(hash))}`;
 }
 
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
 export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
-  const parts = storedHash.split(':');
+  const parts = storedHash.split(":");
   if (parts.length !== 2) return false;
   const [saltHex, originalHashHex] = parts;
 
@@ -49,14 +58,6 @@ export async function verifyPassword(password: string, storedHash: string): Prom
     key,
     256
   );
-  if (bytesToHex(new Uint8Array(newHash)) === originalHashHex) return true;
 
-  if (salt.length !== 16) return false;
-
-  const oldHash = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: salt as BufferSource, iterations: 10000, hash: "SHA-256" },
-    key,
-    256
-  );
-  return bytesToHex(new Uint8Array(oldHash)) === originalHashHex;
+  return constantTimeEqual(bytesToHex(new Uint8Array(newHash)), originalHashHex);
 }

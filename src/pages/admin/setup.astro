@@ -1,118 +1,58 @@
 ---
-import DashboardLayout from "../../components/DashboardLayout.astro";
+import DashboardLayout from "@components/DashboardLayout.astro";
+import CsrfInput from "@components/shared/CsrfInput.astro";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
+  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter,
 } from "@components/ui/card";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../db/schema";
+import { getDb } from "@lib/db";
+import { user as userTable } from "@db/schema";
+import { eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 
 export const prerender = false;
 
-// We check if the admin already exists
-const db = drizzle(env.DB, { schema: dbSchema });
-
+const db = getDb(env);
 const ADMIN_EMAIL = env.ADMIN_EMAIL;
 if (!ADMIN_EMAIL) {
-  return new Response("ADMIN_EMAIL environment variable not set.", {
-    status: 500,
-  });
+  return new Response("ADMIN_EMAIL not configured", { status: 500 });
 }
 
-const existingAdmin = await db.query.user.findFirst({
-  where: (users, { eq }) => eq(users.email, ADMIN_EMAIL),
-});
-
-if (existingAdmin) {
-  return Astro.redirect("/login");
-}
+const existingAdmin = await db.select().from(userTable).where(eq(userTable.email, ADMIN_EMAIL)).get();
 ---
 
-<DashboardLayout title="Admin Setup - BuffBook" user={null}>
-  <div class="min-h-[80vh] flex items-center justify-center p-6">
-    <Card
-      className="w-full max-w-md glass border-primary/20 shadow-2xl relative overflow-hidden"
-    >
-      <div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
-
-      <CardHeader className="relative z-10 pb-6 text-center">
-        <div
-          class="mx-auto bg-primary/20 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4"
-        >
-          <svg
-            class="w-6 h-6 text-primary"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            ></path>
-          </svg>
-        </div>
-        <CardTitle className="text-3xl font-black tracking-tight"
-          >Admin Setup</CardTitle
-        >
-        <CardDescription className="text-base mt-2">
-          Initialize your admin account. Since public signups are blocked for
-          your email, you must set your password here.
+<DashboardLayout title="Admin Setup - BuffBook">
+  <div class="max-w-md mx-auto pt-16">
+    <Card>
+      <CardHeader>
+        <CardTitle>Admin Setup</CardTitle>
+        <CardDescription>
+          {existingAdmin
+            ? "Admin account already exists."
+            : "Set your admin password. This page is protected by Cloudflare Zero Trust in production."}
         </CardDescription>
       </CardHeader>
-
-      <form action="/api/admin/setup" method="post">
-        <CardContent className="relative z-10 space-y-4">
-          <div class="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-xs uppercase font-bold tracking-wider text-muted-foreground"
-              >Admin Email</Label
-            >
-            <Input
-              id="email"
-              type="email"
-              value={ADMIN_EMAIL}
-              disabled
-              className="bg-muted/50 font-medium"
-            />
+      <CardContent>
+        {existingAdmin ? (
+          <div class="text-center text-muted-foreground py-4">
+            Admin account is already configured.
           </div>
-          <div class="space-y-2">
-            <Label
-              htmlFor="password"
-              className="text-xs uppercase font-bold tracking-wider text-muted-foreground"
-              >Set Password</Label
-            >
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="Choose a strong password"
-              className="border-primary/20 focus-visible:ring-primary"
-            />
-          </div>
-        </CardContent>
-
-        <CardFooter className="relative z-10 pt-4">
-          <Button
-            type="submit"
-            className="w-full font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
-          >
-            Initialize Admin Account
-          </Button>
-        </CardFooter>
-      </form>
+        ) : (
+          <form method="POST" action="/api/admin/create-admin" class="space-y-4">
+            <CsrfInput />
+            <div class="space-y-2">
+              <Label htmlFor="password">Admin Password</Label>
+              <Input id="password" name="password" type="password" required placeholder="Min. 12 characters" minLength={12} />
+            </div>
+            <Button type="submit" className="w-full font-bold">Create Admin Account</Button>
+          </form>
+        )}
+      </CardContent>
+      <CardFooter className="justify-center">
+        <a href="/admin/login" class="text-sm text-muted-foreground hover:text-foreground transition-colors">← Back to Admin Login</a>
+      </CardFooter>
     </Card>
   </div>
 </DashboardLayout>

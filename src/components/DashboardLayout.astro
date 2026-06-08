@@ -1,35 +1,27 @@
 ---
-import Topbar from "./Topbar.astro";
-import "../styles/global.css";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Topbar from "../components/Topbar.astro";
 
 interface Props {
   title?: string;
-  user?: any;
+  description?: string;
+  user?: import("better-auth").User;
 }
 
-const { title = "Dashboard — BuffBook", user } = Astro.props;
+const {
+  title = "Dashboard — BuffBook",
+  description = "Manage your custom training plans and account settings on BuffBook.",
+  user,
+} = Astro.props;
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title}</title>
-    <script is:inline>
-      const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
-      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
-    </script>
-  </head>
-  <body class="min-h-screen bg-background text-foreground font-sans antialiased relative">
-    {/* Subtle gradient background instead of full yellowish halo */}
-    <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.05) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 20% 80%, hsl(var(--primary) / 0.03) 0%, transparent 60%);"></div>
-    
-    <Topbar user={user} />
-    
-    <div class="max-w-5xl mx-auto px-6 py-12">
-      <slot />
-    </div>
-  </body>
-</html>
+<BaseLayout title={title} description={description}>
+  <Fragment slot="head">
+    {Astro.locals.csrfToken && <meta name="csrf-token" content={Astro.locals.csrfToken} />}
+  </Fragment>
+  <div class="pointer-events-none fixed inset-0 -z-10" style="background: radial-gradient(ellipse 70% 60% at 50% 40%, hsl(var(--primary) / 0.05) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 20% 80%, hsl(var(--primary) / 0.03) 0%, transparent 60%);"></div>
+  <Topbar user={user} />
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    <slot />
+  </div>
+</BaseLayout>

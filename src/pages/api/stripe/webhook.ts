@@ -1,8 +1,8 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import Stripe from "stripe";
-import { drizzle } from "drizzle-orm/d1";
-import * as dbSchema from "../../../db/schema";
+import { getDb } from "@lib/db";
+import { planRequests } from "@db/schema";
 import { eq } from "drizzle-orm";
 
 export const prerender = false;
@@ -26,10 +26,11 @@ export const POST: APIRoute = async (ctx) => {
       const requestId = session.metadata?.requestId;
 
       if (requestId) {
-        const db = drizzle(env.DB, { schema: dbSchema });
-        await db.update(dbSchema.planRequests)
+        const db = getDb(env);
+        await db
+          .update(planRequests)
           .set({ status: "paid", stripeSessionId: session.id, updatedAt: new Date() })
-          .where(eq(dbSchema.planRequests.id, requestId));
+          .where(eq(planRequests.id, requestId));
       }
     }
 

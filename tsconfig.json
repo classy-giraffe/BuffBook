@@ -7,6 +7,21 @@
     "paths": {
       "@components/*": [
         "./src/components/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@db/*": [
+        "./src/db/*"
+      ],
+      "@pages/*": [
+        "./src/pages/*"
+      ],
+      "@layouts/*": [
+        "./src/layouts/*"
+      ],
+      "@data/*": [
+        "./src/data/*"
       ]
     },
     "jsx": "react-jsx",
