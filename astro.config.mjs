@@ -279,7 +279,8 @@ export default defineConfig({
   }), sitemap({
     filter: (page) =>
       !page.includes("/admin") &&
-      !page.includes("/api/admin")
+      !page.includes("/api/admin") &&
+      !page.includes("/login")
   }), react()],
 
   adapter: cloudflare({}),
